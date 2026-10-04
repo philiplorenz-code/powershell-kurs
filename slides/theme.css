@@ -1,0 +1,42 @@
+:root {
+  --bg: #0b2a4a;
+  --bg2: #0f3a66;
+  --fg: #eef5fc;
+  --muted: #9db8d4;
+  --accent: #7cc4ff;
+  --warn: #ff9c8f;
+  --ok: #6fe0c8;
+  --mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+.reveal-viewport { background: radial-gradient(1200px 700px at 85% 10%, var(--bg2), var(--bg)); }
+.reveal { font-family: var(--sans); font-size: 34px; color: var(--fg); }
+.reveal h1, .reveal h2, .reveal h3 { font-family: var(--sans); color: #fff; text-transform: none; letter-spacing: -0.01em; }
+.reveal h1 { font-size: 2.1em; }
+.reveal h2 { font-size: 1.4em; margin-bottom: 0.6em; }
+.reveal h2::before { content: '> '; color: var(--accent); font-family: var(--mono); }
+.reveal a { color: var(--accent); }
+.reveal ul { display: block; }
+.reveal li { margin: 0.25em 0; }
+.reveal .muted { color: var(--muted); }
+.reveal .prompt { font-family: var(--mono); color: var(--accent); font-size: 0.8em; }
+.reveal .pill { display: inline-block; font-size: 0.5em; font-weight: 700; padding: 0.1em 0.7em; border-radius: 999px; border: 2px solid currentColor; vertical-align: middle; margin-left: 0.5em; }
+.reveal .pill.core { color: var(--accent); }
+.reveal .pill.opt { color: #e0b05a; }
+.reveal .pill.frei { color: var(--warn); }
+.reveal .pill.ok { color: var(--ok); }
+.reveal .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2em; text-align: left; }
+.reveal .cols.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.reveal .card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 0.7em 0.9em; }
+.reveal .card h3 { font-size: 0.9em; margin: 0 0 0.3em; color: var(--accent); }
+.reveal .card ul { font-size: 0.62em; margin: 0; padding-left: 1.1em; }
+.reveal pre { box-shadow: none; width: 100%; font-size: 0.6em; }
+.reveal pre code { border-radius: 10px; padding: 0.8em; }
+.reveal table { font-size: 0.7em; margin: 0 auto; }
+.reveal th, .reveal td { padding: 0.3em 0.7em; border-color: rgba(255,255,255,0.2); }
+.reveal .small { font-size: 0.62em; }
+.reveal .big-claim { font-size: 1.15em; font-weight: 700; line-height: 1.25; }
+.reveal .editable { border: 2px dashed var(--muted); border-radius: 12px; padding: 0.6em 0.9em; color: var(--muted); font-size: 0.7em; text-align: left; }
+.reveal .progress { color: var(--accent); }
+.reveal .slide-number { color: var(--muted); background: transparent; }
+@media print { .reveal-viewport { background: var(--bg) !important; } }
