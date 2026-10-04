@@ -35,6 +35,7 @@ Voraussetzungen: PowerShell 7, Azure CLI (`az login`), Terraform ≥ 1.6.
 ./lab.ps1 deploy          # zeigt Plan und Kosten, fragt nach, erstellt dann alles
 ./lab.ps1 start           # morgens
 ./lab.ps1 end-of-day      # abends: alle VMs deallokieren
+./lab.ps1 reset-all       # alles auf Ursprung (VMs neu, AD neu)
 ./lab.ps1 destroy         # nach dem Kurs
 ```
 

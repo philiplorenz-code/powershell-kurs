@@ -13,6 +13,7 @@
       ./lab.ps1 status            Zustand der VMs, IPs, AD, geschätzte Kosten pro Stunde
       ./lab.ps1 credentials       Zugangsdaten anzeigen (-Export: in .secrets/ speichern)
       ./lab.ps1 test              Smoke-Tests gegen die laufende Umgebung
+      ./lab.ps1 test-exercises    alle Musterlösungen der Übungen im Lab ausführen (optional: Seitenfilter, z. B. tag-2)
       ./lab.ps1 reset-student 2   Teilnehmerumgebung 2 auf Ausgangszustand zurücksetzen
       ./lab.ps1 reset-all         ALLES auf den Ursprung: alle Teilnehmer-VMs neu, AD-Inhalt neu, Passwörter wie bei deploy
       ./lab.ps1 allow-ip 203.0.113.5/32   weitere RDP-Quelladresse freischalten
@@ -22,7 +23,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory)]
-    [ValidateSet('deploy', 'start', 'stop', 'end-of-day', 'status', 'credentials', 'test', 'reset-student', 'reset-all', 'allow-ip', 'cost', 'destroy', 'help')]
+    [ValidateSet('deploy', 'start', 'stop', 'end-of-day', 'status', 'credentials', 'test', 'test-exercises', 'reset-student', 'reset-all', 'allow-ip', 'cost', 'destroy', 'help')]
     [string]$Command,
 
     [Parameter(Position = 1)]
@@ -236,6 +237,12 @@ switch ($Command) {
     'test' {
         Require-Tools; Resolve-Subscription
         & (Join-Path $TestDir 'run-smoke-tests.ps1') -ResourceGroup $Rg -TerraformDir $TfDir
+        exit $LASTEXITCODE
+    }
+
+    'test-exercises' {
+        Require-Tools; Resolve-Subscription
+        & (Join-Path $TestDir 'run-exercise-tests.ps1') -ResourceGroup $Rg -TerraformDir $TfDir -Page $Argument
         exit $LASTEXITCODE
     }
 

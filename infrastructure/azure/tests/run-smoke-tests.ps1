@@ -18,14 +18,22 @@ $notRunning = $vms | Where-Object state -ne 'VM running'
 if ($notRunning) { Write-Host "Nicht alle VMs laufen: $($notRunning.name -join ', '). Bitte './lab.ps1 start'." -ForegroundColor Yellow; exit 2 }
 
 $failed = 0
+function ConvertTo-B64([string]$text) { [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($text)) }
+
 function Invoke-Smoke($vm, $params) {
-    # Parameter über temporäre Datei, damit Passwörter nicht in der Prozessliste landen
+    # Skript und Parameter werden Base64-kodiert übertragen (keine Quoting-Probleme, Passwörter nicht in der Prozessliste)
     $tmp = New-TemporaryFile
     try {
-        $header = '$__p = @{' + (($params.GetEnumerator() | ForEach-Object { "'$($_.Key)' = " + ($_.Value -is [array] ? "@('" + ($_.Value -join "','") + "')" : "'$($_.Value)'") }) -join '; ') + '}' + "`n"
-        $body = (Get-Content $smoke -Raw)
-        # smoke.ps1 beginnt mit param(); Aufruf als Skriptblock mit Splatting
-        $script = $header + '& ([scriptblock]::Create(@''' + "`n" + $body + "`n" + '''@)) @__p'
+        $body   = ConvertTo-B64 (Get-Content $smoke -Raw)
+        $helper = ConvertTo-B64 (Get-Content (Join-Path $PSScriptRoot 'run-as-user.ps1') -Raw)
+        $pjson  = ConvertTo-B64 ($params | ConvertTo-Json -Compress)
+        $script = @"
+`$dec = { param(`$b) [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(`$b)) }
+. ([scriptblock]::Create((& `$dec '$helper')))
+`$o = (& `$dec '$pjson') | ConvertFrom-Json
+`$p = @{}; `$o.PSObject.Properties | ForEach-Object { `$p[`$_.Name] = `$_.Value }   # Run Command nutzt Windows PowerShell 5.1
+& ([scriptblock]::Create((& `$dec '$body'))) @p
+"@
         Set-Content -Path $tmp -Value $script -Encoding utf8
         $raw = az vm run-command invoke -g $ResourceGroup -n $vm --command-id RunPowerShellScript --scripts "@$tmp" --query 'value[0].message' -o tsv
     } finally { Remove-Item $tmp -Force -ErrorAction SilentlyContinue }

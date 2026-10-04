@@ -16,7 +16,7 @@ Alles, was du brauchst, um den Kurs durchzuführen, auch Monate später noch.
 3. **Azure anmelden**: `az login`, dann `az account show` (richtige Subscription?).
 4. **Lab erstellen**: `./lab.ps1 deploy`. Der Befehl zeigt den Plan und die **Kostenschätzung** und fragt nach. Dauer: ca. 30 bis 45 Minuten (Domäne wird aufgebaut, Software installiert).
 5. **Zugangsdaten ansehen**: `./lab.ps1 credentials`. Mit `-Export` landen sie in `.secrets/teilnehmer-zugaenge.csv` (nicht in Git). Nach dem Ausdrucken oder Übergeben löschen.
-6. **Smoke-Tests**: `./lab.ps1 test`. Alles muss grün sein (Domäne, PowerShell 7, Remoting, AD-Objekte, Übungsrechte).
+6. **Smoke-Tests**: `./lab.ps1 test`. Alles muss grün sein (Domäne, PowerShell 7, Remoting, AD-Objekte, Übungsrechte). Optional und gründlicher: `./lab.ps1 test-exercises` führt **alle Musterlösungen** der Übungsseiten als Teilnehmer aus (ca. 15 Minuten, `./lab.ps1 test-exercises tag-2` für einen Tag). Danach ggf. `./lab.ps1 reset-all`.
 7. **Verbindungstest**: Mit RDP auf eine Teilnehmer-VM (Adresse aus `credentials`), Kursseite im Browser, PowerShell 7 starten.
 8. **RDP-Freigabe**: RDP ist nur von **deiner** IP erlaubt. Sitzen die Teilnehmer woanders, gib ihre IPs frei: `./lab.ps1 allow-ip 203.0.113.5/32` (pro Standort einmal).
 9. **Abends nach den Tests**: `./lab.ps1 end-of-day`, damit bis zum Kurs keine Kosten durch laufende VMs entstehen.
@@ -37,6 +37,7 @@ Dann: Folien öffnen, Teilnehmern ihre Zugangsdaten geben (persönlich, nicht pe
 |---|---|
 | Teilnehmer kann sich nicht per RDP verbinden | `./lab.ps1 status` (läuft die VM?). Dann `allow-ip` für seine IP. Auto-Shutdown um 20:00 beachten. |
 | Passwort vergessen | `./lab.ps1 credentials` |
+| Alles zurück auf Anfang (z. B. zwischen zwei Kursen oder nach einem Probelauf) | `./lab.ps1 reset-all` baut alle Teilnehmer-VMs neu auf und setzt Active Directory samt Passwörtern auf den Ursprung zurück (ca. 20 bis 30 Minuten). Der DC bleibt bestehen. |
 | Teilnehmer-VM kaputt | `./lab.ps1 reset-student 2` baut `PSLAB-02` neu auf (ca. 15 bis 20 Minuten, Dateien gehen verloren). In der Zeit zu zweit arbeiten. |
 | Teilnehmer hat AD-Objekte durcheinandergebracht | `reset-student` leert auch seine OU `OU=TNN,OU=Uebung`. Nur die OU leeren: auf DC01 `Get-ADObject -SearchBase "OU=T02,OU=Uebung,OU=Kurs,DC=pslab,DC=internal" -SearchScope OneLevel -Filter * \| Remove-ADObject -Recursive` |
 | AD antwortet nicht | `./lab.ps1 status` zeigt die DC-Dienste. Notfalls DC01 im Portal neu starten. |

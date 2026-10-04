@@ -76,7 +76,6 @@ if ($Role -eq 'Student') {
         T 'Übungs-Check als Teilnehmer (AD, Dienste, Task, CSV)' {
             $check = 'C:\Windows\Temp\uebungs-check.ps1'
             $outF  = 'C:\Windows\Temp\uebungs-check.out'
-            $errF  = 'C:\Windows\Temp\uebungs-check.err'
             Set-Content -Path $check -Encoding utf8 -Value @"
 `$ErrorActionPreference = 'Stop'
 `$ou = '$OwnOu'
@@ -102,11 +101,9 @@ Unregister-ScheduledTask -TaskName 'Kurs-Smoke' -Confirm:`$false
 `$log += 'peer-remoting=' + (Invoke-Command -ComputerName '$($PeerComputers[0])' -ScriptBlock { `$env:COMPUTERNAME })
 `$log -join '; '
 "@
-            Remove-Item $outF, $errF -ErrorAction SilentlyContinue
-            Start-Process -FilePath $pwsh -Credential $cred -WorkingDirectory 'C:\Windows\Temp' -Wait -WindowStyle Hidden `
-                -ArgumentList '-NoProfile', '-File', $check -RedirectStandardOutput $outF -RedirectStandardError $errF
-            $out = (Get-Content $outF -Raw -ErrorAction SilentlyContinue)
-            $err = (Get-Content $errF -Raw -ErrorAction SilentlyContinue)
+            $r = Invoke-AsUser -Credential $cred -ScriptPath $check -OutputPath $outF -TimeoutSeconds 300
+            $out = $r.Output
+            $err = "exit=$($r.ExitCode) timeout=$($r.TimedOut)"
             Remove-Item $check -ErrorAction SilentlyContinue
             if (-not $out) { throw "keine Ausgabe. Fehler: $err" }
             if ($out -match 'GRP-IT=FALSCH_SCHREIBBAR') { throw "Delegierung zu weit: $out" }
