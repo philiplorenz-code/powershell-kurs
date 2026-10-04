@@ -1,0 +1,21 @@
+# Website
+website/node_modules/
+website/dist/
+website/.astro/
+
+# Lab: nie committen
+infrastructure/**/.terraform/
+infrastructure/**/*.tfstate
+infrastructure/**/*.tfstate.*
+infrastructure/**/*.tfvars
+!infrastructure/**/*.tfvars.example
+infrastructure/**/crash.log
+.secrets/
+*.secret
+*.pem
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+slides/node_modules/
+slides/out/
