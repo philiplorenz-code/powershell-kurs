@@ -1,0 +1,6 @@
+# Kopie als terraform.tfvars ablegen (wird nicht committet). lab.ps1 setzt subscription_id
+# und allowed_rdp_cidrs selbst, wenn sie hier fehlen.
+subscription_id   = "00000000-0000-0000-0000-000000000000"
+allowed_rdp_cidrs = ["203.0.113.7/32"]
+# student_vm_size = "Standard_B2ms"
+# budget_alert_email = "you@example.org"
