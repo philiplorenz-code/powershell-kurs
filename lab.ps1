@@ -14,6 +14,7 @@
       ./lab.ps1 credentials       Zugangsdaten anzeigen (-Export: in .secrets/ speichern)
       ./lab.ps1 test              Smoke-Tests gegen die laufende Umgebung
       ./lab.ps1 reset-student 2   Teilnehmerumgebung 2 auf Ausgangszustand zurücksetzen
+      ./lab.ps1 reset-all         ALLES auf den Ursprung: alle Teilnehmer-VMs neu, AD-Inhalt neu, Passwörter wie bei deploy
       ./lab.ps1 allow-ip 203.0.113.5/32   weitere RDP-Quelladresse freischalten
       ./lab.ps1 cost              Kostenschätzung
       ./lab.ps1 destroy           komplettes Lab entfernen
@@ -21,7 +22,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory)]
-    [ValidateSet('deploy', 'start', 'stop', 'end-of-day', 'status', 'credentials', 'test', 'reset-student', 'allow-ip', 'cost', 'destroy', 'help')]
+    [ValidateSet('deploy', 'start', 'stop', 'end-of-day', 'status', 'credentials', 'test', 'reset-student', 'reset-all', 'allow-ip', 'cost', 'destroy', 'help')]
     [string]$Command,
 
     [Parameter(Position = 1)]
@@ -259,6 +260,47 @@ Write-Output 'AD bereinigt'
         az vm run-command invoke -g $Rg -n DC01 --command-id RunPowerShellScript --scripts $clean --query 'value[0].message' -o tsv
         Tf apply -input=false -auto-approve "-replace=azurerm_windows_virtual_machine.student[`"$nn`"]"
         Say "$vm wurde neu aufgebaut. Test: ./lab.ps1 test" Green
+        break
+    }
+
+    'reset-all' {
+        Require-Tools; Resolve-Subscription
+        $vms = Get-Vms
+        if (-not $vms) { Fail 'Keine VMs gefunden. Zuerst ./lab.ps1 deploy.' }
+        $keys = & terraform "-chdir=$TfDir" output -json student_credentials 2>$null | ConvertFrom-Json
+        if (-not $keys) { Fail 'Terraform-Ausgaben fehlen (State vorhanden?).' }
+        $nns = @($keys.PSObject.Properties.Name | Sort-Object)
+        Say "Setzt das gesamte Lab auf den Ursprungszustand zurück:" Yellow
+        Say "  - alle Teilnehmer-VMs ($($nns | ForEach-Object { "PSLAB-$_" } | Join-String -Separator ', ')) werden NEU aufgebaut (alle Dateien dort gehen verloren)" Yellow
+        Say '  - Active Directory: Demoobjekte, Übungs-OUs, Teilnehmerkonten und Computerobjekte werden gelöscht und neu angelegt' Yellow
+        Say '  - Passwörter entsprechen wieder denen aus ./lab.ps1 credentials. DC01 selbst bleibt bestehen.' Yellow
+        Say '  Dauer: ca. 20-30 Minuten. Compute-Kosten während der Zeit: alle VMs laufen.' Yellow
+        if (-not (Confirm-Action 'Alles zurücksetzen?')) { Say 'Abgebrochen.'; break }
+        Say 'Starte DC01 und warte auf AD ...' Cyan
+        az vm start -g $Rg -n DC01 | Out-Null
+        $clean = @'
+Import-Module ActiveDirectory
+$ErrorActionPreference = 'Stop'
+$base = (Get-ADDomain).DistinguishedName
+$kurs = "OU=Kurs,$base"
+function Clear-Ou($dn) { Get-ADObject -SearchBase $dn -SearchScope OneLevel -Filter * | Remove-ADObject -Recursive -Confirm:$false }
+Get-ADComputer -Filter "Name -like 'PSLAB-*'" | Remove-ADObject -Recursive -Confirm:$false
+foreach ($ou in 'Benutzer', 'Computer', 'Teilnehmer', 'Gruppen') { Clear-Ou "OU=$ou,$kurs" }
+Get-ADOrganizationalUnit -SearchBase "OU=Uebung,$kurs" -SearchScope OneLevel -Filter * | ForEach-Object { Set-ADOrganizationalUnit $_ -ProtectedFromAccidentalDeletion $false; Remove-ADObject $_ -Recursive -Confirm:$false }
+Get-ADGroupMember 'Remote Management Users' | Where-Object Name -like 'GG-Kurs*' | ForEach-Object { Remove-ADGroupMember 'Remote Management Users' $_ -Confirm:$false }
+Write-Output 'AD bereinigt'
+'@
+        $ready = $false
+        for ($i = 0; $i -lt 30 -and -not $ready; $i++) {
+            $r = az vm run-command invoke -g $Rg -n DC01 --command-id RunPowerShellScript --scripts $clean --query 'value[0].message' -o tsv 2>$null
+            if ($r -match 'AD bereinigt') { $ready = $true; Say 'AD bereinigt.' Green } else { Start-Sleep -Seconds 20 }
+        }
+        if (-not $ready) { Fail 'AD konnte nicht bereinigt werden (DC01 nicht bereit?).' }
+        $replace = @('-replace=azurerm_virtual_machine_run_command.dc_populate')
+        foreach ($nn in $nns) { $replace += "-replace=azurerm_windows_virtual_machine.student[`"$nn`"]" }
+        Say 'Baue AD-Inhalt und Teilnehmer-VMs neu auf (terraform apply) ...' Cyan
+        Tf apply -input=false -auto-approve @replace
+        Say 'Fertig. Prüfen: ./lab.ps1 test' Green
         break
     }
 
