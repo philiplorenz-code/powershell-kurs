@@ -1,0 +1,8 @@
+{
+  "label": "Tag 2",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Vertiefung & erste Skriptkonzepte - Du bekommst ein solides Verständnis für Kontrollstrukturen und Datenverarbeitung. Du kannst kleinere Skripte schreiben, Daten filtern und formatieren, die Execution Policy anpassen und erste PowerShell-Module nutzen."
+  }
+}

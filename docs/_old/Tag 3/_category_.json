@@ -1,0 +1,8 @@
+{
+  "label": "Tag 3",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Skripting, Automatisierung & erweiterte Konzepte - Am Ende kannst du eigene, gut strukturierte Skripte und Funktionen erstellen, Fehler gezielt behandeln, Debugging-Werkzeuge nutzen und PowerShell für fortgeschrittene Automatisierungsaufgaben einsetzen."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "label": "Tag 1",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Fundament & Grundlagen - Du lernst, die PowerShell-Konsole sicher zu bedienen, das Hilfesystem zu nutzen und grundlegende Objekte sowie Variablen einzusetzen. Komplexe Skripte schreiben wir noch nicht – stattdessen übst du das reine Arbeiten in der Shell."
+  }
+}
+
