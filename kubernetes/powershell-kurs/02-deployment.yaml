@@ -38,7 +38,7 @@ spec:
                     app.kubernetes.io/name: powershell-kurs
       containers:
         - name: website
-          image: ghcr.io/philiplorenz-code/powershell-kurs:sha-6f5fad8
+          image: ghcr.io/philiplorenz-code/powershell-kurs:sha-0efff29
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
