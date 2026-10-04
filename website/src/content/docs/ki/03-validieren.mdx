@@ -1,0 +1,60 @@
+---
+title: "Halluzinationen und Validierung"
+description: "Erfundene Cmdlets erkennen und KI-Ausgaben überprüfen."
+sidebar:
+  order: 3
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Optional" />
+
+<Lernziele>
+
+- Erfundene Cmdlets, Parameter und Module erkennen
+- KI-Ausgaben mit `Get-Command`, `Get-Help`, `-WhatIf` und Testumgebung überprüfen
+
+</Lernziele>
+
+Sprachmodelle erzeugen **plausibel klingenden** Text, keine geprüfte Wahrheit. Bei PowerShell zeigt sich das so:
+
+- **Erfundene Cmdlets:** `Get-ADUserLastLogon` klingt perfekt und existiert nicht.
+- **Erfundene Parameter:** `Get-ChildItem -OlderThan 30d` gibt es nicht.
+- **Falsche Version:** `Get-WmiObject` und `Get-Service -ComputerName` stammen aus Windows PowerShell 5.1.
+- **Veraltete Praxis:** `-NoTypeInformation`, `Register-ScheduledJob`, Klartextpasswörter.
+- **Halbes Wissen:** Das Cmdlet gibt es, aber es tut etwas anderes.
+
+## Die Prüfliste
+
+Für **jedes** Cmdlet in einer KI-Antwort:
+
+| Frage | Befehl |
+|---|---|
+| Gibt es das Cmdlet? | `Get-Command Get-ADUserLastLogon` |
+| Aus welchem Modul stammt es? | `Get-Command Get-ADUser \| Select-Object Source, Version` |
+| Gibt es den Parameter? | `Get-Help Get-ChildItem -Parameter OlderThan` |
+| Was macht das Cmdlet wirklich? | `Get-Help Get-ChildItem -Examples` |
+| Was liefert es zurück? | `… \| Get-Member` |
+| Ist es für meine PowerShell-Version gedacht? | `$PSVersionTable`, Hilfeseite auf learn.microsoft.com |
+| Was passiert, wenn ich es ausführe? | `-WhatIf`, Testumgebung, Teilstück einzeln ausführen |
+
+```powershell
+Get-Command Get-ADUserLastLogon     # Fehler: Cmdlet nicht gefunden = erfunden
+Get-Command -Module ActiveDirectory -Verb Get -Noun *User*
+```
+
+:::tip[Die beste Gegenmaßnahme]
+Gib dem Modell die Möglichkeit, **nicht** zu raten: „Wenn du dir bei einem Cmdlet oder Parameter nicht sicher bist, sage das ausdrücklich." Und prüfe trotzdem.
+:::
+
+## Auch die Realität prüfen
+
+Ein Skript kann syntaktisch richtig sein und trotzdem das Falsche tun:
+
+- Teste mit **Beispieldaten** in einer Testumgebung (dein Lab), nie zuerst in Produktion.
+- Nutze `-WhatIf` bei allem, was verändert.
+- Vergleiche das Ergebnis mit einer unabhängigen Abfrage (zum Beispiel Anzahl der Benutzer in der GUI).
+- Lies den Code, bevor du ihn ausführst. Du bist verantwortlich.

@@ -1,0 +1,80 @@
+---
+title: "Module verwenden"
+sidebar:
+  order: 9
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Module finden, installieren, laden und entfernen
+- Vertrauenswürdige Quellen einschätzen
+
+</Lernziele>
+
+PowerShell-Module sind Sammlungen von Funktionen, Cmdlets, Variablen und anderen Ressourcen, die in einer oder mehreren Dateien organisiert und als Einheit bereitgestellt werden. Module ermöglichen es dir, wiederverwendbaren Code zu strukturieren und zu verteilen – sei es als interne Lösung oder als öffentlich verfügbare Erweiterung.
+
+## 1. Was ist ein Modul?
+
+Ein Modul ist ein Paket mit Cmdlets, Funktionen und anderen Bausteinen. Die meisten Cmdlets, die du bisher genutzt hast, kommen aus Modulen (`Microsoft.PowerShell.Management` für `Get-Service`, `ActiveDirectory` für `Get-ADUser`).
+
+```powershell
+Get-Module                    # aktuell geladene Module
+Get-Module -ListAvailable     # alle installierten Module
+Get-Command -Module ActiveDirectory
+```
+
+PowerShell lädt installierte Module automatisch, sobald du eines ihrer Cmdlets aufrufst. `Import-Module` brauchst du meist nur, um es früher oder gezielt zu laden:
+
+```powershell
+Import-Module ActiveDirectory
+Remove-Module ActiveDirectory
+```
+
+## 2. Woher kommen Module?
+
+### PowerShell Gallery
+
+Die **PowerShell Gallery** ist die zentrale Quelle für Community- und Microsoft-Module.
+
+```powershell
+Find-PSResource -Name Microsoft.PowerShell.SecretManagement      # Suchen
+Install-PSResource -Name Microsoft.PowerShell.SecretManagement   # Installieren
+```
+
+`Find-PSResource` und `Install-PSResource` gehören zum neuen **PSResourceGet** und sind in PowerShell 7.4 und neuer enthalten. Die älteren Cmdlets `Find-Module` und `Install-Module` (PowerShellGet) funktionieren weiterhin und begegnen dir in vielen Anleitungen:
+
+```powershell
+Find-Module -Name Microsoft.PowerShell.SecretManagement
+Install-Module -Name Microsoft.PowerShell.SecretManagement -Scope CurrentUser
+```
+
+:::tip[`-Scope CurrentUser`]
+Ohne Administratorrechte installierst du Module nur für dich. Das ist für Tests der sichere Weg.
+:::
+
+Beim ersten Mal fragt PowerShell, ob du dem Repository „PSGallery" vertraust. Lies die Frage, bevor du sie bestätigst.
+
+### Weitere Quellen
+
+Module können aus internen Repositories, von GitHub oder aus lokalen Ordnern kommen. In Unternehmen sind eigene Repositories üblich. Das Kapitel [Module offline installieren](/ressourcen/offline-module/) zeigt die Variante ohne Internet.
+
+## 3. Worauf du achten solltest
+
+- **Herkunft:** Installiere Module nur von vertrauenswürdigen Herausgebern. Ein Modul führt Code mit deinen Rechten aus.
+- **Version:** `Get-Module -ListAvailable -Name X | Select-Object Name, Version`. Mit `Update-Module` oder `Update-PSResource` aktualisierst du.
+- **Abhängigkeiten:** Manche Module brauchen bestimmte PowerShell-Versionen oder andere Module.
+- **Windows PowerShell vs. PowerShell 7:** Module liegen in getrennten Ordnern. Ältere Module laufen nur in 5.1. PowerShell 7 versucht, sie über eine Kompatibilitätsschicht zu laden. Du kannst das auch erzwingen: `Import-Module X -UseWindowsPowerShell`.
+
+## Zusammenfassung
+
+- Module bündeln Cmdlets. Installierte Module lädt PowerShell bei Bedarf automatisch.
+- Aus der PSGallery installierst du mit `Install-PSResource` oder `Install-Module`.
+- Prüfe Herkunft, Version und Kompatibilität.

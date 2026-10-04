@@ -1,0 +1,69 @@
+---
+title: "Skripte erklären und prüfen"
+description: "KI zum Verstehen, Reviewen und Verbessern von bestehendem Code."
+sidebar:
+  order: 1
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Optional" />
+
+<Lernziele>
+
+- Ein unbekanntes Skript mit KI-Hilfe verstehen und die Erklärung überprüfen
+- Fehlermeldungen erklären lassen
+- Einen Code-Review und Refactoring-Vorschläge einholen und bewerten
+
+</Lernziele>
+
+## Code erklären lassen
+
+Du erbst ein Skript und niemand weiß mehr, was es tut. Eine KI kann Zeile für Zeile erklären.
+
+**Gutes Vorgehen:**
+
+1. Gib das Skript **vollständig** an (ohne Passwörter, siehe [Datenschutz](/ki/04-daten-und-sicherheit/)).
+2. Sage dazu, wer du bist und was du willst: „Ich bin Windows-Administrator und kenne PowerShell-Grundlagen. Erkläre mir dieses Skript Schritt für Schritt auf Deutsch."
+3. Bitte um eine Zusammenfassung **und** um die Stellen, bei denen sie unsicher ist.
+4. **Prüfe die Erklärung:** Schlage jedes Cmdlet nach (`Get-Help`), führe Teilstücke einzeln aus.
+
+:::tip[Eigenes Wissen als Prüfstein]
+Wenn du die Erklärung nicht nachvollziehen kannst, ist das Signal: nachfragen, nachlesen, nicht blind vertrauen. Genau deshalb haben wir PowerShell zuerst ohne KI gelernt.
+:::
+
+## Fehler erklären lassen
+
+Kopiere die **vollständige Fehlermeldung** und den **auslösenden Befehl**, nicht nur „es geht nicht":
+
+```powershell
+$Error[0] | Format-List * -Force
+```
+
+Gib zusätzlich an: PowerShell-Version (`$PSVersionTable.PSVersion`), Windows-Version und was du erwartet hast. Prüfe anschließend den Vorschlag mit `-WhatIf` oder in einer Testumgebung.
+
+## Code-Review und Refactoring
+
+Typische Fragen:
+
+- „Welche Fehlerfälle werden nicht behandelt?"
+- „Welche Befehle ändern etwas und sollten `-WhatIf` unterstützen?"
+- „Wo verwende ich Aliase oder veraltete Cmdlets (`Get-WmiObject`)?"
+- „Wo stehen Passwörter oder Pfade fest im Code?"
+- „Mache daraus eine Funktion mit Parametern, ohne das Verhalten zu ändern."
+
+:::caution[Verhalten erhalten]
+Bei Refactoring-Vorschlägen gilt: **Vorher/Nachher vergleichen.** Führe beide Versionen mit denselben Testdaten aus und vergleiche das Ergebnis. KI „verbessert" gelegentlich auch die Logik.
+:::
+
+## Gutes und schlechtes Ergebnis erkennen
+
+| Eher vertrauenswürdig | Eher misstrauisch machen |
+|---|---|
+| nutzt Cmdlets, die du mit `Get-Command` findest | Cmdlet oder Parameter existiert nicht |
+| erklärt, **warum** etwas so ist | klingt sehr überzeugt, nennt aber keine Quelle |
+| bringt `-WhatIf` oder Fehlerbehandlung von sich aus mit | `Invoke-Expression`, `-Force` und `Remove-Item -Recurse` ohne Warnung |
+| passt zu deiner PowerShell-Version | Windows-PowerShell-5.1-Syntax in PowerShell 7 (oder umgekehrt) ohne Hinweis |

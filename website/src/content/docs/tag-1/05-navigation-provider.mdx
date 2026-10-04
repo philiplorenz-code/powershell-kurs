@@ -1,0 +1,130 @@
+---
+title: "Navigation, Provider und Dateien"
+sidebar:
+  order: 5
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Im Dateisystem navigieren und Provider (Registry, Env, Zertifikate) wie Laufwerke ansprechen
+- Dateien und Ordner anlegen, kopieren, verschieben und löschen
+- Gefährliche Befehle mit `-WhatIf` zuerst testen
+
+</Lernziele>
+
+Du bewegst dich in PowerShell wie in einem Dateiexplorer, nur mit Befehlen. Das Prinzip gilt nicht nur für Dateien: Auch Registry, Umgebungsvariablen und Zertifikate lassen sich wie Laufwerke ansprechen.
+
+## 1. Navigation in PowerShell
+
+PowerShell nutzt ein Dateisystem-ähnliches Konzept, um verschiedene Datenquellen zu navigieren. Die grundlegenden Cmdlets zur Navigation sind:
+
+- **Get-Location (alias `pwd`):** Zeigt das aktuelle Verzeichnis bzw. den aktuellen Pfad an.
+- **Set-Location (alias `cd`):** Wechselt das aktuelle Verzeichnis.
+- **Push-Location & Pop-Location:** Erlauben das Speichern und Wiederherstellen von Verzeichnissen.
+
+### 1.1 Beispiele zur Navigation
+
+```powershell
+# Aktuelles Verzeichnis anzeigen
+Get-Location
+
+# In ein anderes Verzeichnis wechseln
+Set-Location C:\Windows
+
+# Aktuelles Verzeichnis speichern und in ein neues wechseln
+Push-Location C:\Temp
+
+# Zurück zum vorherigen Verzeichnis wechseln
+Pop-Location
+```
+
+## 2. PowerShell-Provider
+
+PowerShell-Provider ermöglichen den Zugriff auf verschiedene Datenspeicher, als ob es sich um Dateisysteme handeln würde. Jeder Provider stellt eine eigene "Drive" dar, die den Zugriff auf spezielle Datenquellen vereinfacht.
+
+### 2.1 Wichtige PowerShell-Provider
+
+- **FileSystem:** Erlaubt den Zugriff auf das lokale Dateisystem.
+- **Registry:** Ermöglicht den Zugriff auf die Windows-Registry.
+- **Environment:** Zeigt Umgebungsvariablen als virtuelle Verzeichnisstruktur an.
+- **Certificate:** Bietet Zugriff auf Zertifikate (sofern installiert).
+
+```powershell
+Get-PSDrive      # alle Laufwerke und Provider-Laufwerke (C:, Env:, HKLM:, Cert: …)
+```
+
+### 2.2 Beispiele für den Zugriff auf verschiedene Provider
+
+```powershell
+# Auf das Dateisystem zugreifen
+Set-Location C:\
+
+# Auf die Windows-Registry zugreifen
+Set-Location HKLM:\
+
+# Werte eines Registry-Schlüssels lesen
+Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ProductName
+
+# Umgebungsvariablen anzeigen
+Set-Location Env:
+Get-ChildItem
+
+# Auf Zertifikate zugreifen (sofern vorhanden)
+Set-Location Cert:
+Get-ChildItem -Recurse
+```
+
+## 3. Dateien und Ordner verwalten
+
+Die gleichen Cmdlets arbeiten mit Dateien, Ordnern, Registry-Schlüsseln und mehr.
+
+| Aktion | Cmdlet | Alias |
+|---|---|---|
+| Auflisten | `Get-ChildItem` | `ls`, `dir` |
+| Anlegen | `New-Item` | |
+| Kopieren | `Copy-Item` | `cp` |
+| Verschieben/Umbenennen | `Move-Item`, `Rename-Item` | `mv` |
+| Löschen | `Remove-Item` | `rm` |
+| Inhalt lesen | `Get-Content` | `cat` |
+| Inhalt schreiben | `Set-Content`, `Add-Content` | |
+| Existenz prüfen | `Test-Path` | |
+
+```powershell
+# Ordner und Datei anlegen
+New-Item -ItemType Directory -Path C:\Kurs\Ausgabe\Test
+New-Item -ItemType File -Path C:\Kurs\Ausgabe\Test\hallo.txt
+Set-Content -Path C:\Kurs\Ausgabe\Test\hallo.txt -Value "Hallo PowerShell"
+Get-Content C:\Kurs\Ausgabe\Test\hallo.txt
+
+# Existiert der Pfad?
+Test-Path C:\Kurs\Ausgabe\Test
+```
+
+### Sicher löschen: `-WhatIf` und `-Confirm`
+
+Cmdlets, die etwas verändern, kennen `-WhatIf`. PowerShell zeigt dann nur, **was passieren würde**.
+
+```powershell
+Remove-Item C:\Kurs\Ausgabe\Test -Recurse -WhatIf
+```
+
+Mit `-Confirm` fragt PowerShell vor jedem Schritt nach. Gewöhne dir an, zerstörerische Befehle zuerst mit `-WhatIf` zu testen.
+
+:::note[Im Lab]
+Das Lab legt `C:\Kurs\Daten`, `C:\Kurs\Ausgabe`, `C:\Kurs\Logs` und `C:\Kurs\Skripte` an. Unsere Übungen nutzen diese Ordner.
+:::
+
+## 4. Zusammenfassung
+
+- **Navigation:** `Get-Location`, `Set-Location`, `Push-Location`, `Pop-Location`.
+- **Provider:** FileSystem, Registry, Environment und Certificate sind wie Laufwerke ansprechbar.
+- **Dateien:** `New-Item`, `Copy-Item`, `Move-Item`, `Remove-Item`, `Get-Content`, `Set-Content`.
+- **Sicherheit:** Verändernde Befehle zuerst mit `-WhatIf` testen.

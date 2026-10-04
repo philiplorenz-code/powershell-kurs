@@ -1,0 +1,49 @@
+---
+title: "Datenschutz und Sicherheit"
+description: "Was nicht in KI-Dienste gehört und wie du Risiken senkst."
+sidebar:
+  order: 4
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Optional" />
+
+<Lernziele>
+
+- Beurteilen, welche Inhalte nicht in einen externen KI-Dienst gehören
+- Beispieldaten und Platzhalter statt echter Daten verwenden
+
+</Lernziele>
+
+Alles, was du in einen Online-KI-Dienst eingibst, verlässt deine Umgebung. Je nach Anbieter und Vertrag kann es gespeichert, ausgewertet oder (bei Verbraucherangeboten) zum Training verwendet werden. Was einmal draußen ist, holst du nicht zurück.
+
+## Nicht in externe KI gehören
+
+| Kategorie | Beispiele |
+|---|---|
+| **Zugangsdaten** | Passwörter, Token, API-Schlüssel, Zertifikats-Passwörter, Verbindungszeichenketten |
+| **Personenbezogene Daten** | Echte Namen, Mailadressen, Telefonnummern, Personalnummern, Logs mit Benutzernamen |
+| **Kundendaten** | Alles, was ein Kunde dir anvertraut hat (auch Hostnamen und Netzstrukturen) |
+| **Vertrauliche Skripte** | Interne Automatisierungen, die Struktur und Schwachstellen verraten |
+| **Sicherheitsrelevantes** | Firewallregeln, Admin-Kontennamen, Berechtigungsstrukturen |
+
+## Was du stattdessen tust
+
+- **Platzhalter:** `<PASSWORT>`, `server01.example.internal`, `Max Mustermann`.
+- **Minimalbeispiel:** Nur die problematische Funktion, nicht das ganze Skript.
+- **Geprüfte Werkzeuge:** Nutze, was dein Unternehmen freigegeben hat (Enterprise-Verträge ohne Training, lokal betriebene Modelle).
+- **Regeln kennen:** Frag nach der KI-Richtlinie in deiner Firma, bevor du anfängst.
+
+:::caution[Ein Beispiel]
+Ein Skript enthält `$pw = "Sommer2024!"`. Wer es zur Fehlersuche komplett hochlädt, hat das Passwort weitergegeben. Entferne Geheimnisse **vor** dem Kopieren und rotiere sie, falls sie doch draußen sind.
+:::
+
+## KI-Code als Sicherheitsrisiko
+
+- **Sicherheitsprobleme erkennen lassen:** KI ist ein guter Zweitleser für `Invoke-Expression`, Klartextpasswörter, überweite Berechtigungen. Siehe Übung K.4.
+- **Aber:** KI-generierter Code kann selbst unsichere Muster enthalten (zum Beispiel `Set-ExecutionPolicy Bypass` oder Passwörter im Klartext). Prüfe ihn wie Code eines Fremden, bevor er mit Adminrechten läuft.
+- **Lieferkette:** Empfohlene Module aus der PowerShell Gallery prüfen. Erfundene Modulnamen können von Angreifern besetzt werden.

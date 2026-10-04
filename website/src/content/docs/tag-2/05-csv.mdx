@@ -1,0 +1,117 @@
+---
+title: "CSV importieren und exportieren"
+sidebar:
+  order: 5
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- CSV-Dateien importieren, verarbeiten und exportieren
+- Typische Fallstricke (Trennzeichen, Kodierung, Strings statt Zahlen) vermeiden
+
+</Lernziele>
+
+CSV (Comma-Separated Values) Dateien sind ein weit verbreitetes Format zur Speicherung und Übertragung tabellarischer Daten. PowerShell bietet leistungsfähige Cmdlets wie **Import-Csv** und **Export-Csv**, um CSV-Daten einfach in PowerShell zu importieren, zu verarbeiten und wieder zu exportieren.
+
+## 1. CSV-Import mit Import-Csv
+
+Das Cmdlet **Import-Csv** liest eine CSV-Datei und wandelt jede Zeile in ein PowerShell-Objekt um. Dabei werden die Spaltenüberschriften der CSV zu den Eigenschaften der Objekte.
+
+### 1.1 Beispiel: CSV-Datei importieren
+
+Im Lab liegt die Datei `C:\Kurs\Daten\Mitarbeiter.csv` mit folgendem Inhalt bereit:
+
+```csv
+Name,Abteilung,Alter
+Alena,IT,30
+Bob,HR,35
+Charlie,Finanzen,28
+```
+
+
+Du kannst diese Datei wie folgt importieren:
+
+```powershell
+$mitarbeiter = Import-Csv -Path "C:\Kurs\Daten\Mitarbeiter.csv"
+Write-Output $mitarbeiter
+```
+
+Jedes Objekt im Array `$mitarbeiter` besitzt die Eigenschaften `Name`, `Abteilung` und `Alter`.
+
+### 1.2 Verarbeitung der importierten Daten
+
+Du kannst die importierten Daten beispielsweise filtern oder sortieren:
+
+```powershell
+# Filter: Zeige alle Mitarbeiter in der IT-Abteilung
+$itMitarbeiter = $mitarbeiter | Where-Object { $_.Abteilung -eq "IT" }
+Write-Output $itMitarbeiter
+
+# Sortierung: Sortiere Mitarbeiter nach Alter
+$sortierteMitarbeiter = $mitarbeiter | Sort-Object Alter
+Write-Output $sortierteMitarbeiter
+```
+
+## 2. CSV-Export mit Export-Csv
+
+Das Cmdlet **Export-Csv** schreibt PowerShell-Objekte in eine CSV-Datei. Du kannst dabei festlegen, welche Eigenschaften exportiert werden sollen, und ob Typinformationen (Kopfzeilen) enthalten sein sollen.
+
+### 2.1 Beispiel: Objekte in eine CSV-Datei exportieren
+
+Angenommen, du hast eine Sammlung von Produktobjekten, die du als CSV speichern möchtest:
+
+```powershell
+$produkte = @(
+    [PSCustomObject]@{ Name = "Laptop"; Preis = 1200; Lager = 10 },
+    [PSCustomObject]@{ Name = "Tablet"; Preis = 600; Lager = 25 },
+    [PSCustomObject]@{ Name = "Smartphone"; Preis = 800; Lager = 15 }
+)
+$produkte | Export-Csv -Path "C:\Kurs\Ausgabe\Produkte.csv"
+```
+
+### 2.2 Weitere Optionen und Stolperfallen
+
+```powershell
+# Semikolon als Trennzeichen (Excel mit deutschem Gebietsschema erwartet das)
+$produkte | Export-Csv -Path "C:\Kurs\Ausgabe\Produkte_semikolon.csv" -Delimiter ";"
+
+# Oder: das Listentrennzeichen des Systems verwenden
+$produkte | Export-Csv -Path "C:\Kurs\Ausgabe\Produkte_kultur.csv" -UseCulture
+
+# Kodierung für Umlaute festlegen
+$produkte | Export-Csv -Path "C:\Kurs\Ausgabe\Produkte_utf8.csv" -Encoding utf8
+```
+
+:::caution[Alles aus einer CSV sind Strings]
+`Import-Csv` liest jeden Wert als **Text**. `Sort-Object Alter` sortiert dann alphabetisch (`"9"` kommt nach `"30"`). Wandle um, wenn du Zahlen brauchst:
+
+```powershell
+$mitarbeiter | Sort-Object { [int]$_.Alter }
+```
+:::
+
+:::note[PowerShell 7 und 5.1]
+In Windows PowerShell 5.1 schrieb `Export-Csv` eine zusätzliche Zeile `#TYPE …`, die man mit `-NoTypeInformation` unterdrückte. In PowerShell 7 ist das Standardverhalten, den Parameter brauchst du nicht mehr. In alten Skripten findest du ihn weiterhin. Der Standard für `-Encoding` ist in 7 UTF-8 ohne BOM, in 5.1 war es ASCII.
+:::
+
+## 3. Zusammenfassung
+
+- **Import-Csv:**  
+  Wandelt CSV-Dateien in PowerShell-Objekte um, sodass du die Daten leicht weiterverarbeiten kannst.
+  
+- **Export-Csv:**  
+  Schreibt PowerShell-Objekte in eine CSV-Datei und bietet Optionen zur Anpassung des Trennzeichens, der Codierung und zur Unterdrückung von Typinformationen.
+  
+- **Best Practices:**  
+  - Passe das Trennzeichen mit `-Delimiter` an, wenn erforderlich.  
+  - Achte auf die richtige Codierung (z. B. UTF8), um Probleme mit Sonderzeichen zu vermeiden.
+
+Diese Befehle ermöglichen es dir, CSV-Daten in PowerShell effizient zu importieren, zu bearbeiten und wieder zu exportieren – ideal für Automatisierungsaufgaben, Berichte und Datenanalysen.

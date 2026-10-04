@@ -1,0 +1,159 @@
+---
+title: "Filtern, Sortieren, Auswählen"
+sidebar:
+  order: 2
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Objekte mit `Where-Object` filtern
+- Mit `Sort-Object` und `Select-Object` Ergebnisse ordnen und kürzen
+
+</Lernziele>
+
+PowerShell bietet mit **Where-Object**, **Sort-Object** und **Select-Object** drei leistungsfähige Cmdlets, die dir helfen, Daten in der Pipeline zu filtern, zu sortieren und gezielt auszuwählen. Diese Befehle sind essenziell, um große Datenmengen effizient zu verarbeiten und nur die relevanten Informationen anzuzeigen.
+
+
+Du kennst die drei Cmdlets schon aus der Pipeline-Einführung. Jetzt lernst du sie genau kennen. Voraussetzung sind die Vergleichsoperatoren aus dem vorigen Kapitel.
+
+## 1. Where-Object
+
+Mit **Where-Object** filterst du Objekte, indem du eine Bedingung im Skriptblock definierst. Jedes Objekt, das den Filter passiert, wird an die nächste Pipeline-Stufe weitergegeben.
+
+### 1.0 Zwei Schreibweisen
+
+```powershell
+# Einfache Form: Eigenschaft, Operator, Wert
+Get-Service | Where-Object Status -eq 'Running'
+
+# Skriptblock-Form: $_ ist das aktuelle Objekt, nötig für zusammengesetzte Bedingungen
+Get-Service | Where-Object { $_.Status -eq 'Running' -and $_.Name -like 'W*' }
+```
+
+### 1.1 Beispiel: Filterung von Prozessen nach Arbeitsspeicher
+
+```powershell
+# Filtert alle Prozesse, die mehr als 100 MB Arbeitsspeicher verwenden
+Get-Process | Where-Object { $_.WorkingSet -gt 100MB }
+```
+
+### 1.2 Beispiel: Filterung anhand eines Musters
+
+```powershell
+# Filtert alle Prozesse, deren Namen mit "P" beginnen
+Get-Process | Where-Object { $_.Name -like "P*" }
+```
+
+## 2. Sort-Object
+
+Mit **Sort-Object** sortierst du die Objekte in der Pipeline basierend auf einer oder mehreren Eigenschaften. Dabei kannst du optional die Sortierreihenfolge mit dem Parameter `-Descending` umkehren.
+
+### 2.1 Beispiel: Sortierung von Prozessen nach CPU-Auslastung
+
+```powershell
+# Sortiert Prozesse in absteigender Reihenfolge nach der CPU-Auslastung
+Get-Process | Sort-Object CPU -Descending
+```
+
+### 2.2 Mehrfache Sortierung
+
+```powershell
+# Sortiert zunächst nach CPU und dann nach dem Namen des Prozesses
+Get-Process | Sort-Object CPU, Name
+```
+
+## 3. Select-Object
+
+Mit **Select-Object** wählst du gezielt Eigenschaften aus den Objekten aus oder begrenzt die Anzahl der ausgegebenen Objekte. Dies hilft dabei, die Ausgabe übersichtlich zu gestalten.
+
+### 3.1 Beispiel: Auswahl spezifischer Eigenschaften
+
+```powershell
+# Wählt nur die Eigenschaften Name, CPU und Id der Prozesse aus
+Get-Process | Select-Object Name, CPU, Id
+```
+
+### 3.2 Beispiel: Begrenzen der Ausgabe
+
+```powershell
+# Gibt nur die ersten 5 Prozesse zurück
+Get-Process | Select-Object -First 5
+```
+
+## 4. Kombinierte Anwendung in einer Pipeline
+
+Die wahre Stärke dieser Cmdlets zeigt sich, wenn sie kombiniert werden, um komplexe Datenverarbeitungsaufgaben zu lösen:
+
+```powershell
+# Filtert Prozesse mit mehr als 50 Sekunden CPU-Zeit, sortiert sie absteigend
+# und gibt die Top 5 mit den Eigenschaften Name, CPU und Id aus
+Get-Process |
+    Where-Object { $_.CPU -gt 50 } |
+    Sort-Object CPU -Descending |
+    Select-Object -First 5 -Property Name, CPU, Id
+```
+
+## 5. Weitere Pipeline-Helfer
+
+### Zählen und Summieren: `Measure-Object`
+
+```powershell
+Get-Service | Measure-Object                                   # Anzahl
+Get-ChildItem C:\Kurs\Daten -File | Measure-Object -Property Length -Sum
+```
+
+### Gruppieren: `Group-Object`
+
+```powershell
+Get-Service | Group-Object Status | Select-Object Name, Count
+```
+
+### Berechnete Eigenschaften mit `Select-Object`
+
+Mit einer Hashtable legst du eine neue Spalte an: `Name` ist der Spaltenname, `Expression` rechnet den Wert aus (`$_` ist das aktuelle Objekt).
+
+```powershell
+Get-Process |
+    Select-Object Name, @{ Name = 'SpeicherMB'; Expression = { [math]::Round($_.WorkingSet / 1MB, 1) } } -First 5
+```
+
+### Datum und Zeit
+
+```powershell
+Get-Date                                  # jetzt
+(Get-Date).AddDays(-7)                    # vor sieben Tagen
+Get-ChildItem C:\Kurs\Daten\Logs | Where-Object { $_.LastWriteTime -gt (Get-Date).AddDays(-7) }
+```
+
+## 6. Best Practices
+
+- **Frühzeitiges Filtern:**  
+  Setze **Where-Object** möglichst früh in der Pipeline ein. Noch besser: Filtere schon im Cmdlet selbst, wenn es einen Parameter dafür gibt (`Get-Service -Name W*` statt `Get-Service | Where-Object Name -like 'W*'`). Das ist schneller, vor allem bei Remote-Abfragen.
+  
+- **Lesbare Pipelines:**  
+  Zerlege komplexe Pipelines in mehrere Zeilen und kommentiere wichtige Schritte, um die Lesbarkeit zu erhöhen.
+
+- **Gezielte Auswahl:**  
+  Verwende **Select-Object**, um nur die relevanten Informationen zu extrahieren – das erleichtert die Weiterverarbeitung und Ausgabe.
+
+## 7. Zusammenfassung
+
+- **Where-Object:**  
+  Ermöglicht das Filtern von Objekten basierend auf Bedingungen.
+  
+- **Sort-Object:**  
+  Sortiert die Objekte in der Pipeline nach den gewünschten Eigenschaften.
+  
+- **Select-Object:**  
+  Wählt spezifische Eigenschaften aus oder begrenzt die Anzahl der ausgegebenen Objekte.
+
+Diese Cmdlets sind zentrale Werkzeuge in PowerShell, mit denen du komplexe Datenströme effizient bearbeiten und nur die für dich relevanten Informationen extrahieren kannst.
+

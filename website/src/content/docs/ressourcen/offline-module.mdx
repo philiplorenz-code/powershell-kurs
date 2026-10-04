@@ -1,0 +1,37 @@
+---
+title: "Module offline installieren"
+sidebar:
+  order: 99
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Reserve" />
+
+- Modul aus PSGallery runterladen über "Manual Install"
+- Neuen Ordner erstellen auf Zielsystem, z.B.: 
+
+```pwsh
+New-Item -ItemType Directory -Path "C:\ModuleRepo"
+```
+- Anschließend kann die heruntergeladene Datei in das neue Verzeichnis gelegt werden
+- Ein neues PSRepository (lokaler Ordner als Quelle) kann mit diesem Befehl angelegt werden:
+
+```pwsh
+Register-PSRepository -Name LocalPackages -SourceLocation C:\ModuleRepo -InstallationPolicy Trusted
+```
+- Bei Bedarf kann die PSGallery auch gänzlich deaktiviert werden, sodass eine Installation aus der PSGallery nicht mehr möglich ist:
+
+```pwsh
+Unregister-PSRepository -Name PSGallery
+```
+
+- Die PSGallery kann jederzeit wieder aktiviert werden:
+```pwsh
+Register-PSRepository -Default
+```
+

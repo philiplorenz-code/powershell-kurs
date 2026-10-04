@@ -1,0 +1,128 @@
+---
+title: "Debugging und Fehlersuche"
+sidebar:
+  order: 5
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Skripte mit `Write-Verbose`, `Write-Debug` und Breakpoints untersuchen
+
+</Lernziele>
+
+Effektives Debugging und Troubleshooting sind entscheidend, um PowerShell-Skripte zu entwickeln und Fehler schnell zu beheben. Hier findest du leicht zugängliche Tipps, die dir helfen, Probleme zu identifizieren und zu lösen – von der Verwendung von **Write-Debug** bis hin zum Einsatz des integrierten PowerShell-Debuggers und der Debugging-Tools in Visual Studio Code.
+
+## 0. Zuerst: `Write-Verbose`
+
+Für Meldungen, die ein Benutzer bei Bedarf sehen soll, nutzt du `Write-Verbose`. Sie erscheinen nur mit `-Verbose`:
+
+```powershell
+function Get-Sum {
+    [CmdletBinding()]
+    param([int]$A, [int]$B)
+    Write-Verbose "Rechne $A + $B"
+    $A + $B
+}
+Get-Sum -A 5 -B 7              # nur das Ergebnis
+Get-Sum -A 5 -B 7 -Verbose     # Ergebnis plus Meldung
+```
+
+## 1. Debugging mit Write-Debug
+
+**Write-Debug** ermöglicht es dir, Debug-Ausgaben in dein Skript einzufügen, die nur angezeigt werden, wenn der Debug-Modus aktiviert ist. Dies ist besonders nützlich, um den Ablauf deines Skripts zu überwachen, ohne die normale Ausgabe zu stören.
+
+### Tipp:
+- `Write-Debug` ist standardmäßig stumm. Schalte es an mit `$DebugPreference = "Continue"` oder dem Parameter `-Debug` bei Funktionen mit `[CmdletBinding()]`:
+
+```powershell
+$DebugPreference = "Continue"
+```
+
+### Beispiel:
+
+```powershell
+function Test-Debug {
+    Write-Debug "Starte Funktion Test-Debug"
+    $result = 2 + 2
+    Write-Debug "Berechnetes Ergebnis: $result"
+    return $result
+}
+
+# Aufruf der Funktion, Debug-Meldungen werden angezeigt, wenn Debugging aktiviert ist
+Test-Debug
+```
+
+## 2. Debugging mit dem PowerShell-Debugger
+
+Der integrierte PowerShell-Debugger erlaubt es dir, Breakpoints zu setzen, Variablen zu inspizieren und schrittweise durch deinen Code zu gehen.
+
+### Tipp:
+- Verwende **Set-PSBreakpoint**, um Breakpoints in deinem Skript zu setzen und so den Ablauf genau zu untersuchen.
+
+### Beispiel mit `Set-PSBreakpoint`
+
+Breakpoints setzt du auf **Dateien** (Skripte). Lege eine Datei an:
+
+```powershell
+@'
+function Get-Sum {
+    param([int]$a, [int]$b)
+    $sum = $a + $b
+    $sum
+}
+Get-Sum -a 5 -b 7
+'@ | Set-Content C:\Kurs\Skripte\Debugdemo.ps1
+```
+
+Setze einen Breakpoint auf Zeile 3 und starte das Skript:
+
+```powershell
+Set-PSBreakpoint -Script C:\Kurs\Skripte\Debugdemo.ps1 -Line 3
+C:\Kurs\Skripte\Debugdemo.ps1
+```
+
+Am Breakpoint erscheint der Debug-Prompt `[DBG]:`. Nützlich dort:
+
+| Eingabe | Wirkung |
+|---|---|
+| `$a`, `$b` | Variablen ansehen |
+| `s` | Schritt (Step Into) |
+| `v` | Schritt über Funktionen (Step Over) |
+| `c` | Fortsetzen |
+| `q` | Abbrechen |
+
+Aufräumen: `Get-PSBreakpoint | Remove-PSBreakpoint`.
+
+## 3. Debugging in Visual Studio Code
+
+Visual Studio Code bietet eine moderne, integrierte Debugging-Umgebung für PowerShell-Skripte. Mit der offiziellen PowerShell-Erweiterung kannst du Breakpoints setzen, deinen Code schrittweise durchlaufen und Variablen live inspizieren.
+
+### Tipps für VSCode-Debugging:
+- **PowerShell Extension:**  
+  Stelle sicher, dass du die offizielle PowerShell-Erweiterung installiert hast.
+- **Breakpoint setzen:**  
+  Klicke in der linken Leiste des Editors auf die Zeilennummer, um einen Breakpoint zu setzen.
+- **Debuggen starten:**  
+  Drücke `F5` oder wähle im Menü "Run and Debug", um den Debugging-Modus zu starten.
+- **Steuerung:**  
+  Nutze die Debug-Leiste, um den Code schrittweise zu durchlaufen (Step Over, Step Into, Step Out) und den Call-Stack sowie Variablen zu überwachen.
+
+## 4. Zusammenfassung
+
+- **Write-Debug:**  
+  Nutze Write-Debug, um konditionale Debug-Ausgaben in deinen Code einzufügen. Stelle sicher, dass `$DebugPreference` korrekt gesetzt ist.
+- **PowerShell-Debugger:**  
+  Setze Breakpoints mit Set-PSBreakpoint und verwende den integrierten Debugger, um deinen Code schrittweise zu überprüfen und Fehler zu identifizieren.
+- **VSCode-Debugging:**  
+  Die PowerShell-Erweiterung in Visual Studio Code bietet eine benutzerfreundliche Debugging-Umgebung, die das Setzen von Breakpoints, das Durchschreiten des Codes und das Überwachen von Variablen erleichtert.
+
+Diese Tipps und Techniken helfen dir dabei, Fehler in deinen PowerShell-Skripten effizient zu finden und zu beheben – und machen den Entwicklungsprozess insgesamt robuster und produktiver.
+

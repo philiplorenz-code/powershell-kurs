@@ -1,0 +1,55 @@
+---
+title: "Dokumentation und Tests"
+description: "Hilfe erzeugen lassen und Pester-Tests vorbereiten."
+sidebar:
+  order: 5
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Bonus" />
+
+<Lernziele>
+
+- Kommentarbasierte Hilfe und Dokumentation erzeugen lassen und prüfen
+- Mit KI Testfälle für eine Funktion vorbereiten
+
+</Lernziele>
+
+## Dokumentation
+
+Bitte die KI, für eine **fertige** Funktion Comment-Based Help (`.SYNOPSIS`, `.PARAMETER`, `.EXAMPLE`) zu schreiben. Prüfe danach:
+
+- Stimmen die Beispiele? Führe sie aus.
+- Sind alle Parameter genannt?
+- Funktioniert `Get-Help Funktionsname -Examples`?
+
+## Tests vorbereiten
+
+Für Skripte, die du oft änderst, lohnen sich automatische Tests mit **Pester**, dem Standard-Testframework für PowerShell.
+
+```powershell
+Describe 'Get-FreierSpeicher' {
+    It 'liefert ein Objekt mit FreiGB' {
+        $ergebnis = Get-FreierSpeicher -Laufwerk C
+        $ergebnis.FreiGB | Should -BeGreaterThan 0
+    }
+    It 'meldet Fehler bei unbekanntem Laufwerk' {
+        { Get-FreierSpeicher -Laufwerk Q -ErrorAction Stop } | Should -Throw
+    }
+}
+```
+
+KI ist gut darin, **Testfälle vorzuschlagen** („Welche Grenzfälle sollte ich testen?"). Die Tests musst du verstehen: Ein Test, der immer grün ist, ist wertlos.
+
+```powershell
+Install-PSResource Pester -Scope CurrentUser -TrustRepository   # falls nicht vorhanden
+Invoke-Pester -Path C:\Kurs\Skripte
+```
+
+:::note
+Pester 5 ist die aktuelle Hauptversion. Windows PowerShell 5.1 bringt Pester 3.4 mit. Prüfe mit `Get-Module Pester -ListAvailable`, welche Version geladen wird.
+:::

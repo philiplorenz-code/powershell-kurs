@@ -1,0 +1,159 @@
+---
+title: "KI-Übungen"
+description: "Praktische Übungen zu PowerShell und KI. Hier darf KI verwendet werden."
+sidebar:
+  order: 9
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Optional" />
+
+:::tip[Hier ist KI ausdrücklich erlaubt]
+Das ist der einzige Teil des Kurses, in dem du KI-Assistenten verwenden **sollst**. Nutze das Werkzeug, das dein Trainer vorgibt oder dein Unternehmen freigegeben hat. Gib keine echten Zugangsdaten oder Kundendaten ein, alle Beispiele hier sind frei erfunden.
+:::
+
+Die Beispielskripte findest du im Lab unter `C:\Kurs\KI\`. Sie stehen auch hier auf der Seite.
+
+<Uebung nr="K.1" titel="Ein fremdes Skript verstehen" typ="KI-Übung">
+
+Öffne `C:\Kurs\KI\altes-skript.ps1` (siehe unten, Passwort ist erfunden).
+
+```powershell
+$s = gwmi win32_service | ? {$_.StartMode -eq "Auto" -and $_.State -ne "Running"}
+foreach($x in $s){ write-host $x.Name $x.State }
+$pw = "Sommer2024!"
+$c = New-Object System.Management.Automation.PSCredential("PSLAB\svc-backup",(ConvertTo-SecureString $pw -AsPlainText -Force))
+Invoke-Expression ("net use Z: \\dc01\Kursdaten /user:PSLAB\svc-backup " + $pw)
+gci C:\Kurs\Daten\Logs | ? {$_.LastWriteTime -lt (get-date).AddDays(-30)} | del
+```
+
+1. Lass dir das Skript von der KI zeilenweise erklären.
+2. **Prüfe die Erklärung:** Führe die erste Zeile **ohne** die letzte aus (nicht das ganze Skript!). Stimmt die Beschreibung der KI mit dem überein, was du siehst?
+3. Notiere zwei Dinge, die die KI richtig erklärt hat, und eines, das du selbst nachschlagen musstest.
+
+<Loesung>
+
+Zeile 1 ist ein Dienst-Report (Starttyp „Auto", Status nicht „Running"). Zeile 2 gibt die Ergebnisse aus. Zeilen 3 bis 5 enthalten ein Klartextpasswort und bauen daraus Zugangsdaten und einen Netzwerkzugriff. Die letzte Zeile löscht Logdateien, die älter als 30 Tage sind, ohne Rückfrage.
+
+Wichtige Prüfpunkte: `gwmi` ist `Get-WmiObject` und existiert in PowerShell 7 nicht. `?` ist `Where-Object`, `gci` ist `Get-ChildItem`, `del` ist `Remove-Item`.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="K.2" titel="Review und Refactoring" typ="KI-Übung">
+
+Bitte die KI, das Skript aus K.1 zu **reviewen** und in eine moderne, sichere Fassung zu bringen.
+
+1. Welche Probleme findet die KI? Welche findest **du**, die sie nicht nennt?
+2. Lass sie eine verbesserte Fassung schreiben, mit `Get-CimInstance`, vollen Cmdlet-Namen, Parametern und `-WhatIf` für das Löschen. **Das Passwort darf nicht im Code stehen.**
+3. Vergleiche vorher und nachher: Liefert der Dienst-Report dasselbe Ergebnis?
+
+<Loesung>
+
+Typische Befunde: Aliase, `Get-WmiObject`, Klartextpasswort, `Invoke-Expression` mit Passwort in der Kommandozeile (taucht in Prozesslisten und Logs auf), Löschen ohne `-WhatIf`, feste Pfade, keine Fehlerbehandlung. Ein Prüfstein für die verbesserte Fassung: Der Dienst-Report muss für `Get-CimInstance Win32_Service -Filter "StartMode = 'Auto' AND State <> 'Running'"` dieselben Dienste liefern wie vorher.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="K.3" titel="Halluzinationen entlarven" typ="KI-Übung">
+
+Eine KI hat folgende „Lösung" für „Zeige alle AD-Benutzer, die sich 90 Tage nicht angemeldet haben, und löschen alle Dateien älter als 30 Tage auf PSLAB-02" geliefert:
+
+```powershell
+Get-ADUser -Filter * | Get-ADUserLastLogon -Days 90 -Format Table
+Get-ChildItem C:\Kurs\Daten -Recurse -OlderThan 30d | Remove-Item -Force
+Get-Service -Name Spooler -ComputerName PSLAB-02
+Invoke-Parallel -ComputerName PSLAB-02 -ScriptBlock { Get-Process }
+Set-ExecutionPolicy -Scope Everything -ExecutionPolicy Unrestricted
+```
+
+1. Prüfe **jede Zeile** mit `Get-Command` und `Get-Help`. Welche Cmdlets, Parameter oder Werte existieren nicht oder nicht in PowerShell 7?
+2. Welche Zeile ist außerdem **gefährlich**, auch wenn sie syntaktisch stimmen würde?
+3. Frage die KI, ob ihre Antwort Fehler enthält. Findet sie sie? Was ändert sich, wenn du ihr die Fehlermeldungen zeigst?
+
+<Loesung>
+
+| Zeile | Befund |
+|---|---|
+| `Get-ADUserLastLogon` | Cmdlet existiert nicht (`Get-Command` meldet einen Fehler) |
+| `-OlderThan 30d` | Parameter existiert nicht. Richtig: `Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }` |
+| `Get-Service -ComputerName` | In PowerShell 7 nicht vorhanden. Richtig: `Invoke-Command -ComputerName … { Get-Service … }` |
+| `Invoke-Parallel` | Kein Bestandteil von PowerShell. Richtig: `ForEach-Object -Parallel` oder `Invoke-Command` mit mehreren Computernamen |
+| `-Scope Everything` | Ungültiger Wert (gültig: `Process`, `CurrentUser`, `LocalMachine`, …). Die Absicht, `Unrestricted` zu setzen, ist zudem unnötig riskant |
+| `Remove-Item -Force` auf ganze Verzeichnisbäume | Gefährlich: löscht ohne Rückfrage. Immer zuerst mit `-WhatIf` |
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="K.4" titel="Sicherheitsprüfung" typ="KI-Übung">
+
+Lass die KI das Skript aus K.1 auf **Sicherheitsprobleme** prüfen und nach Schweregrad ordnen. Beurteile selbst:
+
+1. Welche Befunde sind wirklich kritisch, welche sind Stilfragen?
+2. Wie würdest du das Passwort stattdessen bereitstellen? (Siehe Kapitel „Anmeldeinformationen und Geheimnisse".)
+
+<Loesung>
+
+Kritisch: Klartextpasswort im Skript, Passwort in der Befehlszeile von `net use` (sichtbar in Prozess- und Ereignisprotokollen), `Invoke-Expression` mit zusammengesetzter Eingabe, ungeprüftes Löschen. Stilfragen: Aliase, Groß-/Kleinschreibung. Das Passwort gehört in einen Tresor (`Get-Secret`) oder wird per `Get-Credential` abgefragt, und die Netzlaufwerk-Verbindung läuft über `New-PSDrive -Credential` oder `New-SmbMapping`.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="K.5" titel="Aufgabe beschreiben, Entwurf prüfen" typ="KI-Übung">
+
+Beschreibe der KI mit den Prompt-Bausteinen folgende Aufgabe und erzeuge einen **ersten Entwurf**:
+
+> „Erstelle einen Bericht über alle Benutzer der Abteilung IT: Name, Anmeldename, Konto aktiv/deaktiviert, Datum der letzten Anmeldung. Ausgabe als CSV."
+
+1. Vergleiche einen schlechten Prompt („Schreib ein Skript für AD-Benutzer") mit deinem guten Prompt. Was unterscheidet die Ergebnisse?
+2. Prüfe den Entwurf mit `Get-Command` und `Get-Help`, dann im Lab. Funktioniert er?
+3. Verbessere ihn im Dialog (zum Beispiel: Parameter für die Abteilung, Fehlerbehandlung, deutsche Kommentare).
+
+<Loesung>
+
+Ein Entwurf, der sich bewährt hat:
+
+```powershell
+param([string]$Abteilung = 'IT', [string]$Pfad = 'C:\Kurs\Ausgabe\ad-bericht.csv')
+
+Get-ADUser -Filter "Department -eq '$Abteilung'" -Properties Department, LastLogonDate |
+    Select-Object Name, SamAccountName, Enabled, LastLogonDate |
+    Export-Csv -Path $Pfad
+```
+
+Prüfpunkte: `-Properties` ist nötig, weil `LastLogonDate` nicht zu den Standardeigenschaften gehört. `LastLogonDate` wird nur mit niedriger Genauigkeit repliziert und kann bis zu 14 Tage nachhinken.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="K.6" titel="Dokumentation und Tests" typ="KI-Übung">
+
+1. Lass die KI für deine Funktion `Get-FreierSpeicher` (Tag 3, Block 1) Comment-Based Help schreiben und prüfe die Beispiele.
+2. Lass sie drei Pester-Tests vorschlagen. Verstehst du jeden Test? Führe sie mit `Invoke-Pester` aus.
+3. Welcher Test ist überflüssig oder falsch? Warum?
+
+<Loesung>
+
+Gute Kandidaten für einen überflüssigen Test: ein Test, der nur prüft, dass „etwas" zurückkommt (`Should -Not -BeNullOrEmpty`) und damit praktisch immer besteht, oder ein Test, der den Wert einer externen Abhängigkeit (aktueller freier Speicher) mit einer festen Zahl vergleicht.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="K.7" titel="Eigene Regeln für den Arbeitsalltag" typ="Bonus" ki="erlaubt">
+
+Formuliere in fünf Sätzen **deine Regeln**, wie du KI in deinem Arbeitsalltag mit PowerShell einsetzt: Wofür ja, wofür nein, was prüfst du immer, was gibst du nie ein. Tausche dich mit den anderen Teilnehmern aus.
+
+<Loesung titel="Beispielregeln">
+
+1. Ich lasse mir Code **erklären**, bevor ich ihn ausführe.
+2. Ich prüfe jedes Cmdlet mit `Get-Command` und `Get-Help`.
+3. Ich teste Änderungen zuerst mit `-WhatIf` und in einer Testumgebung.
+4. Ich gebe keine Passwörter, Token, Kundendaten oder vertraulichen Skripte in externe Dienste ein.
+5. Ich verstehe jede Zeile, die ich ausführe. Was ich nicht verstehe, führe ich nicht in Produktion aus.
+
+</Loesung>
+</Uebung>

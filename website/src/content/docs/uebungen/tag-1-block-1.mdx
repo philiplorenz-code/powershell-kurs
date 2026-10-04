@@ -1,0 +1,178 @@
+---
+title: "Tag 1 · Block 1: Erste Schritte"
+description: "Übungen zu den Kapiteln PowerShell vs. CMD, Editoren, Hilfe, Verb-Noun, Navigation, Dateien und Aliasen."
+sidebar:
+  order: 11
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Diese Übungen bauen dein Grundverständnis auf. Wenn du sie von einem KI-Assistenten lösen lässt, übst du das Fragen und nicht PowerShell. Nutze `Get-Help`, die Kapitel und deine Sitznachbarn. Am letzten Tag zeigen wir, wie du KI sinnvoll **danach** einsetzt.
+:::
+
+Du arbeitest in **PowerShell 7** (`pwsh`) auf deiner Lab-VM. Die Übungen sind aufsteigend: Jede nutzt nur, was in den Kapiteln davor vorkam.
+
+<Uebung nr="1.1" titel="Welche PowerShell läuft?">
+
+1. Starte **PowerShell 7** (`pwsh`) im Windows Terminal oder in VS Code.
+2. Zeige die Versionsinformationen an. Welche Version hast du?
+3. Starte zusätzlich **Windows PowerShell 5.1** (`powershell.exe`) und prüfe dort die Version.
+4. Liste in beiden Fenstern den Inhalt von `C:\Users` auf: in CMD mit `dir`, in PowerShell mit `Get-ChildItem`. Was fällt dir an der Ausgabe auf?
+
+<Loesung>
+
+```powershell
+$PSVersionTable
+$PSVersionTable.PSVersion     # nur die Version
+Get-ChildItem C:\Users
+```
+
+In `powershell.exe` zeigt `$PSVersionTable.PSVersion` `5.1.x`, in `pwsh` `7.x`. `dir` ist in PowerShell ein Alias für `Get-ChildItem`. Die Ausgabe sieht ähnlich aus, besteht aber aus Objekten (mit Spalten wie `Mode`, `LastWriteTime`, `Name`).
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.2" titel="Hilfe finden">
+
+1. Zeige die Hilfe zu `Get-Process` an.
+2. Zeige nur die **Beispiele** an. Probiere zwei davon aus.
+3. Finde heraus, welchen Parameter du bei `Get-Service` angeben musst, um nur den Dienst `Spooler` zu sehen.
+4. Aktualisiere die Hilfe (`Update-Help`). Du brauchst dafür eine **Administrator**-PowerShell.
+5. Liste alle `about_`-Themen auf und lies `about_Operators` (die ersten Abschnitte genügen).
+
+<Loesung>
+
+```powershell
+Get-Help Get-Process
+Get-Help Get-Process -Examples
+Get-Help Get-Service -Parameter Name
+Get-Service -Name Spooler
+Update-Help          # als Administrator
+Get-Help about_*
+Get-Help about_Operators
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.3" titel="Cmdlets entdecken" typ="Übung">
+
+1. Liste alle Cmdlets mit dem Verb `Get` auf (die Liste ist lang, das ist in Ordnung).
+2. Liste alle Cmdlets auf, deren Nomen `Service` ist.
+3. Welches Cmdlet startet einen Dienst neu? Finde es mit `Get-Command`.
+4. Rufe `Get-Verb` auf. Welche Verben passen zu „löschen" und zu „anlegen"?
+
+<Loesung>
+
+```powershell
+Get-Command -Verb Get
+Get-Command -Noun Service
+Get-Command -Noun Service -Verb Restart     # Restart-Service
+Get-Verb
+```
+
+Löschen: `Remove`, Anlegen: `New`.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.4" titel="Navigation und Provider">
+
+1. Zeige dein aktuelles Verzeichnis an.
+2. Wechsle nach `C:\Windows`, danach nach `C:\Kurs`.
+3. Merke dir mit `Push-Location` dein aktuelles Verzeichnis, wechsle nach `C:\Windows\System32` und kehre mit `Pop-Location` zurück.
+4. Wechsle in den **Environment**-Provider (`Env:`) und liste alle Umgebungsvariablen auf. Lies den Wert von `COMPUTERNAME`.
+5. Wechsle in die **Registry** (`HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion`) und lies den Wert `ProductName` aus (Tipp: `Get-ItemProperty`).
+6. Gehe zurück nach `C:\`.
+
+<Loesung>
+
+```powershell
+Get-Location
+Set-Location C:\Windows
+Set-Location C:\Kurs
+Push-Location
+Set-Location C:\Windows\System32
+Pop-Location
+
+Set-Location Env:
+Get-ChildItem
+Get-Item COMPUTERNAME              # oder: $env:COMPUTERNAME
+
+Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -Name ProductName
+Set-Location C:\
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.5" titel="Dateien und Ordner">
+
+1. Lege den Ordner `C:\Kurs\Ausgabe\Block1` an.
+2. Erzeuge darin die Datei `notizen.txt` mit dem Inhalt „Mein erster Eintrag".
+3. Hänge eine zweite Zeile an die Datei an und gib den Inhalt aus.
+4. Kopiere die Datei nach `notizen-kopie.txt`.
+5. Lösche den Ordner mit allem Inhalt. Teste vorher mit `-WhatIf`, was passieren würde.
+
+<Loesung>
+
+```powershell
+New-Item -ItemType Directory -Path C:\Kurs\Ausgabe\Block1
+Set-Content -Path C:\Kurs\Ausgabe\Block1\notizen.txt -Value "Mein erster Eintrag"
+Add-Content -Path C:\Kurs\Ausgabe\Block1\notizen.txt -Value "Zweite Zeile"
+Get-Content C:\Kurs\Ausgabe\Block1\notizen.txt
+Copy-Item C:\Kurs\Ausgabe\Block1\notizen.txt C:\Kurs\Ausgabe\Block1\notizen-kopie.txt
+
+Remove-Item C:\Kurs\Ausgabe\Block1 -Recurse -WhatIf
+Remove-Item C:\Kurs\Ausgabe\Block1 -Recurse
+```
+
+`Set-Content` legt die Datei an, falls sie nicht existiert. `New-Item -ItemType File` ist nicht zwingend nötig.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.6" titel="Aliase">
+
+1. Finde heraus, welcher Befehl hinter `ls`, `cat` und `ps` steckt.
+2. Finde heraus, welche Aliase für `Get-ChildItem` existieren.
+3. Lege den Alias `ll` für `Get-ChildItem` an und teste ihn.
+4. Entferne den Alias wieder.
+
+<Loesung>
+
+```powershell
+Get-Alias ls, cat, ps
+Get-Alias -Definition Get-ChildItem
+Set-Alias ll Get-ChildItem
+ll C:\Kurs
+Remove-Item Alias:\ll
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.7" titel="Dateien im Lab erkunden" typ="Challenge">
+
+Im Ordner `C:\Kurs\Daten` liegen Beispieldateien.
+
+1. Liste alle Dateien in `C:\Kurs\Daten` **rekursiv** auf (Tipp: `Get-ChildItem -Recurse`, Parameter in der Hilfe nachlesen).
+2. Zeige die Datei `Mitarbeiter.csv` an. Wie groß ist sie (Spalte `Length`, in Bytes)?
+3. Zeige nur Dateien mit der Endung `.log`. Es gibt dafür einen passenden Parameter von `Get-ChildItem` (Tipp: `Get-Help Get-ChildItem -Parameter Filter`).
+
+<Loesung>
+
+```powershell
+Get-ChildItem C:\Kurs\Daten -Recurse
+Get-Item C:\Kurs\Daten\Mitarbeiter.csv
+Get-ChildItem C:\Kurs\Daten -Recurse -Filter *.log
+```
+
+</Loesung>
+</Uebung>

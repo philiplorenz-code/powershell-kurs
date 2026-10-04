@@ -1,0 +1,127 @@
+---
+title: "Das Pipeline-Prinzip"
+sidebar:
+  order: 7
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Die Pipeline als Objektfluss verstehen
+- Objekte mit `Get-Member` untersuchen
+- Ergebnisse filtern, sortieren und auswählen
+- Formatierung (`Format-*`) von Datenverarbeitung trennen
+
+</Lernziele>
+
+In klassischen Shells wandert Text durch die Pipeline. In PowerShell wandern **Objekte**. Das nächste Cmdlet kann deshalb direkt mit Eigenschaften wie `Name` oder `Id` arbeiten, ohne Text zerlegen zu müssen.
+
+![Pipeline](/img/01_cmdlets-and-PowerShell-pipeline.webp)
+
+## 1. Die Pipeline in Aktion
+
+Mit dem Pipe-Zeichen `|` reichst du die Ausgabe eines Cmdlets an das nächste weiter.
+
+```powershell
+Get-Service | Sort-Object Status
+```
+
+`Get-Service` liefert Dienst-Objekte. `Sort-Object` sortiert sie nach der Eigenschaft `Status`.
+
+## 2. Objekte untersuchen mit `Get-Member`
+
+Welche Eigenschaften hat ein Objekt? `Get-Member` verrät es.
+
+```powershell
+Get-Service | Get-Member
+Get-Service | Get-Member -MemberType Property
+```
+
+Die Spalte `TypeName` oben zeigt, welche Art Objekt durch die Pipeline läuft. Properties (Eigenschaften) sind Daten, Methods sind Aktionen.
+
+:::tip[Merksatz]
+Wenn du nicht weißt, welche Eigenschaften zur Verfügung stehen: `… | Get-Member`.
+:::
+
+## 3. Auswählen, Sortieren, Filtern
+
+Drei Cmdlets brauchst du ständig. Sie werden an Tag 2 vertieft. Hier die Kurzfassung:
+
+| Cmdlet | Aufgabe | Beispiel |
+|---|---|---|
+| `Select-Object` | Eigenschaften auswählen, Anzahl begrenzen | `Select-Object Name, Status` · `Select-Object -First 5` |
+| `Sort-Object` | sortieren | `Sort-Object CPU -Descending` |
+| `Where-Object` | nach Bedingung filtern | `Where-Object Status -eq 'Running'` |
+| `Measure-Object` | zählen und rechnen | `Measure-Object` · `Measure-Object Length -Sum` |
+
+```powershell
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 5
+```
+
+Für `Where-Object` gilt: Du gibst die Eigenschaft, einen **Vergleichsoperator** und einen Wert an.
+
+```powershell
+Get-Service | Where-Object Status -eq 'Running'
+```
+
+Die Vergleichsoperatoren (`-eq` gleich, `-ne` ungleich, `-gt` größer, `-lt` kleiner, `-like` Wildcard) behandeln wir am Anfang von Tag 2 genau. Für heute reicht: `-eq` bedeutet „ist gleich".
+
+:::note[Die ausführliche Form mit `$_`]
+Du siehst oft diese Schreibweise:
+
+```powershell
+Get-Process | Where-Object { $_.WorkingSet -gt 100MB }
+```
+
+`$_` steht dabei für „das aktuelle Objekt in der Pipeline". Die kurze Form oben funktioniert für einfache Vergleiche. Für zusammengesetzte Bedingungen brauchst du die Form mit `{ }`. Das kommt an Tag 2.
+:::
+
+## 4. Formatieren ist nur für die Anzeige
+
+`Format-Table` und `Format-List` ändern das **Aussehen** der Ausgabe für den Bildschirm. Danach sind es keine normalen Objekte mehr.
+
+```powershell
+Get-Service | Select-Object Name, Status -First 5 | Format-Table -AutoSize
+Get-Service -Name Spooler | Format-List *
+```
+
+:::caution[Regel]
+`Format-*` steht **immer am Ende** der Pipeline. Wer danach noch filtern, sortieren oder exportieren will, bekommt unbrauchbare Ergebnisse.
+:::
+
+```powershell
+# So nicht: Export-Csv bekommt Formatierungsobjekte
+Get-Service | Format-Table Name, Status | Export-Csv C:\Kurs\Ausgabe\falsch.csv
+
+# So ja: erst Daten auswählen, dann exportieren
+Get-Service | Select-Object Name, Status | Export-Csv C:\Kurs\Ausgabe\richtig.csv
+```
+
+## 5. Ausgabe weiterleiten
+
+| Ziel | Cmdlet |
+|---|---|
+| Datei (Text) | `Out-File`, `Set-Content` |
+| Bildschirm | `Out-Host` (Standard) |
+| Datei (CSV) | `Export-Csv` (Tag 2) |
+| JSON | `ConvertTo-Json` |
+| Gar nichts | `Out-Null` |
+
+```powershell
+Get-Process | Select-Object -First 3 | Out-File C:\Kurs\Ausgabe\prozesse.txt
+```
+
+## 6. Debugging einer Pipeline
+
+Baue Pipelines schrittweise auf: Führe erst den ersten Befehl aus, prüfe die Ausgabe, hänge den nächsten Schritt an. Zwischendurch hilft `Get-Member`, um zu sehen, was gerade durchläuft.
+
+## Zusammenfassung
+
+- Durch die Pipeline fließen **Objekte**.
+- `Get-Member` zeigt Eigenschaften und Methoden.
+- `Select-Object`, `Sort-Object`, `Where-Object` sind die Grundwerkzeuge.
+- `Format-*` kommt ans Ende und dient nur der Anzeige.

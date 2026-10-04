@@ -1,0 +1,107 @@
+---
+title: "Abschlussprojekt: Server-Inventar"
+description: "Komplette Aufgabe zum Kursende: ein Inventar-Skript mit Parametern, Fehlerbehandlung, Remoting, CSV und Zeitplan."
+sidebar:
+  order: 34
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="alle Kursrechner" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Das Abschlussprojekt zeigt dir selbst, was du nach drei Tagen kannst. Danach (im optionalen KI-Block) vergleichst du deine Lösung mit einem KI-Vorschlag.
+:::
+
+<Uebung nr="P.1" titel="Inventar-Skript" typ="Challenge">
+
+Schreibe ein Skript `C:\Kurs\Skripte\Get-ServerInventar.ps1`, das für eine Liste von Rechnern ein Inventar erstellt.
+
+**Anforderungen**
+
+1. Parameter `-ComputerName` (mehrere Rechner, Standard: `PSLAB-01`, `PSLAB-02`, `PSLAB-03`) und `-Pfad` für die CSV-Ausgabe (Standard `C:\Kurs\Ausgabe\Inventar.csv`).
+2. Pro Rechner ein Objekt mit: `Computer`, `Betriebssystem`, `LetzterStart`, `FreiGB` (Laufwerk C:), `Spooler` (Status des Dienstes `Spooler`).
+3. Erreichbarkeit zuerst mit `Test-WSMan` prüfen. Rechner, bei denen etwas schiefgeht, erscheinen mit `Computer` und einer `Fehler`-Spalte, das Skript läuft aber weiter. Teste das mit einem nicht existierenden Namen und mit `DC01`: Dort hast du als Kursteilnehmer keine Administratorrechte, die CIM-Abfrage schlägt also fehl.
+4. Fehler werden mit `try`/`catch` abgefangen und mit `Write-Warning` gemeldet.
+5. Am Ende: CSV schreiben, Anzahl der erfolgreichen und fehlgeschlagenen Rechner ausgeben.
+6. Das Skript schreibt ein Transcript nach `C:\Kurs\Logs`.
+
+**Bonus**
+
+- Lege mit `Register-ScheduledTask` eine Aufgabe an, die das Skript täglich um 07:00 startet.
+- Füge Kommentarkopf mit `.SYNOPSIS`, `.PARAMETER` und `.EXAMPLE` hinzu.
+
+**Hinweis:** Du darfst jede Hilfe nutzen, die du auch im Alltag hättest: `Get-Help`, die Kursseiten, Kollegen.
+
+<Loesung titel="Musterlösung anzeigen">
+
+```powershell
+<#
+.SYNOPSIS
+    Erstellt ein Inventar für eine Liste von Rechnern.
+.PARAMETER ComputerName
+    Zielrechner.
+.PARAMETER Pfad
+    CSV-Ausgabedatei.
+.EXAMPLE
+    .\Get-ServerInventar.ps1 -ComputerName PSLAB-02, DC01, GIBTSNICHT
+#>
+param(
+    [string[]]$ComputerName = @('PSLAB-01', 'PSLAB-02', 'PSLAB-03'),
+    [string]$Pfad = 'C:\Kurs\Ausgabe\Inventar.csv'
+)
+
+Start-Transcript -Path "C:\Kurs\Logs\Inventar-$(Get-Date -Format 'yyyyMMdd-HHmmss').log" | Out-Null
+
+$ergebnis = foreach ($rechner in $ComputerName) {
+    try {
+        Test-WSMan -ComputerName $rechner -ErrorAction Stop | Out-Null
+
+        $os   = Get-CimInstance Win32_OperatingSystem -ComputerName $rechner -ErrorAction Stop
+        $disk = Get-CimInstance Win32_LogicalDisk -ComputerName $rechner -Filter "DeviceID = 'C:'" -ErrorAction Stop
+        $svc  = Invoke-Command -ComputerName $rechner -ErrorAction Stop `
+                    -ScriptBlock { (Get-Service -Name Spooler -ErrorAction SilentlyContinue).Status }
+
+        [PSCustomObject]@{
+            Computer       = $rechner
+            Betriebssystem = $os.Caption
+            LetzterStart   = $os.LastBootUpTime
+            FreiGB         = [math]::Round($disk.FreeSpace / 1GB, 1)
+            Spooler        = "$svc"
+            Fehler         = ''
+        }
+    }
+    catch {
+        Write-Warning "$rechner : $($_.Exception.Message)"
+        [PSCustomObject]@{
+            Computer       = $rechner
+            Betriebssystem = ''
+            LetzterStart   = ''
+            FreiGB         = ''
+            Spooler        = ''
+            Fehler         = $_.Exception.Message
+        }
+    }
+}
+
+$ergebnis | Export-Csv -Path $Pfad
+$fehler = @($ergebnis | Where-Object Fehler -ne '').Count
+Write-Output "Fertig: $(@($ergebnis).Count - $fehler) erfolgreich, $fehler fehlgeschlagen. Datei: $Pfad"
+
+Stop-Transcript | Out-Null
+```
+
+Zeitplan (Bonus):
+
+```powershell
+$aktion  = New-ScheduledTaskAction -Execute 'C:\Program Files\PowerShell\7\pwsh.exe' `
+           -Argument '-NoProfile -File "C:\Kurs\Skripte\Get-ServerInventar.ps1"'
+$trigger = New-ScheduledTaskTrigger -Daily -At 07:00
+Register-ScheduledTask -TaskName 'Kurs-Inventar' -Action $aktion -Trigger $trigger
+```
+
+</Loesung>
+</Uebung>

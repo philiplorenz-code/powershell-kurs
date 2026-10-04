@@ -1,0 +1,114 @@
+---
+title: "Skripte strukturiert aufbauen"
+sidebar:
+  order: 2
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Ein Skript sinnvoll gliedern und dokumentieren
+- Parameter statt fest verdrahteter Werte nutzen
+
+</Lernziele>
+
+Ein gut strukturiertes Skript ist der Schlüssel zu wartbarem, erweiterbarem und wiederverwendbarem Code. Durch eine klare Gliederung und Modularisierung kannst du die Komplexität deines Skripts reduzieren und Fehler leichter identifizieren und beheben.
+
+
+
+## 1. Planung und Strukturierung
+
+Bevor du ein Skript schreibst, solltest du folgende Punkte beachten:
+
+- **Anforderungen definieren:**  
+  Überlege, welche Aufgaben das Skript erfüllen soll.
+- **Modularität:**  
+  Teile dein Skript in wiederverwendbare Funktionen oder Module auf.
+- **Dokumentation:**  
+  Kommentiere den Code und füge einen Header mit Informationen wie Zweck, Autor, Datum und Version ein.
+
+## 2. Best Practices für strukturierte Skripte
+
+- **Funktionen verwenden:**  
+  Gliedere wiederkehrende Aufgaben in Funktionen. Dies fördert die Wiederverwendbarkeit und erleichtert das Testen einzelner Komponenten.
+
+- **Parameter und Typisierung:**  
+  Nutze Parameter, um Funktionen flexibel zu gestalten, und erzwinge Datentypen, wenn nötig, um unerwartete Ergebnisse zu vermeiden.
+
+- **Fehlerbehandlung:**  
+  Fehler fängst du mit `try`/`catch` ab. Das lernst du im Kapitel nach den Modulen.
+
+- **Klare Namensgebung:**  
+  Verwende aussagekräftige Namen für Variablen, Funktionen und Dateien, um den Code verständlicher zu machen.
+
+- **Skript-Header:**  
+  Ein Header am Anfang deines Skripts sollte Informationen zum Zweck, Autor, Datum und zur Version enthalten.
+
+## 3. Beispiel für ein strukturiertes Skript
+
+Im Folgenden ein Beispiel, das zeigt, wie ein Skript modular aufgebaut werden kann:
+
+```powershell
+# Skript-Header
+<#
+.SYNOPSIS
+    Liest Mitarbeiter aus einer CSV-Datei und gibt sie aus.
+.DESCRIPTION
+    Demonstration eines strukturierten Skriptaufbaus.
+.PARAMETER Path
+    Pfad zur CSV-Datei.
+.EXAMPLE
+    .\Beispielskript.ps1 -Path C:\Kurs\Daten\Mitarbeiter.csv
+.NOTES
+    Autor: Dein Name · Version 1.0
+#>
+
+param(
+    [string]$Path = "C:\Kurs\Daten\Mitarbeiter.csv"
+)
+
+function Get-Data {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$InputFile
+    )
+    Import-Csv -Path $InputFile
+}
+
+function Show-Data {
+    param(
+        [Parameter(Mandatory = $true)]
+        $Data
+    )
+    # Beispiel: Verarbeite jede Zeile der Daten
+    foreach ($row in $Data) {
+        Write-Output "Verarbeite: $($row.Name)"
+    }
+}
+
+# Hauptteil
+$data = Get-Data -InputFile $Path
+Show-Data -Data $data
+```
+
+Der Kommentarblock mit `.SYNOPSIS`, `.PARAMETER` und `.EXAMPLE` heißt **Comment-Based Help**. Er macht dein Skript für `Get-Help .\Beispielskript.ps1` lesbar, genau wie ein Cmdlet.
+
+## 4. Zusammenfassung
+
+- **Planung und Modularität:**  
+  Ein gut strukturiertes Skript beginnt mit einer soliden Planung und wird in logische, wiederverwendbare Funktionen unterteilt.
+- **Fehlerbehandlung und Dokumentation:**  
+  Plane Fehlerbehandlung ein (nächste Kapitel) und dokumentiere deinen Code ausreichend.
+- **Klare Struktur:**  
+  Ein einheitlicher Skript-Header, aussagekräftige Namen und klar abgegrenzte Funktionen erhöhen die Wartbarkeit und Erweiterbarkeit deines Codes.
+
+Mit diesen Best Practices kannst du sicherstellen, dass deine Skripte strukturiert, robust und leicht verständlich sind.
+

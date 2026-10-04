@@ -1,0 +1,75 @@
+---
+title: "Eigene Module bauen"
+sidebar:
+  order: 3
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Optional" />
+
+<Lernziele>
+
+- Funktionen in einer `.psm1`-Datei bündeln
+- Ein Modulmanifest erzeugen und das Modul laden
+
+</Lernziele>
+
+Hast du Funktionen, die du immer wieder brauchst, packst du sie in ein **Modul**. Dann lädst du sie mit einem Befehl in jede Sitzung. Dieses Kapitel baut auf [Funktionen und Parameterblöcke](/tag-3/01-funktionen/) auf.
+
+## 1. Aufbau
+
+```text
+MyTools
+  ├── MyTools.psm1    # der Code
+  └── MyTools.psd1    # Manifest: Name, Version, Autor, exportierte Funktionen
+```
+
+Das Manifest ist optional, aber für alles, was du weitergibst, Pflicht.
+
+## 2. Die `.psm1`-Datei
+
+```powershell
+function Get-Greeting {
+    param(
+        [string]$Name = "Welt"
+    )
+    "Hallo, $Name!"
+}
+
+Export-ModuleMember -Function Get-Greeting
+```
+
+## 3. Manifest erzeugen
+
+```powershell
+New-ModuleManifest -Path "C:\Kurs\Skripte\MyTools\MyTools.psd1" `
+    -RootModule "MyTools.psm1" `
+    -ModuleVersion "1.0.0" `
+    -Author "Dein Name" `
+    -Description "Funktionen für Begrüßungen" `
+    -FunctionsToExport "Get-Greeting"
+```
+
+`-RootModule` verbindet das Manifest mit dem Code. Ohne diesen Parameter lädt PowerShell die `.psm1` nicht.
+
+## 4. Laden und verwenden
+
+```powershell
+Import-Module "C:\Kurs\Skripte\MyTools" -Force
+Get-Command -Module MyTools
+Get-Greeting -Name "Max"
+```
+
+`-Force` lädt das Modul neu, wenn du es geändert hast.
+
+:::tip[Wohin mit dem Modul?]
+PowerShell findet Module automatisch in den Ordnern aus `$env:PSModulePath`. Legst du dein Modul dort ab, brauchst du keinen Pfad mehr anzugeben. Für PowerShell 7 ist das zum Beispiel `$HOME\Documents\PowerShell\Modules\MyTools\`.
+:::
+
+## Zusammenfassung
+
+- Ein Modul ist ein Ordner mit `.psm1` und (empfohlen) `.psd1`.
+- `Export-ModuleMember` und `FunctionsToExport` legen fest, was sichtbar ist.
+- `Import-Module -Force` lädt Änderungen nach.

@@ -1,0 +1,257 @@
+---
+title: "Tag 1 · Block 2: Pipeline, Variablen und Datenstrukturen"
+description: "Übungen zu Pipeline, Variablen, Datentypen, Rechnen, Strings, Datenstrukturen und Objekten."
+sidebar:
+  order: 12
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Diese Übungen sind dein Training im Lesen, Ausprobieren und Verstehen. Bleib bei `Get-Help`, `Get-Member` und den Kapiteln.
+:::
+
+## Pipeline
+
+<Uebung nr="2.1" titel="Erste Pipeline">
+
+1. Liste alle Dienste auf (`Get-Service`) und sortiere sie nach `Status`.
+2. Zeige nur die ersten fünf Dienste an.
+3. Zeige nur die Spalten `Name` und `Status` an.
+4. Wie viele Dienste gibt es insgesamt? (Tipp: `Measure-Object`.)
+
+<Loesung>
+
+```powershell
+Get-Service | Sort-Object Status
+Get-Service | Sort-Object Status | Select-Object -First 5
+Get-Service | Select-Object Name, Status
+Get-Service | Measure-Object
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.2" titel="Objekte untersuchen">
+
+1. Welche Eigenschaften hat ein Prozessobjekt? Nutze `Get-Member` mit `Get-Process`.
+2. Zeige nur die **Properties** an.
+3. Finde eine Eigenschaft, die den Arbeitsspeicher beschreibt. Lass dir damit für die fünf größten Prozesse `Name` und diese Eigenschaft anzeigen.
+
+<Loesung>
+
+```powershell
+Get-Process | Get-Member
+Get-Process | Get-Member -MemberType Property
+Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 5 -Property Name, WorkingSet
+```
+
+`WorkingSet` ist der aktuell belegte physische Speicher in Bytes (`WS` und `PM` gibt es ebenfalls).
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.3" titel="Filtern">
+
+1. Zeige alle **laufenden** Dienste (`Status` ist `Running`).
+2. Zeige alle **gestoppten** Dienste, sortiert nach `DisplayName`.
+3. Zeige alle Prozesse mit dem Namen `svchost`.
+4. Wie viele laufende Dienste gibt es?
+
+<Loesung>
+
+```powershell
+Get-Service | Where-Object Status -eq 'Running'
+Get-Service | Where-Object Status -eq 'Stopped' | Sort-Object DisplayName
+Get-Process | Where-Object Name -eq 'svchost'     # oder: Get-Process -Name svchost
+Get-Service | Where-Object Status -eq 'Running' | Measure-Object
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.4" titel="Anzeige und Daten trennen">
+
+1. Gib die ersten drei Dienste als **Liste** mit allen Eigenschaften aus (`Format-List *`).
+2. Speichere `Name` und `Status` aller Dienste mit `Export-Csv` in `C:\Kurs\Ausgabe\dienste.csv`.
+3. Öffne die Datei mit `Get-Content`. Sieht sie so aus, wie du es erwartest?
+4. Probiere es noch einmal, aber **mit** `Format-Table` vor `Export-Csv`. Was passiert und warum?
+
+<Loesung>
+
+```powershell
+Get-Service | Select-Object -First 3 | Format-List *
+Get-Service | Select-Object Name, Status | Export-Csv C:\Kurs\Ausgabe\dienste.csv
+Get-Content C:\Kurs\Ausgabe\dienste.csv | Select-Object -First 5
+Get-Service | Format-Table Name, Status | Export-Csv C:\Kurs\Ausgabe\falsch.csv
+Get-Content C:\Kurs\Ausgabe\falsch.csv | Select-Object -First 5
+```
+
+`Format-Table` erzeugt Formatierungsobjekte, die nur für die Bildschirmausgabe gedacht sind. `Export-Csv` bekommt dann keine Dienste mehr, sondern Formatierungsinformationen. `Format-*` gehört ans Ende der Pipeline.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.5" titel="Speicherfresser" typ="Challenge">
+
+Erstelle einen Textbericht `C:\Kurs\Ausgabe\top5.txt` mit den **fünf Prozessen, die am meisten Arbeitsspeicher belegen**. Er soll `Name`, `Id` und den Speicher enthalten.
+
+<Loesung>
+
+```powershell
+Get-Process |
+    Sort-Object WorkingSet -Descending |
+    Select-Object -First 5 -Property Name, Id, WorkingSet |
+    Out-File C:\Kurs\Ausgabe\top5.txt
+Get-Content C:\Kurs\Ausgabe\top5.txt
+```
+
+`Out-File` schreibt die Anzeige so, wie sie in der Konsole aussähe. Für Weiterverarbeitung nimmst du stattdessen `Export-Csv`.
+
+</Loesung>
+</Uebung>
+
+## Variablen und Datentypen
+
+<Uebung nr="2.6" titel="Variablen und Umgebungsvariablen">
+
+1. Lege Variablen `$vorname` und `$alter` an und gib den Satz „Ich bin Max und 30 Jahre alt." mit Hilfe der Variablen aus (Zeichenketten in Anführungszeichen, Variablen darin).
+2. Ändere `$alter` und gib den Satz erneut aus.
+3. Lies mit `$env:COMPUTERNAME` und `$env:USERNAME` Rechner- und Benutzernamen.
+4. Setze `$env:KURS = "PowerShell in 3 Tagen"` und prüfe mit `Get-ChildItem Env:`, ob die Variable erscheint. Starte danach eine neue PowerShell. Ist sie noch da?
+
+<Loesung>
+
+```powershell
+$vorname = "Max"
+$alter = 30
+"Ich bin $vorname und $alter Jahre alt."
+$alter = 31
+"Ich bin $vorname und $alter Jahre alt."
+
+$env:COMPUTERNAME
+$env:USERNAME
+$env:KURS = "PowerShell in 3 Tagen"
+Get-ChildItem Env: | Where-Object Name -eq 'KURS'
+```
+
+In der neuen Sitzung ist `KURS` weg: `$env:`-Änderungen gelten nur für die laufende Sitzung.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.7" titel="Typen und Rechnen">
+
+1. Was ergibt `"5" + "5"`, was `5 + 5`? Und `"5" + 5`? Und `5 + "5"`? Erkläre die Ergebnisse. Prüfe mit `.GetType()`, welchen Typ jedes Ergebnis hat.
+2. Berechne `12 + 8`, `15 / 3`, `17 % 4` und speichere jedes Ergebnis in einer Variable.
+3. Berechne die Fläche eines Rechtecks mit Länge 7 und Breite 5.
+4. Wie viele Kilobyte sind `5MB`? Nutze die Einheiten von PowerShell.
+5. Berechne `(5 + 3) * 2` und `5 + 3 * 2`. Warum sind die Ergebnisse verschieden?
+
+<Loesung>
+
+```powershell
+"5" + "5"        # 55  (Text)
+5 + 5            # 10  (Zahl)
+"5" + 5          # 55  (links steht Text: der Operator "+" verkettet)
+5 + "5"          # 10  (links steht eine Zahl: der Text wird in eine Zahl umgewandelt)
+("5" + 5).GetType().Name     # String
+
+$summe = 12 + 8
+$quotient = 15 / 3
+$rest = 17 % 4
+
+$flaeche = 7 * 5
+5MB / 1KB        # 5120
+(5 + 3) * 2      # 16
+5 + 3 * 2        # 11  (Punkt vor Strich)
+```
+
+Der Typ des **linken** Operanden entscheidet, was `+` tut.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.8" titel="Strings bearbeiten">
+
+```powershell
+$zeile = "  Anna;Berlin;IT  "
+```
+
+1. Entferne die Leerzeichen am Anfang und Ende.
+2. Zerlege die Zeile an den Semikolons in ihre drei Bestandteile.
+3. Ersetze `Berlin` durch `Hamburg`.
+4. Gib den dritten Teil in Großbuchstaben aus (Tipp: `.ToUpper()`).
+5. Baue aus den Teilen mit dem Format-Operator `-f` den Satz „Anna arbeitet in Hamburg (Abteilung IT)." zusammen.
+
+<Loesung>
+
+```powershell
+$zeile = "  Anna;Berlin;IT  "
+$sauber = $zeile.Trim()
+$teile  = $sauber.Split(";")
+$neu    = $sauber -replace "Berlin", "Hamburg"
+$teile[2].ToUpper()
+"{0} arbeitet in {1} (Abteilung {2})." -f $teile[0], "Hamburg", $teile[2]
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.9" titel="Arrays, Hashtables und eigene Objekte">
+
+1. Erstelle ein Array `$obst` mit drei Sorten. Gib das zweite Element und die Anzahl der Elemente aus. Hänge eine vierte Sorte an.
+2. Erstelle eine Hashtable `$auto` mit `Marke`, `Modell` und `Baujahr`. Gib den Wert von `Modell` aus. Füge `Farbe` hinzu.
+3. Erstelle mit `[PSCustomObject]` ein Objekt `$server` mit `Name`, `Rolle` und `RAMGB` und zeige es mit `Format-Table` an.
+4. Erstelle ein Array mit **drei** solchen Objekten (verschiedene Server) und sortiere es nach `RAMGB` absteigend.
+
+<Loesung>
+
+```powershell
+$obst = @("Apfel", "Banane", "Kirsche")
+$obst[1]
+$obst.Count
+$obst += "Dattel"
+
+$auto = @{ Marke = "VW"; Modell = "Golf"; Baujahr = 2020 }
+$auto.Modell
+$auto["Farbe"] = "Blau"
+
+$server = [PSCustomObject]@{ Name = "SRV01"; Rolle = "Datei"; RAMGB = 16 }
+$server | Format-Table
+
+$liste = @(
+    [PSCustomObject]@{ Name = "SRV01"; Rolle = "Datei";   RAMGB = 16 },
+    [PSCustomObject]@{ Name = "SRV02"; Rolle = "Web";     RAMGB = 8 },
+    [PSCustomObject]@{ Name = "SRV03"; Rolle = "Datenbank"; RAMGB = 64 }
+)
+$liste | Sort-Object RAMGB -Descending
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.10" titel="Denke in Objekten" typ="Challenge">
+
+1. Finde heraus, wie viel freien Speicherplatz Laufwerk `C:` hat. Tipp: `Get-PSDrive` und `Get-Member`.
+2. Gib **nur die Zahl** für den freien Speicher in **Gigabyte** (gerundet auf eine Nachkommastelle) aus. Tipp: Eigenschaft ansprechen mit `.Free`, Einheit `1GB`, Runden mit `[math]::Round(Zahl, 1)`.
+
+<Loesung>
+
+```powershell
+Get-PSDrive -Name C | Get-Member
+Get-PSDrive -Name C | Select-Object Name, Used, Free
+
+$laufwerk = Get-PSDrive -Name C
+[math]::Round($laufwerk.Free / 1GB, 1)
+```
+
+Die Eigenschaft `Free` ist eine Zahl in Bytes. Du musst keinen Text zerlegen: Objekt, Eigenschaft, rechnen.
+
+</Loesung>
+</Uebung>

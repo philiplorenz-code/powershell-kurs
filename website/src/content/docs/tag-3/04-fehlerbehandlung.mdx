@@ -1,0 +1,146 @@
+---
+title: "Fehlerbehandlung"
+sidebar:
+  order: 4
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Terminierende und nicht-terminierende Fehler unterscheiden
+- `try`/`catch`/`finally` korrekt einsetzen
+- Fehlerinformationen auslesen (`$_`, `$Error`)
+
+</Lernziele>
+
+Robuste Skripte rechnen damit, dass etwas schiefgeht: Datei fehlt, Server nicht erreichbar, Zugriff verweigert. Fehlerbehandlung bestimmt, was dann passiert.
+
+## 1. Zwei Arten von Fehlern
+
+PowerShell kennt **nicht-terminierende** Fehler (Standard bei Cmdlets) und **terminierende** Fehler.
+
+```powershell
+Get-Content -Path C:\Kurs\gibt-es-nicht.txt
+Write-Output "Ich laufe trotzdem weiter."
+```
+
+Das Cmdlet meldet einen Fehler in Rot, das Skript macht aber **weiter**. Das ist ein nicht-terminierender Fehler.
+
+:::caution[Die häufigste Falle]
+`try`/`catch` fängt **nur terminierende** Fehler. Ein nicht-terminierender Fehler läuft am `catch` vorbei:
+
+```powershell
+try {
+    Get-Content -Path C:\Kurs\gibt-es-nicht.txt
+}
+catch {
+    Write-Warning "Das wird nie angezeigt."
+}
+```
+:::
+
+## 2. `-ErrorAction Stop` macht den Fehler abfangbar
+
+```powershell
+try {
+    Get-Content -Path C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop
+}
+catch {
+    Write-Warning "Datei konnte nicht gelesen werden: $($_.Exception.Message)"
+}
+```
+
+Mit `-ErrorAction Stop` wird der Fehler terminierend. Innerhalb von `catch` steht der Fehler in `$_`.
+
+| `-ErrorAction` | Wirkung |
+|---|---|
+| `Continue` | Standard: Fehler anzeigen, weitermachen |
+| `Stop` | Fehler wird terminierend, `catch` greift |
+| `SilentlyContinue` | Fehler unterdrücken und weitermachen |
+| `Ignore` | Fehler vollständig ignorieren (nicht in `$Error`) |
+
+Für ein ganzes Skript setzt du `$ErrorActionPreference = 'Stop'` an den Anfang. Mach das bewusst und nicht aus Gewohnheit.
+
+## 3. Aufbau von `try`/`catch`/`finally`
+
+```powershell
+try {
+    $inhalt = Get-Content -Path $Pfad -ErrorAction Stop
+}
+catch {
+    Write-Warning "Fehler: $($_.Exception.Message)"
+}
+finally {
+    Write-Verbose "Aufräumen, läuft immer."
+}
+```
+
+`finally` läuft **immer**, mit oder ohne Fehler. Es ist der Ort für Aufräumarbeiten (Verbindung schließen, Transcript beenden).
+
+## 4. Bestimmte Fehler gezielt behandeln
+
+Welche Art Fehler ist aufgetreten? Frag das Objekt:
+
+```powershell
+try {
+    Get-Item -Path C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop
+}
+catch {
+    $_.Exception.GetType().FullName
+}
+```
+
+Das Ergebnis (`System.Management.Automation.ItemNotFoundException`) setzt du in den `catch` ein:
+
+```powershell
+try {
+    Get-Item -Path C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop
+}
+catch [System.Management.Automation.ItemNotFoundException] {
+    Write-Warning "Pfad existiert nicht."
+}
+catch {
+    Write-Warning "Unerwarteter Fehler: $($_.Exception.Message)"
+}
+```
+
+:::note[Warum nicht `FileNotFoundException`?]
+Viele Beispiele im Netz fangen `System.IO.FileNotFoundException`. `Get-Item` und `Get-Content` werfen aber `ItemNotFoundException`. Verlass dich nicht auf geratene Typen. Lies sie wie oben aus.
+:::
+
+## 5. Eigene Fehler auslösen
+
+```powershell
+if (-not (Test-Path $Pfad)) {
+    throw "Eingabedatei fehlt: $Pfad"
+}
+```
+
+`throw` erzeugt einen terminierenden Fehler. In Funktionen nutzt du für Parameterfehler besser `Write-Error` oder Parametervalidierung.
+
+## 6. Der Fehlerspeicher
+
+PowerShell sammelt Fehler in `$Error`. Der neueste steht vorn:
+
+```powershell
+$Error[0]
+$Error[0] | Format-List * -Force
+```
+
+## 7. Best Practices
+
+- Fange Fehler **dort**, wo du sinnvoll reagieren kannst.
+- Gib verständliche Meldungen aus: Was wurde versucht, was ist schiefgegangen?
+- Verschlucke Fehler nicht stillschweigend (`SilentlyContinue` überall ist ein Anti-Pattern).
+- Räume im `finally` auf.
+- Logge Fehler (siehe [Logging und Transcripts](/tag-3/10-logging/)).
+
+## Zusammenfassung
+
+- `try`/`catch` fängt nur terminierende Fehler. `-ErrorAction Stop` macht Cmdlet-Fehler terminierend.
+- `$_` im `catch` enthält die Fehlerinformation. `finally` läuft immer.
+- Den Fehlertyp liest du mit `$_.Exception.GetType().FullName` aus.

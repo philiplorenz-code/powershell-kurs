@@ -1,0 +1,203 @@
+---
+title: "Tag 3 · Block 2: Fehler, Debugging und Geheimnisse"
+description: "Übungen zu Fehlerbehandlung, Debugging und sicherem Umgang mit Zugangsdaten."
+sidebar:
+  order: 32
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Fehler zu lesen, zu verstehen und zu beheben ist der Kern der Arbeit mit PowerShell. Probiere zuerst selbst, bevor du jemanden fragst.
+:::
+
+<Uebung nr="2.1" titel="Fehler abfangen">
+
+1. Führe `Get-Content C:\Kurs\gibt-es-nicht.txt` in einem `try`/`catch` aus, ohne weitere Parameter. Wird der `catch`-Block ausgeführt? Warum (nicht)?
+2. Ändere es so, dass der `catch` greift. Gib eine verständliche Meldung mit `$_.Exception.Message` aus.
+3. Füge einen `finally`-Block hinzu, der „Fertig." ausgibt. Wann läuft er?
+4. Lies den Typ des Fehlers aus (`$_.Exception.GetType().FullName`) und schreibe einen **speziellen** `catch` für genau diesen Fehlertyp.
+
+<Loesung>
+
+```powershell
+# 1. Der catch greift NICHT: nicht-terminierender Fehler
+try { Get-Content C:\Kurs\gibt-es-nicht.txt }
+catch { "Fehler abgefangen" }
+
+# 2. -ErrorAction Stop macht ihn terminierend
+try { Get-Content C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop }
+catch { "Fehler: $($_.Exception.Message)" }
+
+# 3. finally läuft immer
+try { Get-Content C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop }
+catch { "Fehler: $($_.Exception.Message)" }
+finally { "Fertig." }
+
+# 4. Fehlertyp
+try { Get-Content C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop }
+catch { $_.Exception.GetType().FullName }
+# -> System.Management.Automation.ItemNotFoundException
+
+try { Get-Content C:\Kurs\gibt-es-nicht.txt -ErrorAction Stop }
+catch [System.Management.Automation.ItemNotFoundException] { "Datei nicht gefunden" }
+catch { "Anderer Fehler: $($_.Exception.Message)" }
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.2" titel="Robuste Funktion">
+
+Schreibe die Funktion `Read-DateiSicher` mit `-Pfad`. Sie liest die Datei und gibt den Inhalt zurück. Existiert die Datei nicht, gibt sie eine **Warnung** (`Write-Warning`) aus und liefert nichts zurück. Teste mit `C:\Windows\win.ini` und mit einer nicht vorhandenen Datei.
+
+<Loesung>
+
+```powershell
+function Read-DateiSicher {
+    param([Parameter(Mandatory = $true)][string]$Pfad)
+
+    try {
+        Get-Content -Path $Pfad -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Datei '$Pfad' konnte nicht gelesen werden: $($_.Exception.Message)"
+    }
+}
+
+Read-DateiSicher -Pfad C:\Windows\win.ini
+Read-DateiSicher -Pfad C:\nichtda.txt
+```
+
+Das Verb `Read` ist ein genehmigtes Verb (`Get-Verb`).
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.3" titel="Mehrere Rechner, ein Fehler">
+
+Ein Skript soll den Dienst `Spooler` auf mehreren Rechnern abfragen. Einer davon existiert nicht.
+
+1. Hinweis: `Get-Service -ComputerName` gibt es in PowerShell 7 nicht. Nutze `Invoke-Command` pro Rechner.
+2. Lasse die Liste `@("PSLAB-02", "PSLAB-03", "GIBTSNICHT")` durchlaufen.
+3. Fange den Fehler für den ungültigen Rechner ab, gib eine Warnung mit dem Rechnernamen aus und mache mit dem nächsten Rechner weiter.
+
+<Loesung>
+
+```powershell
+$rechner = @("PSLAB-02", "PSLAB-03", "GIBTSNICHT")
+
+foreach ($r in $rechner) {
+    try {
+        Invoke-Command -ComputerName $r -ScriptBlock { Get-Service -Name Spooler } -ErrorAction Stop |
+            Select-Object PSComputerName, Name, Status
+    }
+    catch {
+        Write-Warning "$r nicht erreichbar: $($_.Exception.Message)"
+    }
+}
+```
+
+Die Schleife läuft weiter, weil der Fehler im `catch` behandelt wurde.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.4" titel="Fehlersuche mit Verbose und Breakpoints">
+
+1. Erweitere `Get-FreierSpeicher` aus Block 1 um `[CmdletBinding()]` und eine `Write-Verbose`-Zeile („Lese Laufwerk X"). Rufe sie mit und ohne `-Verbose` auf.
+2. Das folgende Skript soll die Summe von 1 bis 10 berechnen und ergibt nicht 55. Finde den Fehler mit einem Breakpoint und den Debug-Befehlen:
+
+```powershell
+$summe = 0
+foreach ($i in 1..10) {
+    $summe = $i
+}
+$summe
+```
+
+Speichere es als `C:\Kurs\Skripte\Summe.ps1`, setze `Set-PSBreakpoint -Script ... -Line 3`, starte es und beobachte `$i` und `$summe`. Behebe den Fehler.
+
+<Loesung>
+
+```powershell
+function Get-FreierSpeicher {
+    [CmdletBinding()]
+    param([string]$Laufwerk = "C")
+
+    Write-Verbose "Lese Laufwerk $Laufwerk"
+    $d = Get-PSDrive -Name $Laufwerk
+    [PSCustomObject]@{ Laufwerk = $Laufwerk; FreiGB = [math]::Round($d.Free / 1GB, 1) }
+}
+Get-FreierSpeicher
+Get-FreierSpeicher -Verbose
+```
+
+```powershell
+Set-PSBreakpoint -Script C:\Kurs\Skripte\Summe.ps1 -Line 3
+C:\Kurs\Skripte\Summe.ps1
+# Am Prompt [DBG]:  $i  und  $summe  eingeben, mit  c  fortsetzen
+Get-PSBreakpoint | Remove-PSBreakpoint
+```
+
+Fehler: In Zeile 3 steht `$summe = $i` statt `$summe += $i`. Der Wert wird überschrieben und nicht addiert.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.5" titel="Zugangsdaten">
+
+1. Erstelle mit `Get-Credential` ein Anmeldeobjekt für `PSLAB\teilnehmerNN` (deine Nummer). Welche Eigenschaften hat es? Zeigt es das Passwort im Klartext an?
+2. Verbinde dich mit diesem Objekt: `Invoke-Command -ComputerName PSLAB-02 -Credential $cred -ScriptBlock { whoami }`.
+3. Erzeuge ein `PSCredential` **ohne** Eingabefenster aus einem `SecureString` mit `ConvertTo-SecureString -AsPlainText -Force`. Warum ist das in echten Skripten keine gute Idee?
+
+<Loesung>
+
+```powershell
+$cred = Get-Credential -UserName "PSLAB\teilnehmer01" -Message "Passwort eingeben"
+$cred | Get-Member -MemberType Property
+$cred.UserName
+$cred.Password          # System.Security.SecureString: kein Klartext
+
+Invoke-Command -ComputerName PSLAB-02 -Credential $cred -ScriptBlock { whoami }
+
+$secure = ConvertTo-SecureString "NurFuerDieUebung1!" -AsPlainText -Force
+$cred2  = [PSCredential]::new("PSLAB\teilnehmer01", $secure)
+```
+
+Das Klartextpasswort steht im Skript und damit in Dateien, Versionsverwaltung und Logs.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.6" titel="SecretManagement">
+
+1. Installiere die Module `Microsoft.PowerShell.SecretManagement` und `Microsoft.PowerShell.SecretStore` für deinen Benutzer, falls sie fehlen.
+2. Registriere einen lokalen Tresor `KursTresor` als Standard. Der `SecretStore` verlangt beim ersten Mal ein Passwort für den Tresor.
+3. Lege ein Geheimnis `LabToken` mit einem beliebigen Wert an (Wert per `Read-Host -AsSecureString` abfragen) und lies es wieder aus. Wie bekommst du den Wert als Klartext, wenn du ihn wirklich brauchst?
+4. Lege dein Anmeldeobjekt aus der vorigen Übung als Geheimnis `LabAdmin` ab und verwende es für `Invoke-Command`.
+
+<Loesung>
+
+```powershell
+Install-PSResource Microsoft.PowerShell.SecretManagement, Microsoft.PowerShell.SecretStore -Scope CurrentUser -TrustRepository
+
+Register-SecretVault -Name KursTresor -ModuleName Microsoft.PowerShell.SecretStore -DefaultVault
+
+Set-Secret -Name LabToken -Secret (Read-Host -AsSecureString -Prompt "Token")
+Get-Secret -Name LabToken                  # SecureString
+Get-Secret -Name LabToken -AsPlainText     # Klartext, nur wenn nötig
+Get-SecretInfo
+
+Set-Secret -Name LabAdmin -Secret $cred
+$c = Get-Secret -Name LabAdmin
+Invoke-Command -ComputerName PSLAB-02 -Credential $c -ScriptBlock { whoami }
+```
+
+</Loesung>
+</Uebung>

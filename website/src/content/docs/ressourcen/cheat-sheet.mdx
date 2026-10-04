@@ -1,0 +1,96 @@
+---
+title: "Cheat Sheet"
+description: "Die wichtigsten Befehle und Regeln auf einer Seite."
+sidebar:
+  order: 1
+---
+import Stufe from '../../../components/Stufe.astro';
+
+<Stufe stufe="Reserve" />
+
+## Hilfe und Entdecken
+
+| Ziel | Befehl |
+|---|---|
+| Hilfe zeigen | `Get-Help Get-Service -Examples` |
+| Parameter nachschlagen | `Get-Help Get-Service -Parameter Name` |
+| Cmdlets finden | `Get-Command -Verb Get -Noun *Service*` |
+| Objekt untersuchen | `… \| Get-Member` |
+| Version | `$PSVersionTable.PSVersion` |
+
+## Pipeline
+
+| Ziel | Befehl |
+|---|---|
+| Filtern | `Where-Object Status -eq 'Running'` |
+| Filtern (komplex) | `Where-Object { $_.CPU -gt 10 -and $_.Name -like 'p*' }` |
+| Sortieren | `Sort-Object Length -Descending` |
+| Auswählen | `Select-Object Name, Id -First 5` |
+| Zählen | `Measure-Object` |
+| Gruppieren | `Group-Object Status` |
+| Anzeige | `Format-Table`, `Format-List` (nur am Ende) |
+| Daten ausgeben | `Export-Csv`, `ConvertTo-Json`, `Out-File` |
+
+## Vergleichsoperatoren
+
+`-eq` `-ne` `-gt` `-ge` `-lt` `-le` · `-like` `-notlike` · `-match` · `-contains` `-in` · `-and` `-or` `-not`
+
+## Kontrollstrukturen
+
+```powershell
+if ($x -gt 5) { … } elseif ($x -eq 5) { … } else { … }
+switch ($x) { 1 { … } default { … } }
+foreach ($e in $liste) { … }
+for ($i = 0; $i -lt 10; $i++) { … }
+while ($bedingung) { … }
+```
+
+## Sicher verändern
+
+```powershell
+Remove-Item C:\Temp\x -Recurse -WhatIf    # nur simulieren
+Stop-Service Spooler -Confirm             # nachfragen
+```
+
+## Fehler
+
+```powershell
+try { Get-Item $pfad -ErrorAction Stop }
+catch { Write-Warning $_.Exception.Message }
+finally { … }
+```
+
+## Remoting
+
+```powershell
+Test-WSMan -ComputerName PSLAB-02
+Enter-PSSession -ComputerName PSLAB-02
+Invoke-Command -ComputerName PSLAB-02, PSLAB-03 -ScriptBlock { Get-Service Spooler }
+Invoke-Command … -ScriptBlock { $using:variable }
+```
+
+## Active Directory
+
+```powershell
+Get-ADUser -Filter "Department -eq 'IT'" -Properties Department
+Get-ADGroupMember -Identity GRP-IT
+Search-ADAccount -AccountDisabled
+New-ADUser -Name … -SamAccountName … -Path "OU=…" -WhatIf
+```
+
+## Windows PowerShell 5.1 vs. PowerShell 7
+
+| Thema | 5.1 | 7 |
+|---|---|---|
+| Programm | `powershell.exe` | `pwsh.exe` |
+| `Get-WmiObject` | ja | **nein**, `Get-CimInstance` |
+| `Register-ScheduledJob` | ja | **nein**, `ScheduledTasks`-Cmdlets |
+| `?:`, `??`, `&&`, `ForEach-Object -Parallel` | nein | ja |
+| `Export-Csv -NoTypeInformation` | nötig | überflüssig |
+| ISE | ja | nein, VS Code |
+
+## Links
+
+- [PowerShell-Dokumentation](https://learn.microsoft.com/de-de/powershell/)
+- [Microsoft Learn: Approved Verbs](https://learn.microsoft.com/de-de/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands)
+- [PowerShell Gallery](https://www.powershellgallery.com/)

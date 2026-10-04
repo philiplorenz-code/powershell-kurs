@@ -1,0 +1,60 @@
+---
+title: "Gute Prompts"
+description: "Aufgaben beschreiben und Entwürfe erzeugen."
+sidebar:
+  order: 2
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Optional" />
+
+<Lernziele>
+
+- Eine administrative Aufgabe so beschreiben, dass ein brauchbarer Entwurf entsteht
+- Gute und schlechte Prompts unterscheiden
+
+</Lernziele>
+
+## Bausteine eines guten Prompts
+
+| Baustein | Beispiel |
+|---|---|
+| **Rolle und Stand** | „Ich bin Windows-Administrator, PowerShell-Grundkenntnisse." |
+| **Umgebung** | „PowerShell 7.5, Windows Server 2025, Domäne `pslab.internal`." |
+| **Ziel** | „Liste alle AD-Benutzer der Abteilung IT, die sich seit 90 Tagen nicht angemeldet haben." |
+| **Ein- und Ausgabe** | „Ausgabe als CSV mit Name, SamAccountName, LastLogonDate." |
+| **Randbedingungen** | „Nur lesender Zugriff, keine Module außer ActiveDirectory, deutsche Kommentare." |
+| **Sicherheit** | „Alles, was etwas verändert, mit `-WhatIf`." |
+| **Format der Antwort** | „Erst die Lösung, dann eine kurze Erklärung der wichtigsten Zeilen." |
+
+## Vergleich
+
+**Schlecht:**
+
+> schreib mir ein powershell script für inaktive benutzer
+
+Was fehlt? Welches System (AD? Entra ID? lokal?), was ist „inaktiv", was soll passieren (anzeigen, deaktivieren, löschen)?
+
+**Besser:**
+
+> Ich bin Windows-Administrator (PowerShell-Grundkenntnisse) und arbeite mit PowerShell 7 in einer Active-Directory-Domäne. Schreibe ein Skript mit Parameter `-Tage` (Standard 90), das alle **aktivierten** Benutzer findet, deren `LastLogonDate` älter ist, und als CSV nach `C:\Kurs\Ausgabe\inaktiv.csv` exportiert. Nur lesender Zugriff. Verwende nur das ActiveDirectory-Modul. Erkläre danach kurz, warum `LastLogonDate` ungenau sein kann.
+
+Die bessere Version ist nicht „länger um der Länge willen", sondern enthält die Informationen, die du einem Kollegen auch geben würdest.
+
+## Iterieren
+
+Der erste Entwurf ist selten perfekt. Gehe in kleinen Schritten vor:
+
+1. Entwurf anfordern.
+2. **Selbst lesen und verstehen.** Was macht jede Zeile?
+3. Gezielt nachfragen („Warum `-Filter` statt `Where-Object`?").
+4. In der Testumgebung ausführen, Fehler zurückmelden.
+5. Erst dann einsetzen.
+
+## Entwurf zum Lernen nutzen
+
+Du kannst die KI auch als Lehrer einsetzen: „Erkläre mir den Unterschied zwischen `-contains` und `-in` mit drei Beispielen" oder „Gib mir eine Übungsaufgabe zu Hashtables und prüfe meine Lösung." Das ist legitim, nach dem Grundkurs.

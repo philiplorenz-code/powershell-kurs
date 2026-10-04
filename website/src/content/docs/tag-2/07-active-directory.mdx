@@ -1,0 +1,134 @@
+---
+title: "Active Directory – Einstieg"
+sidebar:
+  order: 7
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" lab="DC01, RSAT auf PSLAB-VMs" />
+
+<Lernziele>
+
+- Das ActiveDirectory-Modul laden und die wichtigsten Abfrage-Cmdlets nutzen
+- Benutzer und Gruppen suchen, filtern und ihre Eigenschaften lesen
+- Einfache Änderungen (Benutzer anlegen, Gruppe füllen) sicher durchführen
+
+</Lernziele>
+
+Windows-Administration heißt meistens: Active Directory. Dieses Kapitel zeigt, wie du Benutzer und Gruppen abfragst und kleine Änderungen vornimmst. Alles, was du in den Kapiteln davor gelernt hast, kommt hier zusammen: Pipeline, Filter, Schleifen und CSV.
+
+:::note[Voraussetzung im Lab]
+Das Modul `ActiveDirectory` (Teil der RSAT-Werkzeuge) ist auf den Kurs-VMs installiert. Auf deinem eigenen Rechner brauchst du sonst die „RSAT: Active Directory Domain Services"-Funktion. Die Cmdlets sprechen über die Active Directory Web Services (ADWS) mit dem Domain Controller.
+:::
+
+## 1. Modul laden und Domäne prüfen
+
+```powershell
+Import-Module ActiveDirectory
+Get-ADDomain
+Get-Command -Module ActiveDirectory | Measure-Object
+```
+
+:::note[PowerShell 7]
+Das Modul wurde für Windows PowerShell geschrieben. PowerShell 7 lädt es seit Version 7.x problemlos, manchmal über eine Kompatibilitätssitzung. Du merkst das an einer Meldung beim ersten Laden. Das ist normal.
+:::
+
+## 2. Benutzer abfragen
+
+```powershell
+# Ein einzelner Benutzer
+Get-ADUser -Identity teilnehmer01
+
+# Mit allen Eigenschaften (Standard zeigt nur wenige)
+Get-ADUser -Identity teilnehmer01 -Properties *
+
+# Mehrere Eigenschaften gezielt anfordern
+Get-ADUser -Identity teilnehmer01 -Properties Department, Title, LastLogonDate |
+    Select-Object Name, Department, Title, LastLogonDate
+```
+
+### Filtern mit `-Filter`
+
+`-Filter` übergibt die Bedingung an den Domain Controller. Das ist viel schneller als alle Benutzer zu laden und mit `Where-Object` zu filtern.
+
+```powershell
+# Alle Benutzer in der Abteilung IT
+Get-ADUser -Filter "Department -eq 'IT'" -Properties Department |
+    Select-Object Name, SamAccountName, Department
+
+# Alle deaktivierten Konten
+Get-ADUser -Filter "Enabled -eq `$false" | Select-Object Name, SamAccountName
+
+# Namen mit Muster
+Get-ADUser -Filter "Name -like 'M*'"
+```
+
+:::caution[Der Filter ist kein PowerShell-Ausdruck]
+Der Wert von `-Filter` ist ein Text, den das AD-Modul selbst auswertet. Er nutzt zwar ähnliche Operatoren (`-eq`, `-like`, `-and`), aber **keine** Skriptblöcke und kein `$_`. Variablen setzt du am besten per Textersetzung in doppelten Anführungszeichen ein.
+:::
+
+### Suchen in einer OU
+
+```powershell
+Get-ADUser -Filter * -SearchBase "OU=Benutzer,OU=Kurs,DC=pslab,DC=internal" |
+    Measure-Object
+```
+
+## 3. Gruppen und Mitglieder
+
+```powershell
+Get-ADGroup -Filter "Name -like 'GRP-*'" | Select-Object Name, GroupScope
+Get-ADGroupMember -Identity GRP-IT | Select-Object Name, SamAccountName
+
+# In welchen Gruppen ist ein Benutzer?
+Get-ADPrincipalGroupMembership -Identity teilnehmer01 | Select-Object Name
+```
+
+## 4. Computer und Konten mit Problemen
+
+```powershell
+Get-ADComputer -Filter * | Select-Object Name, DNSHostName
+Search-ADAccount -LockedOut
+Search-ADAccount -AccountDisabled | Select-Object Name
+Search-ADAccount -PasswordExpired | Select-Object Name
+```
+
+## 5. Ändern: Benutzer anlegen, Gruppen füllen
+
+Verändernde Befehle kennen `-WhatIf`. Nutze es.
+
+```powershell
+$pw = Read-Host -AsSecureString -Prompt "Startpasswort"
+
+New-ADUser -Name "Anna Beispiel" `
+    -SamAccountName anna.beispiel `
+    -GivenName Anna -Surname Beispiel `
+    -Department IT `
+    -Path "OU=Benutzer,OU=Kurs,DC=pslab,DC=internal" `
+    -AccountPassword $pw `
+    -Enabled $true `
+    -WhatIf
+
+Add-ADGroupMember -Identity GRP-IT -Members anna.beispiel -WhatIf
+Set-ADUser -Identity anna.beispiel -Title "Systemadministratorin" -WhatIf
+```
+
+Entferne `-WhatIf`, wenn die Simulation passt.
+
+:::tip[Passwörter]
+Gib Passwörter nie im Klartext in Befehlen an. `Read-Host -AsSecureString` fragt interaktiv. Im Kurs erfährst du an Tag 3, wie du Geheimnisse sauber ablegst.
+:::
+
+<Trainer>
+
+Die Teilnehmer haben im Lab Schreibrechte nur in der OU `OU=Kurs`. Außerhalb bekommen sie „Zugriff verweigert". Das ist gewollt und ein guter Anlass, über Delegierung zu sprechen. Der Domain Controller ist für sie per PowerShell-Remoting erreichbar, aber nicht als Administrator.
+
+</Trainer>
+
+## Zusammenfassung
+
+- `Import-Module ActiveDirectory`, dann `Get-ADUser`, `Get-ADGroup`, `Get-ADComputer`.
+- `-Filter` filtert auf dem Server, `-Properties` holt zusätzliche Eigenschaften.
+- Änderungen mit `New-ADUser`, `Set-ADUser`, `Add-ADGroupMember`, immer erst mit `-WhatIf`.

@@ -1,0 +1,108 @@
+---
+title: "Tag 1 · Block 3: Profil, Sicherheit und Tagesabschluss"
+description: "Übungen zu Profil und Execution Policy sowie eine Abschluss-Challenge zu Tag 1."
+sidebar:
+  order: 13
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Auch die Abschluss-Challenge löst du allein. Es geht darum zu merken, wie viel du an Tag 1 schon selbst kannst.
+:::
+
+<Uebung nr="3.1" titel="Mein Profil" typ="Übung">
+
+1. Zeige den Pfad deines PowerShell-Profils an (`$PROFILE`). Gehört es zu PowerShell 7 oder zu Windows PowerShell 5.1?
+2. Prüfe mit `Test-Path`, ob die Datei existiert, und lege sie bei Bedarf mit `New-Item -Force` an.
+3. Öffne sie in VS Code (`code $PROFILE`) und füge ein: den Alias `ll` für `Get-ChildItem` und eine Begrüßung mit deinem Benutzernamen.
+4. Starte eine **neue** PowerShell. Begrüßt sie dich? Funktioniert `ll`?
+
+<Loesung>
+
+```powershell
+$PROFILE
+Test-Path $PROFILE
+New-Item -ItemType File -Path $PROFILE -Force
+code $PROFILE
+```
+
+Inhalt der Profildatei:
+
+```powershell
+Set-Alias ll Get-ChildItem
+Write-Output "Willkommen, $env:USERNAME!"
+```
+
+Das Profil von PowerShell 7 liegt in `…\Documents\PowerShell\`, das von Windows PowerShell 5.1 in `…\Documents\WindowsPowerShell\`.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="3.2" titel="Execution Policy">
+
+1. Welche Execution Policy gilt in deiner Sitzung? Lass dir alle Scopes anzeigen.
+2. Lege eine Datei `C:\Kurs\Skripte\hallo.ps1` mit dem Inhalt `Write-Output "Hallo aus dem Skript"` an und führe sie aus (`C:\Kurs\Skripte\hallo.ps1`).
+3. Setze die Policy für den **aktuellen Prozess** auf `Restricted`, falls dein System das zulässt, und führe das Skript erneut aus. Was passiert? (Wenn ein Gruppenrichtlinien-Scope die Änderung übersteuert, ist das eine Beobachtung wert.)
+4. Beende die PowerShell und starte neu. Welche Policy gilt wieder?
+
+<Loesung>
+
+```powershell
+Get-ExecutionPolicy
+Get-ExecutionPolicy -List
+
+Set-Content -Path C:\Kurs\Skripte\hallo.ps1 -Value 'Write-Output "Hallo aus dem Skript"'
+C:\Kurs\Skripte\hallo.ps1
+
+Set-ExecutionPolicy -ExecutionPolicy Restricted -Scope Process
+C:\Kurs\Skripte\hallo.ps1       # Fehlermeldung: Skriptausführung ist deaktiviert
+```
+
+Der Scope `Process` gilt nur für die laufende Sitzung. Nach dem Neustart ist die vorherige Einstellung wieder aktiv. Auf Windows Server ist der Standard `RemoteSigned`, auf Clients `Restricted`.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="3.3" titel="Mini-Inventar" typ="Challenge">
+
+Baue Schritt für Schritt ein kleines Inventar deines Rechners, ausschließlich mit Dingen, die du bis hierher gelernt hast.
+
+1. Lege ein Objekt `$inventar` an (`[PSCustomObject]`) mit diesen Eigenschaften: `Computer` (Name des Rechners), `Benutzer`, `PowerShellVersion`, `FreierSpeicherGB` (Laufwerk C:, gerundet auf eine Nachkommastelle) und `LaufendeDienste` (Anzahl der Dienste mit Status `Running`).
+2. Gib das Objekt mit `Format-List` aus.
+3. Speichere es als CSV in `C:\Kurs\Ausgabe\inventar.csv` und lies die Datei mit `Import-Csv` wieder ein.
+
+<Loesung>
+
+```powershell
+$frei    = [math]::Round((Get-PSDrive -Name C).Free / 1GB, 1)
+$dienste = (Get-Service | Where-Object Status -eq 'Running' | Measure-Object).Count
+
+$inventar = [PSCustomObject]@{
+    Computer          = $env:COMPUTERNAME
+    Benutzer          = $env:USERNAME
+    PowerShellVersion = $PSVersionTable.PSVersion.ToString()
+    FreierSpeicherGB  = $frei
+    LaufendeDienste   = $dienste
+}
+
+$inventar | Format-List
+$inventar | Export-Csv C:\Kurs\Ausgabe\inventar.csv
+Import-Csv C:\Kurs\Ausgabe\inventar.csv
+```
+
+Mehrere Teilschritte lassen sich in Variablen zwischenspeichern. So bleibt jede Zeile lesbar und testbar.
+
+</Loesung>
+</Uebung>
+
+<Trainer>
+
+Die Challenge dient als Tagesabschluss und kann in Paaren besprochen werden. Wer schneller fertig ist, ergänzt eine Eigenschaft (zum Beispiel die Anzahl der laufenden Prozesse oder die Windows-Version).
+
+</Trainer>
