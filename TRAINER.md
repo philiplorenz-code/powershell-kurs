@@ -76,7 +76,7 @@ Dann: Folien öffnen, Teilnehmern ihre Zugangsdaten geben (persönlich, nicht pe
 | Domäne | `pslab.internal` (NetBIOS `PSLAB`) |
 | Rechner | `DC01` (Server 2025, B2s), `PSLAB-01..03` (Server 2025, B2ms) |
 | Konten | `PSLAB\labadmin` (Domänen-Admin, Trainer), `PSLAB\teilnehmer01..03` (jeder lokaler Admin auf allen `PSLAB-0x`, Schreibrechte nur in der eigenen OU) |
-| Demo-Daten AD | OU `Kurs` mit `Benutzer` (24 Konten, 3 deaktiviert, 2 mit abgelaufenem Passwort), `Gruppen` (`GRP-IT`, `GRP-HR`, `GRP-Finanzen`, `GRP-Vertrieb`, `GG-Kurs-Teilnehmer`), `Computer`, `Teilnehmer`, `Uebung\T01..T03` |
+| Demo-Daten AD | OU `Kurs` mit `Benutzer` (24 Konten, 3 deaktiviert, 2 mit abgelaufenem Konto), `Gruppen` (`GRP-IT`, `GRP-HR`, `GRP-Finanzen`, `GRP-Vertrieb`, `GG-Kurs-Teilnehmer`), `Computer`, `Teilnehmer`, `Uebung\T01..T03` |
 | Kursdaten | `C:\Kurs\{Daten,Ausgabe,Logs,Skripte,KI}`, `Mitarbeiter.csv`, 12 Logdateien |
 | Software | PowerShell 7.6 (LTS), VS Code mit PowerShell-Erweiterung, RSAT-AD, Pester 5 |
 

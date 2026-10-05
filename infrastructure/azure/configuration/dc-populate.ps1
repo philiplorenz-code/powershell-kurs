@@ -8,10 +8,11 @@ param(
     [Parameter(Mandatory)][string]$NetbiosName,
     [Parameter(Mandatory)][string]$AdminUser,
     [Parameter(Mandatory)][string]$AdminPassword,
-    [Parameter(Mandatory)][string]$StudentPasswordsJson,
+    [Parameter(Mandatory)][string]$StudentPasswordsB64,
+    [Parameter(Mandatory)][string]$DsrmPassword,
     [int]$StudentCount = 3,
     [string]$PwshVersion = '7.6.6',
-    [string]$ParticipantsJson = '[]'
+    [string]$ParticipantsB64 = 'W10='
 )
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -32,9 +33,16 @@ if (-not $ready) { throw 'Active Directory ist nach 25 Minuten nicht bereit.' }
 Start-Sleep -Seconds 30   # SYSVOL/Netlogon und DNS-Registrierung nachlaufen lassen
 
 $base = (Get-ADDomain).DistinguishedName
-$studentPw = $StudentPasswordsJson | ConvertFrom-Json
-$participants = @($ParticipantsJson | ConvertFrom-Json)
+# JSON-Parameter kommen Base64-kodiert an (Run Command zerlegt sonst Leerzeichen und Anführungszeichen)
+$fromB64 = { param($b) [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b)) }
+$studentPw = (& $fromB64 $StudentPasswordsB64) | ConvertFrom-Json
+# Windows PowerShell 5.1 liefert ein JSON-Array als EIN Objekt; ForEach-Object rollt es in einzelne Teilnehmer aus
+$participants = @((& $fromB64 $ParticipantsB64) | ConvertFrom-Json | ForEach-Object { $_ })
 $sec = { param($p) ConvertTo-SecureString $p -AsPlainText -Force }
+
+# ---- DSRM-Passwort (Verzeichnisdienst-Wiederherstellungsmodus) auf den Terraform-Wert setzen (idempotent, ermöglicht Rotation) ----
+# ntdsutil liest Befehle von der Standardeingabe (mit Argumenten wartet es auf eine Konsole und hängt)
+$null = @('set dsrm password', 'reset password on server null', $DsrmPassword, 'q', 'q') | & ntdsutil.exe
 
 # ---- DNS: Weiterleitung an Azure-DNS, damit die Kurs-VMs ins Internet auflösen können ----
 try {
@@ -43,7 +51,7 @@ try {
 
 # ---- Kennwortrichtlinie (Übung 3.4 verweist auf 12 Zeichen) ----
 Set-ADDefaultDomainPasswordPolicy -Identity $DomainName -MinPasswordLength 12 -ComplexityEnabled $true `
-    -MaxPasswordAge ([TimeSpan]::Zero) `
+    -MaxPasswordAge (New-TimeSpan -Days 365) `
     -LockoutThreshold 10 -LockoutDuration (New-TimeSpan -Minutes 15) -LockoutObservationWindow (New-TimeSpan -Minutes 15)   # Schutz gegen Rate-Guessing bei offenem RDP
 
 # ---- OUs ----
@@ -142,8 +150,8 @@ foreach ($d in $demo) {
     if (-not (Get-ADUser -Filter "SamAccountName -eq '$sam'")) {
         New-ADUser -Name "$($d.Vorname) $($d.Nachname)" -GivenName $d.Vorname -Surname $d.Nachname `
             -SamAccountName $sam -UserPrincipalName "$sam@$DomainName" -Department $d.Abteilung -Title $d.Titel `
-            -AccountPassword $demoPw -Enabled ($d.Status -ne 'deaktiviert') -Path $ouBenutzer `
-            -ChangePasswordAtLogon ($d.Status -eq 'abgelaufen')
+            -AccountPassword $demoPw -Enabled ($d.Status -ne 'deaktiviert') -Path $ouBenutzer
+        if ($d.Status -eq 'abgelaufen') { Set-ADUser -Identity $sam -AccountExpirationDate (Get-Date).AddDays(-10) }
         Add-ADGroupMember -Identity ("GRP-" + $d.Abteilung) -Members $sam
     }
 }

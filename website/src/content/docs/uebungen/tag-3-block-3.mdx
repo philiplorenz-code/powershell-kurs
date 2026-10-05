@@ -84,14 +84,14 @@ $trigger = New-ScheduledTaskTrigger -Daily -At 09:00
 Register-ScheduledTask -TaskName 'Kurs-LogDemo' -Action $aktion -Trigger $trigger
 
 Start-ScheduledTask -TaskName 'Kurs-LogDemo'
-Start-Sleep -Seconds 3
+Start-Sleep -Seconds 10
 Get-Content C:\Kurs\Logs\demo.log
 Get-ScheduledTaskInfo -TaskName 'Kurs-LogDemo' | Select-Object LastRunTime, LastTaskResult
 
 Unregister-ScheduledTask -TaskName 'Kurs-LogDemo' -Confirm:$false
 ```
 
-`LastTaskResult` von `0` heißt: erfolgreich.
+`LastTaskResult` von `0` heißt: erfolgreich. `267009` heißt „läuft noch“, `267011` „noch nicht gelaufen“: kurz warten und den Befehl wiederholen.
 
 </Loesung>
 </Uebung>

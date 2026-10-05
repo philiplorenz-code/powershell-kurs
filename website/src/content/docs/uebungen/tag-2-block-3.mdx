@@ -48,14 +48,14 @@ Get-ADUser -Filter "Department -eq 'IT'" -Properties Department |
 <Uebung nr="3.2" titel="Konten mit Problemen">
 
 1. Finde alle **deaktivierten** Benutzerkonten.
-2. Finde alle Konten, deren **Passwort abgelaufen** ist (`Search-ADAccount`).
+2. Finde alle Konten, die **abgelaufen** sind (Ablaufdatum des Kontos überschritten, `Search-ADAccount`).
 3. Exportiere die deaktivierten Konten mit `Name`, `SamAccountName` und `Enabled` als `C:\Kurs\Ausgabe\ad-deaktiviert.csv`.
 
 <Loesung>
 
 ```powershell
 Get-ADUser -Filter 'Enabled -eq $false' | Select-Object Name, SamAccountName
-Search-ADAccount -PasswordExpired | Select-Object Name, SamAccountName
+Search-ADAccount -AccountExpired -UsersOnly | Select-Object Name, SamAccountName, AccountExpirationDate
 
 Get-ADUser -Filter 'Enabled -eq $false' |
     Select-Object Name, SamAccountName, Enabled |

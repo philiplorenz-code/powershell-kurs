@@ -61,6 +61,11 @@ resource "azurerm_virtual_machine_run_command" "dc_promote" {
 resource "time_sleep" "dc_reboot" {
   depends_on      = [azurerm_virtual_machine_run_command.dc_promote]
   create_duration = "240s"
+  # Bei jeder neuen Promotion (z. B. nach Neuanlage des DC) die Wartezeit erneut einhalten
+  triggers = {
+    promote = azurerm_virtual_machine_run_command.dc_promote.id
+    vm      = azurerm_windows_virtual_machine.dc.id
+  }
 }
 
 # Schritt 2: OUs, Gruppen, Benutzer, Delegierung, Demoobjekte.
@@ -95,16 +100,20 @@ resource "azurerm_virtual_machine_run_command" "dc_populate" {
     value = var.pwsh_version
   }
   parameter {
-    name  = "ParticipantsJson"
-    value = jsonencode(var.participants)
+    name  = "ParticipantsB64"
+    value = base64encode(jsonencode(var.participants))
   }
   protected_parameter {
     name  = "AdminPassword"
     value = random_password.admin.result
   }
   protected_parameter {
-    name  = "StudentPasswordsJson"
-    value = jsonencode({ for k, v in random_password.student : k => v.result })
+    name  = "DsrmPassword"
+    value = random_password.dsrm.result
+  }
+  protected_parameter {
+    name  = "StudentPasswordsB64"
+    value = base64encode(jsonencode({ for k, v in random_password.student : k => v.result }))
   }
 
   timeouts {

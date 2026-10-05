@@ -43,7 +43,7 @@ if ($Role -eq 'Dc') {
     T 'OU-Struktur' { $n = (Get-ADOrganizationalUnit -Filter 'Name -like "*"' -SearchBase "OU=Kurs,$((Get-ADDomain).DistinguishedName)" | Measure-Object).Count; if ($n -lt 5) { throw "nur $n OUs" } ; "$n OUs unter Kurs" }
     T 'Demobenutzer (24)' { $n = (Get-ADUser -Filter * -SearchBase "OU=Benutzer,OU=Kurs,$((Get-ADDomain).DistinguishedName)" | Measure-Object).Count; if ($n -ne 24) { throw "$n Benutzer" } ; "$n Benutzer" }
     T 'Deaktivierte Konten vorhanden' { $n = (Get-ADUser -Filter 'Enabled -eq $false' | Where-Object DistinguishedName -like '*OU=Benutzer*' | Measure-Object).Count; if ($n -ne 3) { throw "$n deaktivierte" } ; "$n" }
-    T 'Abgelaufene Passwörter vorhanden' { $n = (Search-ADAccount -PasswordExpired | Measure-Object).Count; if ($n -lt 2) { throw "$n" } ; "$n" }
+    T 'Abgelaufene Konten vorhanden' { $n = (Search-ADAccount -AccountExpired -UsersOnly | Measure-Object).Count; if ($n -lt 2) { throw "$n" } ; "$n" }
     T 'Gruppen GRP-*' { $g = Get-ADGroup -Filter 'Name -like "GRP-*"'; if ($g.Count -ne 4) { throw "$($g.Count) Gruppen" }; (Get-ADGroupMember GRP-IT | Measure-Object).Count.ToString() + ' Mitglieder in GRP-IT' }
     T 'Teilnehmerkonten und Gruppe' { (Get-ADGroupMember 'GG-Kurs-Teilnehmer' | Measure-Object).Count.ToString() + ' Mitglieder' }
     T 'Remote Management Users enthält Teilnehmer' { if (-not (Get-ADGroupMember 'Remote Management Users' | Where-Object Name -eq 'GG-Kurs-Teilnehmer')) { $false } else { 'ja' } }
@@ -55,7 +55,7 @@ if ($Role -eq 'Student') {
     T 'Kursordner' { foreach ($d in 'Daten', 'Daten\Logs', 'Ausgabe', 'Logs', 'Skripte', 'KI') { if (-not (Test-Path "C:\Kurs\$d")) { throw "C:\Kurs\$d fehlt" } }; 'vollständig' }
     T 'Beispieldaten' { $n = (Import-Csv C:\Kurs\Daten\Mitarbeiter.csv | Measure-Object).Count; $l = (Get-ChildItem C:\Kurs\Daten\Logs | Measure-Object).Count; if ($n -ne 12 -or $l -ne 12) { throw "csv=$n logs=$l" }; "12 Mitarbeiter, 12 Logs" }
     T 'VS Code + PowerShell-Erweiterung' { if (-not (Test-Path 'C:\Program Files\Microsoft VS Code\Code.exe')) { throw 'VS Code fehlt' }; if (-not (Get-ChildItem C:\ProgramData\vscode-extensions -Filter 'ms-vscode.powershell*')) { throw 'Erweiterung fehlt' }; 'ok' }
-    T 'Pester 5' { (& $pwsh -NoProfile -Command '(Get-Module Pester -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version.ToString()') }
+    T 'Pester >= 5' { $v = (& $pwsh -NoProfile -Command '(Get-Module Pester -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version.ToString()'); if ([version]$v -lt [version]'5.0') { throw "nur $v" }; $v }
     T 'Lokale Admins: GG-Kurs-Teilnehmer' { if ((Get-LocalGroupMember Administrators).Name -notcontains "$NetbiosName\GG-Kurs-Teilnehmer") { $false } else { 'ja' } }
 
     if ($StudentUser -and $StudentPassword) {
@@ -64,7 +64,7 @@ if ($Role -eq 'Student') {
         foreach ($peer in $PeerComputers) {
             T "Remoting als Teilnehmer -> $peer" { (Invoke-Command -ComputerName $peer -Credential $cred -ScriptBlock { $env:COMPUTERNAME } -ErrorAction Stop) }
             T "Remoting PS7-Endpunkt -> $peer" { (Invoke-Command -ComputerName $peer -Credential $cred -ConfigurationName PowerShell.7 -ScriptBlock { $PSVersionTable.PSVersion.ToString() } -ErrorAction Stop) }
-            T "CIM remote -> $peer" { (Get-CimInstance Win32_OperatingSystem -ComputerName $peer -Credential $cred -ErrorAction Stop).CSName }
+            T "CIM remote -> $peer" { $s = New-CimSession -ComputerName $peer -Credential $cred -ErrorAction Stop; try { (Get-CimInstance Win32_OperatingSystem -CimSession $s -ErrorAction Stop).CSName } finally { Remove-CimSession $s } }
         }
         T 'Remoting zum DC (eingeschränkt)' { (Invoke-Command -ComputerName DC01 -Credential $cred -ScriptBlock { $env:COMPUTERNAME } -ErrorAction Stop) }
         T 'Kein Administrator auf DC01' {
@@ -94,8 +94,9 @@ Stop-Service Spooler; Start-Service Spooler; `$log += 'Spooler=' + (Get-Service 
 `$a = New-ScheduledTaskAction -Execute 'C:\Program Files\PowerShell\7\pwsh.exe' -Argument '-NoProfile -Command "Get-Date | Add-Content C:\Kurs\Logs\smoke.log"'
 `$t = New-ScheduledTaskTrigger -Daily -At 09:00
 Register-ScheduledTask -TaskName 'Kurs-Smoke' -Action `$a -Trigger `$t -Force | Out-Null
-Start-ScheduledTask -TaskName 'Kurs-Smoke'; Start-Sleep 6
-`$log += 'task=' + (Get-ScheduledTaskInfo -TaskName 'Kurs-Smoke').LastTaskResult
+Start-ScheduledTask -TaskName 'Kurs-Smoke'
+for (`$w = 0; `$w -lt 30; `$w++) { Start-Sleep 2; `$r = (Get-ScheduledTaskInfo -TaskName 'Kurs-Smoke').LastTaskResult; if (`$r -notin 267009, 267011) { break } }
+`$log += 'task=' + `$r
 Unregister-ScheduledTask -TaskName 'Kurs-Smoke' -Confirm:`$false
 `$log += 'cim=' + (Get-CimInstance Win32_OperatingSystem).Caption
 `$log += 'peer-remoting=' + (Invoke-Command -ComputerName '$($PeerComputers[0])' -ScriptBlock { `$env:COMPUTERNAME })

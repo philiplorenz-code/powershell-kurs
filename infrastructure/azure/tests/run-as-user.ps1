@@ -21,10 +21,9 @@ function Invoke-AsUser {
     icacls.exe $ScriptPath /grant "$($Credential.UserName):(RX)" | Out-Null
     $action = New-ScheduledTaskAction -Execute $pwsh -WorkingDirectory 'C:\Kurs' `
         -Argument "-NoProfile -NonInteractive -Command `"& '$ScriptPath' *>&1 | Out-File -FilePath '$OutputPath' -Encoding utf8`""
-    $principal = New-ScheduledTaskPrincipal -UserId $Credential.UserName -LogonType Password -RunLevel Highest
     $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::FromSeconds($TimeoutSeconds + 60)) -StartWhenAvailable
-    Register-ScheduledTask -TaskName $name -Action $action -Principal $principal -Settings $settings `
-        -User $Credential.UserName -Password $Credential.GetNetworkCredential().Password -Force | Out-Null
+    Register-ScheduledTask -TaskName $name -Action $action -Settings $settings `
+        -User $Credential.UserName -Password $Credential.GetNetworkCredential().Password -RunLevel Highest -Force | Out-Null
     Start-ScheduledTask -TaskName $name
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     do { Start-Sleep -Seconds 3 } while ((Get-ScheduledTask -TaskName $name).State -eq 'Running' -and (Get-Date) -lt $deadline)
