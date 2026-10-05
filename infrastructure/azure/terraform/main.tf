@@ -134,9 +134,11 @@ resource "azurerm_network_interface" "student" {
   tags                = local.tags
 
   ip_configuration {
-    name                          = "ipconfig1"
-    subnet_id                     = azurerm_subnet.lab.id
-    private_ip_address_allocation = "Dynamic"
+    name      = "ipconfig1"
+    subnet_id = azurerm_subnet.lab.id
+    # Feste Adressen: sonst kann ein Teilnehmer-NIC die DC-Adresse (.4) zuerst belegen
+    private_ip_address_allocation = "Static"
+    private_ip_address            = cidrhost(local.subnet_cidr, 10 + each.value)
     public_ip_address_id          = azurerm_public_ip.student[each.key].id
   }
 }
