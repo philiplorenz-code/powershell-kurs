@@ -1,0 +1,80 @@
+---
+title: "PowerShell vs. CMD"
+sidebar:
+  order: 1
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Den Unterschied zwischen Textausgabe (CMD) und Objektausgabe (PowerShell) erklären
+- Windows PowerShell 5.1 und PowerShell 7 unterscheiden und die laufende Version prüfen
+
+</Lernziele>
+
+CMD und PowerShell sind die beiden Kommandozeilen von Windows. CMD ist für einfache Aufgaben gedacht und gibt Text aus. PowerShell gibt **Objekte** aus, die Eigenschaften und Methoden besitzen. Dieser Unterschied prägt den ganzen Kurs.
+
+## 1. Vergleich
+
+| Eigenschaft | PowerShell | CMD |
+|---|---|---|
+| Erstveröffentlichung | 2006 | 1987 |
+| Plattformen | Windows, macOS, Linux (ab PowerShell 7) | nur Windows |
+| Ausgabe | Objekte | Text |
+| Skripte | `.ps1`, voller Zugriff auf .NET | `.bat`/`.cmd`, eingeschränkt |
+| Pipeline | Objekte werden weitergereicht | Text wird weitergereicht |
+| Hilfe | `Get-Help`, `Update-Help` | `help`, `/?` |
+| Verwaltung | Cmdlets für Dienste, Dateien, AD, Azure, Microsoft 365 u. v. m. | nur klassische Konsolenprogramme |
+
+## 2. Zwei PowerShells auf einem Windows-Rechner
+
+Auf Windows gibt es heute zwei Varianten, die nebeneinander laufen:
+
+| | Windows PowerShell **5.1** | PowerShell **7** |
+|---|---|---|
+| Programm | `powershell.exe` | `pwsh.exe` |
+| Basis | .NET Framework 4.x | modernes .NET (aktuell .NET 10, LTS) |
+| Auslieferung | Teil von Windows, bekommt nur noch Sicherheitsupdates | separat installiert, wird aktiv weiterentwickelt |
+| Plattformen | nur Windows | Windows, macOS, Linux |
+| Typischer Einsatz | Bestandsskripte, ältere Module | neue Skripte, Automatisierung, Cloud |
+
+Beide kennen dieselben Grundlagen. In **diesem Kurs arbeiten wir mit PowerShell 7**. Wo sich etwas zwischen den Versionen unterscheidet, steht ein Hinweis.
+
+Welche Version läuft gerade?
+
+```powershell
+$PSVersionTable
+$PSVersionTable.PSVersion
+```
+
+:::note[Warum nicht einfach bei 5.1 bleiben?]
+Einige ältere Module (zum Beispiel für Teile von Windows Server) laufen nur in 5.1. PowerShell 7 lädt viele davon automatisch über eine Kompatibilitätsschicht. Im Alltag begegnen dir beide Versionen. Du solltest wissen, welche gerade antwortet.
+:::
+
+## 3. Ein Beispiel: Dateien auflisten
+
+**CMD:**
+
+```cmd
+dir C:\Users
+```
+
+**PowerShell:**
+
+```powershell
+Get-ChildItem -Path C:\Users
+```
+
+`dir` gibt es auch in PowerShell. Es ist ein **Alias** für `Get-ChildItem` (mehr dazu im Kapitel über Aliase). Das Ergebnis besteht aus Objekten und nicht aus Text. Du kannst deshalb direkt nach Größe, Datum oder Name sortieren.
+
+![Meme: Wechsel von CMD zu PowerShell](/img/psmeme-cmd-pwsh.jpg)
+
+## Zusammenfassung
+
+- PowerShell arbeitet mit Objekten, CMD mit Text.
+- Auf Windows existieren Windows PowerShell 5.1 (`powershell.exe`) und PowerShell 7 (`pwsh.exe`).
+- Mit `$PSVersionTable` siehst du, welche Version du gerade benutzt.

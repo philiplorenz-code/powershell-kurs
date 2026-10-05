@@ -1,0 +1,91 @@
+---
+title: "PowerShell-Skripte planen"
+sidebar:
+  order: 9
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Ein Skript mit dem Windows Task Scheduler zeitgesteuert ausführen
+- Geplante Aufgaben mit PowerShell anlegen, prüfen, starten und entfernen
+
+</Lernziele>
+
+Wiederkehrende Aufgaben (Berichte, Aufräumen, Prüfungen) laufen am besten automatisch. Unter Windows ist dafür der **Task Scheduler** (Aufgabenplanung) zuständig. PowerShell steuert ihn mit dem Modul `ScheduledTasks`.
+
+## 1. Über die Oberfläche
+
+1. `taskschd.msc` starten (Aufgabenplanung).
+2. **Aufgabe erstellen…**
+3. Reiter **Allgemein**: Name vergeben. „Unabhängig von der Benutzeranmeldung ausführen" wählen, wenn es ohne angemeldeten Benutzer laufen soll.
+4. Reiter **Trigger**: Wann? (täglich, bei Systemstart, …)
+5. Reiter **Aktionen**: Programm `C:\Program Files\PowerShell\7\pwsh.exe`, Argumente `-NoProfile -File "C:\Kurs\Skripte\MeinSkript.ps1"`.
+
+## 2. Mit PowerShell: `ScheduledTasks`
+
+Eine geplante Aufgabe besteht aus **Aktion**, **Trigger** und optional **Einstellungen** und **Konto**.
+
+```powershell
+$aktion  = New-ScheduledTaskAction -Execute 'C:\Program Files\PowerShell\7\pwsh.exe' `
+           -Argument '-NoProfile -File "C:\Kurs\Skripte\LogDemo.ps1"'
+$trigger = New-ScheduledTaskTrigger -Daily -At 09:00
+
+Register-ScheduledTask -TaskName 'Kurs-LogDemo' -Action $aktion -Trigger $trigger `
+    -Description 'Demoaufgabe aus dem PowerShell-Kurs'
+```
+
+Verwalten:
+
+```powershell
+Get-ScheduledTask -TaskName 'Kurs-LogDemo'
+Start-ScheduledTask -TaskName 'Kurs-LogDemo'
+Get-ScheduledTaskInfo -TaskName 'Kurs-LogDemo'     # LastRunTime, LastTaskResult
+Unregister-ScheduledTask -TaskName 'Kurs-LogDemo' -Confirm:$false
+```
+
+:::tip[Testen statt warten]
+Du musst nicht bis 09:00 warten: `Start-ScheduledTask` startet die Aufgabe sofort. `LastTaskResult` von `0` bedeutet Erfolg.
+:::
+
+### Unter welchem Konto läuft die Aufgabe?
+
+Standardmäßig unter deinem Benutzer, nur wenn du angemeldet bist. Für unbeaufsichtigte Aufgaben legst du ein Konto fest:
+
+```powershell
+$principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -TaskName 'Kurs-Nachts' -Action $aktion -Trigger $trigger -Principal $principal
+```
+
+`SYSTEM` hat sehr weitreichende Rechte. Verwende für produktive Aufgaben ein eigenes Dienstkonto mit minimalen Rechten (zum Beispiel ein gruppenverwaltetes Dienstkonto, gMSA).
+
+## 3. `schtasks.exe`
+
+Das ältere Kommandozeilenwerkzeug `schtasks.exe` funktioniert weiterhin und begegnet dir in vielen Skripten:
+
+```powershell
+schtasks.exe /Query /TN "Kurs-LogDemo"
+```
+
+Für neue Skripte ist `ScheduledTasks` besser, weil du Objekte statt Text bekommst.
+
+:::caution[`Register-ScheduledJob` nicht verwenden]
+Das Modul `PSScheduledJob` (`Register-ScheduledJob`, `New-JobTrigger`) gibt es nur in Windows PowerShell 5.1. Es fehlt in PowerShell 7. Du findest es in älteren Anleitungen, nutze stattdessen die Cmdlets oben.
+:::
+
+## 4. Hinweise für geplante Skripte
+
+- Gib **absolute Pfade** an. Das Arbeitsverzeichnis einer Aufgabe ist nicht das deines Skripts.
+- `-NoProfile` beschleunigt den Start und vermeidet Überraschungen durch dein Profil.
+- Schreibe ein **Protokoll** (Transcript oder Logdatei), sonst siehst du nicht, was passiert ist. Siehe [Logging](/tag-3/10-logging/).
+- Das Konto braucht Rechte auf Ordner und Ziele.
+
+## Zusammenfassung
+
+- Task Scheduler: Aktion + Trigger + Konto.
+- `New-ScheduledTaskAction`, `New-ScheduledTaskTrigger`, `Register-ScheduledTask`, `Start-ScheduledTask`, `Get-ScheduledTaskInfo`.
+- `Register-ScheduledJob` gibt es nur in Windows PowerShell 5.1.

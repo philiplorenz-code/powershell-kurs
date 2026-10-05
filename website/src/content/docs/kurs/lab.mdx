@@ -1,0 +1,37 @@
+---
+title: Lab-Umgebung
+description: Was die Lab-Umgebung für die Übungen bereitstellt.
+sidebar:
+  order: 4
+---
+Du arbeitest in einer kleinen **Active-Directory-Domäne**. Sie besteht aus vier Windows-Rechnern in Azure.
+
+| Rechner | Rolle | Für dich |
+|---|---|---|
+| `DC01` | Domänencontroller, DNS | Ziel für Active-Directory-Abfragen und Remoting (nur eingeschränkte Rechte) |
+| `PSLAB-01` | Kursrechner | gehört einem Teilnehmer, alle Teilnehmer sind dort lokal Administrator |
+| `PSLAB-02` | Kursrechner | siehe oben |
+| `PSLAB-03` | Kursrechner | siehe oben |
+
+Die Domäne heißt `pslab.internal` (NetBIOS-Name `PSLAB`).
+
+## Was ist vorbereitet?
+
+- **PowerShell 7** und **Windows PowerShell 5.1**, **VS Code** mit PowerShell-Erweiterung, Windows Terminal
+- Modul **ActiveDirectory** (RSAT) auf den Kursrechnern
+- **PowerShell-Remoting** zwischen allen Rechnern, auch zum PowerShell-7-Endpunkt
+- Ordner `C:\Kurs\{Daten,Ausgabe,Logs,Skripte,KI}` mit Beispieldaten
+- Active-Directory-Objekte: Organisationseinheiten, Benutzer, Gruppen, einige absichtlich deaktivierte oder abgelaufene Konten
+- Internetzugang (PowerShell Gallery, GitHub-API)
+
+## Deine Rechte
+
+| Wo | Was du darfst |
+|---|---|
+| Alle `PSLAB-0x` | Lokaler Administrator (du kannst Dienste steuern, remote verwalten) |
+| Active Directory | Alles **lesen**. Anlegen, ändern und löschen nur in deiner OU `OU=TNN,OU=Uebung,OU=Kurs,DC=pslab,DC=internal` |
+| `DC01` | PowerShell-Remoting als eingeschränkter Benutzer, keine Administratorrechte |
+
+:::note[Wenn etwas kaputtgeht]
+Es ist ein Übungsraum. Ein Teilnehmer-Rechner lässt sich vom Trainer mit einem Befehl in den Ausgangszustand zurückversetzen. Sag also Bescheid und mach weiter.
+:::

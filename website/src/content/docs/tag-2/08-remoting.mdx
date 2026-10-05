@@ -1,0 +1,111 @@
+---
+title: "PowerShell-Remoting"
+sidebar:
+  order: 8
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" lab="DC01, PSLAB-01 bis -03" />
+
+<Lernziele>
+
+- Befehle auf anderen Rechnern ausführen
+- Interaktive Sitzungen und `Invoke-Command` unterscheiden
+- Wissen, wie die Anmeldung funktioniert und wo sie scheitert
+
+</Lernziele>
+
+Mit PowerShell-Remoting führst du Befehle auf entfernten Rechnern aus. Das ist die Grundlage für die Verwaltung vieler Server. Unter Windows nutzt es **WinRM** (WS-Management) über TCP **5985** (HTTP) und **5986** (HTTPS). Die Daten sind auch über HTTP verschlüsselt, wenn Kerberos zur Anmeldung dient (Domäne).
+
+## 1. Aktivieren
+
+Auf **Windows Server** ist Remoting standardmäßig an. Auf Windows-Clients schaltest du es ein:
+
+```powershell
+Enable-PSRemoting -Force     # als Administrator
+```
+
+Im Kurs ist Remoting auf allen Lab-Rechnern aktiv.
+
+Prüfen, ob ein Ziel erreichbar ist:
+
+```powershell
+Test-WSMan -ComputerName PSLAB-02
+```
+
+## 2. Interaktive Sitzung
+
+```powershell
+Enter-PSSession -ComputerName PSLAB-02
+# Der Prompt zeigt jetzt: [PSLAB-02]: PS C:\Users\...>
+Get-Service | Select-Object -First 3
+Exit-PSSession
+```
+
+## 3. Befehle senden mit `Invoke-Command`
+
+```powershell
+Invoke-Command -ComputerName PSLAB-02 -ScriptBlock { Get-Service -Name Spooler }
+
+# Mehrere Computer gleichzeitig
+Invoke-Command -ComputerName PSLAB-02, PSLAB-03 -ScriptBlock { hostname; Get-Date }
+```
+
+Das Ergebnis enthält die Eigenschaft `PSComputerName`. Du siehst so, von welchem Rechner jedes Objekt kommt.
+
+### Variablen mitgeben
+
+Der Skriptblock läuft auf dem anderen Rechner und kennt deine lokalen Variablen nicht. `$using:` reicht sie weiter:
+
+```powershell
+$dienst = 'Spooler'
+Invoke-Command -ComputerName PSLAB-02 -ScriptBlock { Get-Service -Name $using:dienst }
+```
+
+### Objekte kommen als Kopien zurück
+
+Die Ergebnisse sind **deserialisierte** Objekte. Sie haben die Eigenschaften, aber keine Methoden mehr. `Stop()` auf einem Remote-Dienstobjekt funktioniert nicht. Rufe die Aktion stattdessen im Skriptblock auf (`Stop-Service` auf dem Zielrechner).
+
+## 4. Wiederverwendbare Sitzungen
+
+Jedes `Invoke-Command -ComputerName` baut die Verbindung neu auf. Für mehrere Aufrufe lohnt sich eine Sitzung:
+
+```powershell
+$s = New-PSSession -ComputerName PSLAB-02
+Invoke-Command -Session $s -ScriptBlock { $x = 42 }
+Invoke-Command -Session $s -ScriptBlock { $x }     # 42, die Variable lebt in der Sitzung
+Remove-PSSession $s
+```
+
+## 5. Sicherheit
+
+- **Authentifizierung:** In der Domäne verwendet Remoting Kerberos. Du musst den Rechner mit **Namen** ansprechen (`PSLAB-02`, nicht die IP-Adresse), sonst fällt es auf NTLM zurück oder scheitert.
+- **Berechtigung:** Du musst Administrator auf dem Ziel sein oder Mitglied der Gruppe „Remotemanagementbenutzer".
+- **Anderes Konto:** `-Credential (Get-Credential)`.
+- **Double Hop:** Von einem Remote-Rechner aus kannst du deine Anmeldung nicht an einen dritten Rechner weiterreichen. Die Ursache ist Absicht, die Lösung ist Thema für Fortgeschrittene.
+- **Firewall:** TCP 5985 muss erreichbar sein.
+
+## 6. PowerShell 7 und SSH
+
+Die Befehle oben sprechen standardmäßig mit **Windows PowerShell 5.1** auf dem Ziel (Endpunkt `Microsoft.PowerShell`). Soll der Befehl in **PowerShell 7** laufen, wählst du den passenden Endpunkt:
+
+```powershell
+Invoke-Command -ComputerName PSLAB-02 -ConfigurationName PowerShell.7 -ScriptBlock { $PSVersionTable.PSVersion }
+```
+
+Der Endpunkt `PowerShell.7` entsteht, wenn du auf dem Ziel einmal `Enable-PSRemoting` aus **PowerShell 7** heraus ausführst. Das Lab hat das erledigt.
+
+Zusätzlich unterstützt PowerShell 7 Remoting über **SSH** (`-HostName`, `-UserName`). Das ist die Wahl für Linux-Ziele und gemischte Umgebungen. Im Kurs nutzen wir WinRM.
+
+:::note[Ältere Variante]
+Cmdlets wie `Get-Process -ComputerName` oder `Get-Service -ComputerName` gab es früher in Windows PowerShell und nutzen andere Techniken. In PowerShell 7 fehlt der Parameter bei den meisten. `Invoke-Command` funktioniert überall.
+:::
+
+## Zusammenfassung
+
+- `Test-WSMan` prüft Erreichbarkeit, `Enter-PSSession` öffnet eine interaktive Sitzung.
+- `Invoke-Command` führt Skriptblöcke auf einem oder mehreren Rechnern aus, `$using:` reicht Variablen weiter.
+- Ergebnisse sind Kopien ohne Methoden. In der Domäne zählt der Computername (Kerberos).
+- Für PowerShell 7 auf dem Ziel: `-ConfigurationName PowerShell.7`.

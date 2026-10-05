@@ -1,0 +1,54 @@
+---
+title: "PowerShell im Zeitalter von KI"
+description: "Optionaler Abschlussblock: KI als Werkzeug für Administratoren, die PowerShell selbst verstanden haben."
+sidebar:
+  order: 0
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Optional" zeit="ca. ½ Tag" />
+
+Dieser Block ist **optional**. Der Kurs funktioniert ohne ihn vollständig. Er eignet sich für den Nachmittag von Tag 3. Wer lieber PowerShell vertieft, nutzt die Zeit stattdessen für die Reserve-Themen unten.
+
+## Worum es geht
+
+In den ersten zweieinhalb Tagen hast du PowerShell **selbst** gelernt und bewusst ohne KI geübt. Das ist die Voraussetzung für diesen Block. Wer nicht lesen kann, was ein Skript tut, kann auch nicht beurteilen, ob eine KI-Antwort stimmt.
+
+Die Leitfrage lautet deshalb nicht „Wie lasse ich die KI mein Skript schreiben?", sondern:
+
+> **Wie nutze ich KI als Werkzeug, nachdem ich PowerShell selbst verstanden habe?**
+
+KI ist ein schneller, manchmal brillanter und manchmal überzeugt falscher Kollege. Du bleibst verantwortlich für das, was auf Servern läuft.
+
+<Lernziele>
+
+- Typische sinnvolle Einsatzfelder für KI bei der Skriptarbeit benennen
+- Gute von schlechten Prompts unterscheiden und eigene formulieren
+- KI-Ausgaben gegen `Get-Help`, `Get-Command`, `-WhatIf` und die Umgebung prüfen
+- Erfundene Cmdlets und Parameter („Halluzinationen") erkennen
+- Wissen, welche Daten nicht in externe KI-Dienste gehören
+
+</Lernziele>
+
+## Bausteine
+
+| Baustein | Inhalt | Stufe |
+|---|---|---|
+| [Skripte erklären und prüfen](/ki/01-erklaeren-und-reviewen/) | Fremden Code verstehen, Fehler erklären lassen, Review und Refactoring | Optional |
+| [Gute Prompts](/ki/02-prompts/) | Aufgaben beschreiben, Kontext liefern, Entwürfe erzeugen | Optional |
+| [Halluzinationen und Validierung](/ki/03-validieren/) | Erfundene Cmdlets entlarven, gegen `Get-Help` und die Umgebung prüfen | Optional · empfohlen |
+| [Datenschutz und Sicherheit](/ki/04-daten-und-sicherheit/) | Was nicht ins Prompt gehört, Unternehmensregeln | Optional · empfohlen |
+| [Dokumentation und Tests](/ki/05-doku-und-tests/) | Kommentare, Hilfe, Pester-Tests vorbereiten | Bonus |
+| [KI-Übungen](/ki/uebungen/) | Praktische Aufgaben, **hier ist KI erlaubt** | Optional |
+
+<Trainer>
+
+Kürzen: Mit 90 Minuten reichen „Gute Prompts", „Halluzinationen und Validierung" und „Datenschutz" samt den Übungen K.2, K.3 und K.5. Die Bausteine sind unabhängig voneinander und hängen von keiner anderen Kursseite ab. Reserve-Themen, falls der Block entfällt: Pester-Grundlagen, `ForEach-Object -Parallel`, DSC/Gruppenrichtlinien-Abfragen mit PowerShell, Microsoft-365-Anbindung (`Microsoft.Graph`), Eigene Cmdlets mit Klassen.
+
+Welches KI-Werkzeug genutzt wird, entscheidest du. Wichtig: Die Teilnehmer dürfen **keine** realen Kundendaten eingeben. Alle Übungen kommen mit Beispieldaten aus dem Lab aus.
+
+</Trainer>

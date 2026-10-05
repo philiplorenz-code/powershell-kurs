@@ -1,0 +1,40 @@
+---
+title: "Tag 1 · Fundament"
+description: "Übersicht, Lernziele, Themen und Übungen von Tag 1."
+sidebar:
+  order: 0
+  label: Tagesübersicht
+---
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import Stufe from '../../../components/Stufe.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM (nur lokal), VS Code" />
+
+## Lernziele
+
+Am Ende von Tag 1 kannst du
+
+- die PowerShell-Konsole sicher bedienen und zwischen Windows PowerShell 5.1 und PowerShell 7 unterscheiden,
+- Hilfe zu jedem Cmdlet selbst finden,
+- Cmdlets nach dem Verb-Noun-Schema entdecken und Dateien, Ordner und Provider verwalten,
+- die **Pipeline** verstehen: Objekte untersuchen, filtern, sortieren, auswählen,
+- Variablen, Datentypen, Arrays, Hashtables und eigene Objekte verwenden.
+
+## Themen und Übungen
+
+| Zeit | Thema | Stufe | Übung |
+|---|---|---|---|
+| Vormittag | [PowerShell vs. CMD](/tag-1/01-powershell-vs-cmd/), [Terminal, ISE, VS Code](/tag-1/02-terminal-ise-vscode/), [Hilfesystem](/tag-1/03-hilfesystem/), [Verb-Noun](/tag-1/04-verb-noun/), [Navigation und Dateien](/tag-1/05-navigation-provider/), [Aliase](/tag-1/06-aliase-shortcuts/) | Core | [Block 1](/uebungen/tag-1-block-1/) |
+| Mittag | [Pipeline](/tag-1/07-pipeline/) | Core | Block 2, Teil „Pipeline" |
+| Nachmittag | [Variablen](/tag-1/08-variablen/), [Datentypen](/tag-1/09-datentypen/), [Mathematik](/tag-1/10-mathe/), [Strings](/tag-1/11-strings/), [Datenstrukturen](/tag-1/12-datenstrukturen/), [Denke in Objekten](/tag-1/13-denke-in-objekten/) | Core | [Block 2](/uebungen/tag-1-block-2/) |
+| Tagesende | [Profil](/tag-1/14-profil/) (Optional), [Execution Policies](/tag-1/15-execution-policies/) | Core / Optional | [Block 3](/uebungen/tag-1-block-3/) mit Abschluss-Challenge |
+
+Die Zeitangaben sind grobe Orientierung. Wenn die Gruppe länger an der Pipeline hängt, ist das gut investierte Zeit.
+
+## Lab-Komponenten
+
+Nur die eigene Kurs-VM mit PowerShell 7, VS Code und `C:\Kurs`-Ordnern. Kein Domänenzugriff nötig.
+
+<Stufe stufe="Reserve" />
+
+**Reserve:** [Offline-Module installieren](/ressourcen/offline-module/), [Cheat Sheets](/ressourcen/cheat-sheet/).

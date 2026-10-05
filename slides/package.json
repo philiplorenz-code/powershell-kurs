@@ -1,0 +1,13 @@
+{
+  "name": "powershell-in-3-tagen-slides",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Begrüßungs- und Orientierungsfolien. Statisches reveal.js-Deck.",
+  "scripts": {
+    "vendor": "node build.mjs",
+    "start": "node build.mjs && npx --yes serve out -l 8081"
+  },
+  "dependencies": {
+    "reveal.js": "^5.2.1"
+  }
+}

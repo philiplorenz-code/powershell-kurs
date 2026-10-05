@@ -1,0 +1,67 @@
+---
+title: "Terminal, ISE und VS Code"
+sidebar:
+  order: 2
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Terminal, ISE und VS Code einordnen
+- Ein Skript in VS Code öffnen und ausführen
+
+</Lernziele>
+
+Für PowerShell gibt es drei gängige Arbeitsumgebungen.
+
+| | Terminal | ISE | VS Code |
+|---|---|---|---|
+| Oberfläche | Text | einfache GUI | moderner Editor |
+| Geeignet für | schnelle Einzelbefehle | Windows PowerShell 5.1 (Altbestand) | Skripte und interaktives Arbeiten |
+| Unterstützt PowerShell 7 | ja | **nein** | ja |
+| Debugging | einfach | ja | umfangreich (Breakpoints, Call Stack) |
+| Erweiterbar | nein | kaum | stark |
+| Plattformen | alle | nur Windows | Windows, macOS, Linux |
+
+:::caution[Die ISE ist ein Auslaufmodell]
+Die PowerShell ISE gibt es nur für Windows PowerShell 5.1. Sie bekommt keine neuen Funktionen mehr und läuft nicht mit PowerShell 7. Du wirst ihr auf älteren Servern begegnen. Für neue Arbeit nutzen wir **VS Code**.
+:::
+
+## Terminal
+
+Das Windows Terminal oder die Konsole starten Profile für `pwsh`. Du tippst einen Befehl, drückst Enter und siehst das Ergebnis. Ideal für Abfragen und kurze Befehle.
+
+## VS Code mit PowerShell-Extension
+
+VS Code bietet:
+
+- Syntaxhervorhebung, Tab-Vervollständigung und Hilfe zu Parametern (IntelliSense)
+- ein **integriertes Terminal**, in dem die gleiche Sitzung wie im Editor läuft
+- Debugging mit Breakpoints
+- Git-Integration
+- eingebaute Klammerfärbung (die frühere Extension „Bracket Pair Colorizer" ist nicht mehr nötig)
+
+Empfohlene Erweiterungen:
+
+- [PowerShell](https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell): Pflicht
+- [GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens): Git-Verlauf im Editor (optional)
+
+### Ausführen im Editor
+
+| Aktion | Tastenkombination |
+|---|---|
+| Ganze Datei ausführen | `F5` (mit Debugger) |
+| Markierte Zeilen oder aktuelle Zeile ausführen | `F8` |
+| Terminal ein-/ausblenden | `Strg` + `Ö` |
+
+<Trainer>
+
+Lab-VMs haben VS Code und die PowerShell-Extension bereits installiert. Zeige einmal, wie man mit `F8` einzelne Zeilen ausführt. Das nutzen die Teilnehmer ab sofort.
+
+</Trainer>
+
+![Meme: Wechsel von der ISE zu VS Code](/img/psmeme-ise-vscode.jpeg)

@@ -1,0 +1,45 @@
+---
+title: PowerShell in 3 Tagen
+description: Praxisnahe PowerShell-Schulung für Windows-Administratoren. Drei Tage, ein echtes Lab, Übungen mit Lösungen.
+template: splash
+hero:
+  tagline: Von der ersten Zeile bis zum automatisierten Skript. Praxisnah für Windows-Administratoren, mit eigenem Lab, Übungen und Lösungen.
+  image:
+    file: ../../assets/logo.svg
+  actions:
+    - text: Kursübersicht
+      link: /kurs/
+      icon: right-arrow
+    - text: Tag 1 starten
+      link: /tag-1/
+      variant: secondary
+---
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Der Kurs im Überblick
+
+<CardGrid stagger>
+  <Card title="Tag 1 · Fundament" icon="open-book">
+    Shell, Hilfe, Pipeline, Variablen, Datentypen und Objekte. Du lernst, die Konsole sicher zu bedienen. [Zu Tag 1](/tag-1/)
+  </Card>
+  <Card title="Tag 2 · Logik und Administration" icon="setting">
+    Operatoren, Filter, Schleifen, CSV, Dienste, Active Directory und Remoting. [Zu Tag 2](/tag-2/)
+  </Card>
+  <Card title="Tag 3 · Skripte und Praxis" icon="rocket">
+    Funktionen, Fehlerbehandlung, Debugging, Secrets, CIM, Zeitpläne und Logging. [Zu Tag 3](/tag-3/)
+  </Card>
+  <Card title="Optional: PowerShell + KI" icon="star">
+    KI als Werkzeug, nachdem du PowerShell selbst verstanden hast. Der Kurs funktioniert auch ohne diesen Block. [Zum KI-Block](/ki/)
+  </Card>
+</CardGrid>
+
+## So arbeitest du
+
+<CardGrid>
+  <Card title="Ohne KI üben" icon="warning">
+    Die regulären Übungen löst du selbst. So verstehst du PowerShell wirklich und lernst, Fehler zu lesen. [Warum?](/kurs/uebungen-und-ki/)
+  </Card>
+  <Card title="Echtes Lab" icon="laptop">
+    Jede Person hat eine eigene Windows-VM in einer Active-Directory-Domäne. [Lab-Umgebung](/kurs/lab/)
+  </Card>
+</CardGrid>

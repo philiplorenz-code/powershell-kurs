@@ -1,0 +1,60 @@
+---
+title: Umgang mit Übungen und KI
+description: Warum die regulären Übungen ohne KI gelöst werden und wann KI im Kurs vorkommt.
+sidebar:
+  order: 3
+---
+import Stufe from '../../../components/Stufe.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+## So sind die Übungen aufgebaut
+
+Jede Übung gehört zu den Kapiteln davor. Sie verwendet nur Wissen, das bis dahin vorkam, und steigert sich langsam: Cmdlet ausführen, Ergebnis ansehen, Pipeline, filtern, auswählen, Variablen, Logik, kleines Skript.
+
+Es gibt drei Arten:
+
+<Uebung titel="Übung" nr="Beispiel" typ="Übung">
+
+Das **Pflichtprogramm**. Jede Übung gehört zum Kern des Tages. Lösung eingeklappt unterhalb.
+
+<Loesung>
+
+So sieht eine Lösung aus. Sie bleibt zu, bis du sie öffnest.
+
+</Loesung>
+</Uebung>
+
+<Uebung titel="Challenge" nr="Beispiel" typ="Challenge">
+
+Anspruchsvoller, mit weniger Hinweisen. Für alle, die mehr wollen.
+
+</Uebung>
+
+<Uebung titel="Bonus" nr="Beispiel" typ="Bonus">
+
+Zum Vertiefen. Nicht zwingend.
+
+</Uebung>
+
+## Warum ohne KI?
+
+Du kannst heute jede PowerShell-Aufgabe in Sekunden von einem KI-Assistenten lösen lassen. Genau deshalb üben wir die Grundlagen **ohne**:
+
+- **Verstehen vor Delegieren.** Wer nicht liest, was ein Skript tut, kann nicht beurteilen, ob die KI-Antwort stimmt oder gefährlich ist.
+- **Fehler gehören zum Lernen.** Eine Fehlermeldung zu lesen und zu verstehen ist die wichtigste Fähigkeit bei der täglichen Arbeit, mit oder ohne KI.
+- **Im Alltag bist du verantwortlich.** Ein Skript, das du nicht verstehst, führst du nicht auf Produktivsystemen aus.
+
+Bei allen regulären Übungen steht deshalb das Kennzeichen:
+
+<div class="meta-row"><span class="pill frei">🚫 KI-frei lösen</span></div>
+
+Erlaubt sind selbstverständlich `Get-Help`, die Kapitel dieser Website, die offizielle Dokumentation und deine Sitznachbarn.
+
+## Wann kommt KI vor?
+
+Am Ende des Kurses gibt es einen **optionalen Block**: [PowerShell im Zeitalter von KI](/ki/). Dort geht es darum, KI sinnvoll **als Werkzeug** zu nutzen, nachdem du PowerShell selbst verstanden hast: Code erklären lassen, prüfen, Prompts schreiben, Fehler erkennen und sauber mit Daten umgehen. Die Übungen dort sind mit
+
+<div class="meta-row"><span class="pill erlaubt">✓ KI erlaubt</span></div>
+
+gekennzeichnet. Dieser Block ist unabhängig vom restlichen Kurs. Er kann entfallen, ohne dass etwas fehlt.

@@ -1,0 +1,134 @@
+---
+title: "Tag 3 · Block 3: Web-APIs, CIM, Planen und Logging"
+description: "Übungen zu Invoke-RestMethod, CIM, Task Scheduler und Logging."
+sidebar:
+  order: 33
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM, Internetzugang" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Du kennst jetzt fast alle Bausteine. Setze sie selbst zusammen.
+:::
+
+<Uebung nr="3.1" titel="Web-API abfragen" typ="Übung">
+
+1. Rufe mit `Invoke-RestMethod` die Daten für `https://api.github.com/users/octocat` ab und speichere sie in `$user`.
+2. Gib `login`, `name` und `public_repos` aus.
+3. Speichere das Ergebnis als JSON in `C:\Kurs\Ausgabe\octocat.json` (`ConvertTo-Json`).
+4. Ruf einen Benutzer ab, den es nicht gibt (`falscher-benutzer-1234567`) und fange den Fehler mit `try`/`catch` ab. Gib den HTTP-Statuscode aus.
+
+<Loesung>
+
+```powershell
+$user = Invoke-RestMethod -Uri "https://api.github.com/users/octocat"
+"Login: $($user.login)"
+"Name:  $($user.name)"
+"Repos: $($user.public_repos)"
+$user | ConvertTo-Json | Set-Content C:\Kurs\Ausgabe\octocat.json
+
+try {
+    Invoke-RestMethod -Uri "https://api.github.com/users/falscher-benutzer-1234567" -ErrorAction Stop
+}
+catch {
+    "Fehler: $($_.Exception.Response.StatusCode)"     # NotFound
+}
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="3.2" titel="Systeminformationen mit CIM">
+
+1. Hole mit `Get-CimInstance` Betriebssystem (`Win32_OperatingSystem`) und Computersystem (`Win32_ComputerSystem`).
+2. Gib `Caption`, `Version`, `LastBootUpTime` bzw. `Manufacturer`, `Model` aus.
+3. Frage das Betriebssystem auf `PSLAB-02` ab (`-ComputerName`).
+4. Welche Laufwerke gibt es und wie viel Platz ist frei? (`Win32_LogicalDisk`, `DriveType = 3`)
+
+<Loesung>
+
+```powershell
+Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, LastBootUpTime
+Get-CimInstance Win32_ComputerSystem  | Select-Object Manufacturer, Model
+
+Get-CimInstance Win32_OperatingSystem -ComputerName PSLAB-02 |
+    Select-Object CSName, Caption, Version
+
+Get-CimInstance Win32_LogicalDisk -Filter "DriveType = 3" |
+    Select-Object DeviceID, @{ n = 'FreiGB'; e = { [math]::Round($_.FreeSpace / 1GB, 1) } }
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="3.3" titel="Zeitgesteuert ausführen">
+
+1. Schreibe ein Skript `C:\Kurs\Skripte\LogDemo.ps1`, das mit `Add-Content` eine Zeile mit Datum und Uhrzeit in `C:\Kurs\Logs\demo.log` schreibt.
+2. Lege mit `New-ScheduledTaskAction`, `New-ScheduledTaskTrigger` und `Register-ScheduledTask` eine Aufgabe `Kurs-LogDemo` an, die dieses Skript mit `pwsh.exe` **täglich um 09:00** ausführt.
+3. Starte die Aufgabe sofort mit `Start-ScheduledTask` und prüfe, ob die Logdatei eine neue Zeile hat und wie `LastTaskResult` lautet.
+4. Entferne die Aufgabe wieder.
+
+<Loesung>
+
+```powershell
+Set-Content C:\Kurs\Skripte\LogDemo.ps1 -Value 'Add-Content -Path C:\Kurs\Logs\demo.log -Value "Lauf am $(Get-Date)"'
+
+$aktion  = New-ScheduledTaskAction -Execute 'C:\Program Files\PowerShell\7\pwsh.exe' `
+           -Argument '-NoProfile -File "C:\Kurs\Skripte\LogDemo.ps1"'
+$trigger = New-ScheduledTaskTrigger -Daily -At 09:00
+Register-ScheduledTask -TaskName 'Kurs-LogDemo' -Action $aktion -Trigger $trigger
+
+Start-ScheduledTask -TaskName 'Kurs-LogDemo'
+Start-Sleep -Seconds 3
+Get-Content C:\Kurs\Logs\demo.log
+Get-ScheduledTaskInfo -TaskName 'Kurs-LogDemo' | Select-Object LastRunTime, LastTaskResult
+
+Unregister-ScheduledTask -TaskName 'Kurs-LogDemo' -Confirm:$false
+```
+
+`LastTaskResult` von `0` heißt: erfolgreich.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="3.4" titel="Transcript und eigenes Log">
+
+1. Erweitere `LogDemo.ps1` so, dass sie mit `Start-Transcript` ein Transcript in `C:\Kurs\Logs\LogDemo-transcript.log` aufzeichnet und am Ende `Stop-Transcript` aufruft. Dazwischen: `Get-Date` und die ersten drei Prozesse.
+2. Führe das Skript aus und öffne das Transcript mit `Get-Content`. Was steht am Anfang und am Ende?
+3. Schreibe eine Funktion `Write-Log` (Parameter `-Message`, `-Level` mit Standard `INFO`), die eine Zeile `2026-10-04 09:00:00 [INFO] Text` an `C:\Kurs\Logs\skript.log` anhängt. Rufe sie dreimal auf, einmal mit `-Level WARN`.
+
+<Loesung>
+
+```powershell
+# LogDemo.ps1
+Start-Transcript -Path C:\Kurs\Logs\LogDemo-transcript.log -Append
+"Start: $(Get-Date)"
+Get-Process | Select-Object -First 3
+"Ende: $(Get-Date)"
+Stop-Transcript
+```
+
+```powershell
+function Write-Log {
+    param(
+        [Parameter(Mandatory = $true)][string]$Message,
+        [string]$Level = 'INFO'
+    )
+    $zeile = '{0:yyyy-MM-dd HH:mm:ss} [{1}] {2}' -f (Get-Date), $Level, $Message
+    Add-Content -Path C:\Kurs\Logs\skript.log -Value $zeile
+}
+Write-Log "Skript gestartet"
+Write-Log "Dienst fehlt" -Level WARN
+Write-Log "Skript beendet"
+Get-Content C:\Kurs\Logs\skript.log
+```
+
+Das Transcript beginnt mit einem Kopf (Zeitpunkt, Benutzer, Rechner, PowerShell-Version) und endet mit dem Endzeitpunkt.
+
+</Loesung>
+</Uebung>

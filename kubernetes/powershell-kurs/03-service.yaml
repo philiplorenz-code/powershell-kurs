@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: powershell-kurs
+  namespace: powershell-kurs
+  labels:
+    app.kubernetes.io/name: powershell-kurs
+    app.kubernetes.io/component: web
+spec:
+  selector:
+    app.kubernetes.io/name: powershell-kurs
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

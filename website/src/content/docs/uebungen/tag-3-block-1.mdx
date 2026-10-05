@@ -1,0 +1,193 @@
+---
+title: "Tag 3 · Block 1: Funktionen, Skripte und Module"
+description: "Übungen zu Funktionen, Parametern, Skriptaufbau und eigenen Modulen."
+sidebar:
+  order: 31
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM, VS Code" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Funktionen und Parameter sind der Schritt vom Befehlseintipper zum Skriptautor. Schreibe die Funktionen selbst, auch wenn sie anfangs holprig sind.
+:::
+
+Arbeite ab jetzt in **VS Code** und speichere deine Skripte in `C:\Kurs\Skripte`. Führe sie mit `F5` oder in der Konsole aus.
+
+<Uebung nr="1.1" titel="Meine erste Funktion">
+
+1. Schreibe eine Funktion `Show-Hallo`, die „Hallo, PowerShell!" ausgibt. Rufe sie auf.
+2. Gib ihr einen Parameter `-Name` (Text). Die Ausgabe lautet dann „Hallo, Anna!".
+3. Mache `-Name` **verpflichtend** (`Mandatory`). Was passiert, wenn du ihn weglässt?
+4. Gib `-Name` den Standardwert `"Welt"` und mache ihn dafür optional.
+
+<Loesung>
+
+```powershell
+function Show-Hallo {
+    "Hallo, PowerShell!"
+}
+Show-Hallo
+
+function Show-Hallo {
+    param([string]$Name)
+    "Hallo, $Name!"
+}
+Show-Hallo -Name "Anna"
+
+function Show-Hallo {
+    param([Parameter(Mandatory = $true)][string]$Name)
+    "Hallo, $Name!"
+}
+Show-Hallo               # PowerShell fragt nach dem Wert
+
+function Show-Hallo {
+    param([string]$Name = "Welt")
+    "Hallo, $Name!"
+}
+Show-Hallo
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.2" titel="Parameter validieren">
+
+Schreibe `Get-Begruessung` mit den Parametern `-Name` (Pflicht) und `-Sprache`. Für `-Sprache` sind nur `DE`, `EN` und `FR` erlaubt (`ValidateSet`). Die Funktion gibt „Hallo, NAME!", „Hello, NAME!" oder „Bonjour, NAME!" aus. Teste auch einen ungültigen Wert und beobachte die Fehlermeldung.
+
+<Loesung>
+
+```powershell
+function Get-Begruessung {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name,
+
+        [ValidateSet("DE", "EN", "FR")]
+        [string]$Sprache = "DE"
+    )
+    switch ($Sprache) {
+        "DE" { "Hallo, $Name!" }
+        "EN" { "Hello, $Name!" }
+        "FR" { "Bonjour, $Name!" }
+    }
+}
+Get-Begruessung -Name "Max" -Sprache EN
+Get-Begruessung -Name "Max" -Sprache IT     # Fehler: Wert nicht erlaubt
+```
+
+Mit `ValidateSet` erhältst du außerdem Tab-Vervollständigung für `-Sprache`.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.3" titel="Eine nützliche Funktion: Speicherplatz">
+
+Schreibe eine Funktion `Get-FreierSpeicher` mit dem Parameter `-Laufwerk` (Standard `C`). Sie soll ein **Objekt** mit den Eigenschaften `Laufwerk`, `FreiGB` und `GesamtGB` zurückgeben (gerundet auf eine Nachkommastelle).
+
+Tipp: `Get-PSDrive -Name $Laufwerk` liefert `Used` und `Free`.
+
+<Loesung>
+
+```powershell
+function Get-FreierSpeicher {
+    param([string]$Laufwerk = "C")
+
+    $d = Get-PSDrive -Name $Laufwerk
+    [PSCustomObject]@{
+        Laufwerk = $Laufwerk
+        FreiGB   = [math]::Round($d.Free / 1GB, 1)
+        GesamtGB = [math]::Round(($d.Used + $d.Free) / 1GB, 1)
+    }
+}
+Get-FreierSpeicher
+Get-FreierSpeicher -Laufwerk C | Format-Table
+```
+
+Die Funktion **gibt ein Objekt zurück**, keine formatierte Zeichenkette. So kann der Aufrufer weiterfiltern, exportieren oder anzeigen.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.4" titel="Vom Befehl zum Skript">
+
+Mache aus der Challenge „Dienste mit Starttyp Automatisch, die nicht laufen" von Tag 2 ein **Skript** `C:\Kurs\Skripte\Get-DienstReport.ps1`.
+
+1. Das Skript hat einen Kommentarkopf (Zweck, Autor, Beispiel) und einen Parameter `-Pfad` für die Ausgabedatei (Standard `C:\Kurs\Ausgabe\ServiceReport.csv`).
+2. Es schreibt den Bericht mit Datum als CSV und gibt am Ende eine Meldung mit der Anzahl der gefundenen Dienste aus.
+3. Prüfe mit `Get-Help C:\Kurs\Skripte\Get-DienstReport.ps1`, ob dein Kommentarkopf als Hilfe erscheint.
+
+<Loesung>
+
+```powershell
+<#
+.SYNOPSIS
+    Berichtet automatisch startende Dienste, die nicht laufen.
+.PARAMETER Pfad
+    Ausgabedatei (CSV).
+.EXAMPLE
+    .\Get-DienstReport.ps1 -Pfad C:\Kurs\Ausgabe\bericht.csv
+#>
+param(
+    [string]$Pfad = "C:\Kurs\Ausgabe\ServiceReport.csv"
+)
+
+$gefunden = Get-Service |
+    Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } |
+    Select-Object Name, DisplayName, Status,
+        @{ Name = 'Datum'; Expression = { Get-Date -Format 'yyyy-MM-dd' } }
+
+$gefunden | Export-Csv -Path $Pfad
+Write-Output "$(@($gefunden).Count) Dienst(e) gefunden. Bericht: $Pfad"
+```
+
+`@(…)` stellt sicher, dass auch bei genau einem oder keinem Treffer `.Count` funktioniert.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.5" titel="Mein erstes Modul" typ="Bonus">
+
+1. Lege `C:\Kurs\Skripte\KursTools` an und darin `KursTools.psm1` mit deinen Funktionen `Show-Hallo` und `Get-FreierSpeicher`.
+2. Erstelle ein Manifest mit `New-ModuleManifest` (`-RootModule` nicht vergessen).
+3. Lade das Modul mit `Import-Module`, rufe beide Funktionen auf und prüfe mit `Get-Command -Module KursTools`.
+
+<Loesung>
+
+```powershell
+New-Item -ItemType Directory -Path C:\Kurs\Skripte\KursTools -Force
+
+@'
+function Show-Hallo {
+    param([string]$Name = "Welt")
+    "Hallo, $Name!"
+}
+
+function Get-FreierSpeicher {
+    param([string]$Laufwerk = "C")
+    $d = Get-PSDrive -Name $Laufwerk
+    [PSCustomObject]@{
+        Laufwerk = $Laufwerk
+        FreiGB   = [math]::Round($d.Free / 1GB, 1)
+    }
+}
+
+Export-ModuleMember -Function Show-Hallo, Get-FreierSpeicher
+'@ | Set-Content C:\Kurs\Skripte\KursTools\KursTools.psm1
+
+New-ModuleManifest -Path C:\Kurs\Skripte\KursTools\KursTools.psd1 `
+    -RootModule KursTools.psm1 -ModuleVersion 1.0.0 -Author "Ich" `
+    -FunctionsToExport Show-Hallo, Get-FreierSpeicher
+
+Import-Module C:\Kurs\Skripte\KursTools -Force
+Get-Command -Module KursTools
+Show-Hallo -Name "Modul"
+Get-FreierSpeicher
+```
+
+</Loesung>
+</Uebung>

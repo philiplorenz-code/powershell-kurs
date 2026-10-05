@@ -1,0 +1,13 @@
+.git
+.github
+**/node_modules
+**/dist
+**/.astro
+slides/out
+infrastructure
+kubernetes
+docs
+*.md
+!website/**/*.md
+!website/**/*.mdx
+**/.DS_Store

@@ -1,0 +1,132 @@
+---
+title: "Prozesse und Dienste verwalten"
+sidebar:
+  order: 6
+---
+
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" />
+
+<Lernziele>
+
+- Prozesse und Dienste abfragen, filtern und steuern
+- Änderungen mit `-WhatIf` und `-Confirm` absichern
+
+</Lernziele>
+
+PowerShell bietet mit **Get-Process** und **Get-Service** leistungsfähige Cmdlets zur Verwaltung von Prozessen und Diensten. Mit diesen Befehlen kannst du Informationen über laufende Prozesse und Systemdienste abrufen, filtern und analysieren – was besonders in der Systemadministration und Fehlerbehebung nützlich ist.
+
+## 1. Prozessverwaltung mit Get-Process
+
+Das Cmdlet **Get-Process** liefert Informationen zu allen aktuell laufenden Prozessen auf deinem System. Du kannst damit unter anderem den Namen, die ID, die CPU-Auslastung und den Speicherverbrauch eines Prozesses abfragen.
+
+### 1.1 Alle Prozesse anzeigen
+
+```powershell
+Get-Process
+```
+
+### 1.2 Spezifische Prozesse filtern
+
+Du kannst **Get-Process** in Kombination mit **Where-Object** verwenden, um Prozesse nach bestimmten Kriterien zu filtern. Im folgenden Beispiel werden alle Prozesse angezeigt, die mehr als 100 MB Arbeitsspeicher belegen:
+
+```powershell
+Get-Process | Where-Object { $_.WorkingSet -gt 100MB }
+```
+
+Bei Prozessen ist `-Name` oft einfacher: `Get-Process -Name pwsh`.
+
+### 1.3 Prozessinformationen formatieren
+
+Mit **Select-Object** kannst du die Ausgabe gezielt anpassen. Hier werden beispielsweise der Name, die Prozess-ID und die CPU-Auslastung ausgegeben:
+
+```powershell
+Get-Process | Select-Object Name, Id, CPU
+```
+
+## 2. Dienstverwaltung mit Get-Service
+
+Das Cmdlet **Get-Service** liefert Informationen über alle installierten Dienste. Du kannst den Status (gestartet, gestoppt usw.) eines Dienstes abfragen oder gezielt nach einem bestimmten Dienst suchen.
+
+### 2.1 Alle Dienste anzeigen
+
+```powershell
+Get-Service
+```
+
+### 2.2 Einen bestimmten Dienst abfragen
+
+Um gezielt einen Dienst, beispielsweise den Windows Update-Dienst, abzufragen, verwendest du:
+
+```powershell
+Get-Service -Name wuauserv
+```
+
+### 2.3 Dienste filtern und sortieren
+
+Hier ein Beispiel, das alle gestarteten Dienste filtert und nach dem Dienstnamen sortiert:
+
+```powershell
+Get-Service | Where-Object { $_.Status -eq "Running" } | Sort-Object DisplayName
+```
+
+## 3. Prozesse und Dienste steuern
+
+Bisher hast du nur **gelesen**. Jetzt verändern wir etwas. Alle diese Cmdlets unterstützen `-WhatIf` und `-Confirm`.
+
+| Aufgabe | Cmdlet |
+|---|---|
+| Dienst starten | `Start-Service` |
+| Dienst stoppen | `Stop-Service` |
+| Dienst neu starten | `Restart-Service` |
+| Starttyp ändern (Automatisch, Manuell, Deaktiviert) | `Set-Service -StartupType` |
+| Prozess starten | `Start-Process` |
+| Prozess beenden | `Stop-Process` |
+
+```powershell
+# Erst simulieren ...
+Stop-Service -Name Spooler -WhatIf
+
+# ... dann ausführen (Administratorrechte nötig)
+Stop-Service -Name Spooler
+Start-Service -Name Spooler
+Get-Service -Name Spooler
+
+# Prozess: Notepad starten und gezielt beenden
+Start-Process notepad
+Get-Process -Name notepad | Stop-Process
+```
+
+Wenn ein Befehl mehrere Objekte betrifft, hilft die Pipeline:
+
+```powershell
+Get-Service -Name BITS, Spooler | Select-Object Name, Status, StartType
+```
+
+:::caution[Vorsicht in Produktion]
+`Stop-Process -Name *` beendet **alle** passenden Prozesse. Teste mit `-WhatIf` und nutze genaue Namen. Dienste, von denen andere abhängen, stoppen auch ihre Abhängigen.
+:::
+
+## 4. Best Practices und Tipps
+
+- **Kombination mit der Pipeline:**  
+  Nutze die Pipeline, um Ergebnisse weiter zu verarbeiten – etwa durch Filtern, Sortieren und Formatieren. Dies macht deinen Code modular und wartbar.
+- **Gezielte Abfragen:**  
+  Verwende Parameter wie `-Name` bei **Get-Service** oder filtere Ergebnisse mit **Where-Object**, um nur die relevanten Informationen anzuzeigen.
+- **Leistung im Blick behalten:**  
+  Bei Systemen mit vielen laufenden Prozessen oder Diensten kann es sinnvoll sein, die Ausgabe zu begrenzen oder gezielt zu filtern, um die Übersicht zu behalten.
+
+## 5. Zusammenfassung
+
+- **Get-Process:**  
+  Ermöglicht dir, detaillierte Informationen zu allen laufenden Prozessen zu erhalten. Durch den Einsatz von Filtern und Formatierung kannst du gezielt die Informationen abrufen, die du benötigst.
+- **Get-Service:**  
+  Liefert Informationen zu allen installierten Diensten und deren Status. Mit gezielten Abfragen und Filtern kannst du schnell den Status einzelner Dienste ermitteln.
+
+Diese Cmdlets sind zentrale Werkzeuge in der Systemadministration und bieten eine flexible Möglichkeit, Prozesse und Dienste zu überwachen und zu verwalten.
+

@@ -1,0 +1,157 @@
+---
+title: "Tag 2 · Block 2: CSV, Prozesse und Dienste"
+description: "Übungen zu CSV-Import/-Export sowie Prozess- und Dienstverwaltung."
+sidebar:
+  order: 22
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Hier verknüpfst du, was du bisher gelernt hast: Pipeline, Filter, Dateien, Dienste. Lies Fehlermeldungen genau, sie verraten fast immer, was fehlt.
+:::
+
+<Uebung nr="2.1" titel="CSV auswerten">
+
+Die Datei `C:\Kurs\Daten\Mitarbeiter.csv` hat die Spalten `Name`, `Abteilung` und `Alter`.
+
+1. Importiere die Datei in `$mitarbeiter` und zeige sie an.
+2. Zeige nur die Mitarbeiter der Abteilung `IT`.
+3. Sortiere **alle** Mitarbeiter nach Alter, aufsteigend. Achte darauf, dass 9 vor 30 kommt, auch wenn die Datei Texte liefert.
+4. Exportiere die IT-Mitarbeiter, sortiert nach Alter, als `C:\Kurs\Ausgabe\Mitarbeiter_IT.csv`.
+5. Wie viele Mitarbeiter hat jede Abteilung? (Tipp: `Group-Object Abteilung`, und lies die Hilfe.)
+
+<Loesung>
+
+```powershell
+$mitarbeiter = Import-Csv C:\Kurs\Daten\Mitarbeiter.csv
+$mitarbeiter
+
+$mitarbeiter | Where-Object Abteilung -eq 'IT'
+
+$mitarbeiter | Sort-Object { [int]$_.Alter }
+
+$mitarbeiter |
+    Where-Object Abteilung -eq 'IT' |
+    Sort-Object { [int]$_.Alter } |
+    Export-Csv C:\Kurs\Ausgabe\Mitarbeiter_IT.csv
+
+$mitarbeiter | Group-Object Abteilung | Select-Object Name, Count
+```
+
+`Import-Csv` liefert alle Werte als Text. Ohne `[int]` würde `Sort-Object` alphabetisch sortieren.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.2" titel="Eine CSV selbst erzeugen">
+
+1. Erzeuge mit `[PSCustomObject]` drei Produkte mit `Name`, `Preis` und `Lager` und speichere sie als `C:\Kurs\Ausgabe\Produkte.csv` mit Semikolon als Trennzeichen.
+2. Lies die Datei wieder ein, achte dabei auf das Trennzeichen.
+3. Welche Produkte kosten mehr als 700? Beachte, dass der Preis nach dem Import Text ist.
+
+<Loesung>
+
+```powershell
+$produkte = @(
+    [PSCustomObject]@{ Name = "Laptop";     Preis = 1200; Lager = 10 },
+    [PSCustomObject]@{ Name = "Tablet";     Preis = 600;  Lager = 25 },
+    [PSCustomObject]@{ Name = "Smartphone"; Preis = 800;  Lager = 15 }
+)
+$produkte | Export-Csv C:\Kurs\Ausgabe\Produkte.csv -Delimiter ";"
+
+$gelesen = Import-Csv C:\Kurs\Ausgabe\Produkte.csv -Delimiter ";"
+$gelesen | Where-Object { [int]$_.Preis -gt 700 }
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.3" titel="Prozesse">
+
+1. Zeige alle Prozesse, die mehr als 150 MB Arbeitsspeicher belegen, absteigend nach Speicher sortiert.
+2. Starte `notepad` mit `Start-Process`, finde den Prozess mit `Get-Process` und beende ihn mit `Stop-Process`. Teste das Beenden vorher mit `-WhatIf`.
+3. Speichere eine Liste der zehn Prozesse mit der höchsten CPU-Zeit in `C:\Kurs\Ausgabe\TopProzesse.csv` (nur `Name`, `Id`, `CPU`).
+
+<Loesung>
+
+```powershell
+Get-Process | Where-Object { $_.WorkingSet -gt 150MB } | Sort-Object WorkingSet -Descending
+
+Start-Process notepad
+Get-Process -Name notepad
+Get-Process -Name notepad | Stop-Process -WhatIf
+Get-Process -Name notepad | Stop-Process
+
+Get-Process |
+    Sort-Object CPU -Descending |
+    Select-Object -First 10 -Property Name, Id, CPU |
+    Export-Csv C:\Kurs\Ausgabe\TopProzesse.csv
+```
+
+Auf einem frischen System hat noch nicht jeder Prozess CPU-Zeit. Das ist unproblematisch.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.4" titel="Dienste steuern">
+
+Arbeite in einer **Administrator**-PowerShell.
+
+1. Welchen Status und welchen Starttyp hat der Dienst `Spooler`? (Tipp: `Select-Object Name, Status, StartType`.)
+2. Stoppe den Dienst, prüfe den Status und starte ihn wieder. Teste vorher mit `-WhatIf`.
+3. Liste alle **laufenden** Dienste, deren Name mit `W` beginnt. Exportiere das Ergebnis nach `C:\Kurs\Ausgabe\Dienste_W.csv`.
+4. Welche Dienste sind auf **Automatisch** gestellt, laufen aber nicht? Das ist eine typische Monitoring-Frage.
+
+<Loesung>
+
+```powershell
+Get-Service -Name Spooler | Select-Object Name, Status, StartType
+
+Stop-Service -Name Spooler -WhatIf
+Stop-Service -Name Spooler
+Get-Service -Name Spooler
+Start-Service -Name Spooler
+
+Get-Service |
+    Where-Object { $_.Status -eq 'Running' -and $_.Name -like 'W*' } |
+    Select-Object Name, DisplayName, Status |
+    Export-Csv C:\Kurs\Ausgabe\Dienste_W.csv
+
+Get-Service |
+    Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } |
+    Select-Object Name, DisplayName, Status
+```
+
+Einige Dienste mit Starttyp „Automatisch (verzögert)" oder „Trigger-Start" tauchen hier regulär auf, ohne dass etwas kaputt ist.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="2.5" titel="Tägliches Monitoring" typ="Challenge">
+
+Schreibe die Befehle für einen Bericht „Welche Dienste mit Starttyp Automatisch laufen nicht?" so auf, dass sie in **einer** Pipeline stehen und das Ergebnis in `C:\Kurs\Ausgabe\ServiceReport.csv` landet. Ergänze eine zusätzliche Spalte mit dem aktuellen Datum.
+
+Tipp: Mit `Select-Object` kannst du berechnete Eigenschaften anlegen: `@{ Name = 'Datum'; Expression = { Get-Date -Format 'yyyy-MM-dd' } }`.
+
+<Loesung>
+
+```powershell
+Get-Service |
+    Where-Object { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } |
+    Select-Object Name, DisplayName, Status,
+        @{ Name = 'Datum'; Expression = { Get-Date -Format 'yyyy-MM-dd' } } |
+    Export-Csv C:\Kurs\Ausgabe\ServiceReport.csv
+
+Import-Csv C:\Kurs\Ausgabe\ServiceReport.csv | Format-Table
+```
+
+An Tag 3 machst du daraus ein Skript mit Parametern, Fehlerbehandlung und Zeitplan.
+
+</Loesung>
+</Uebung>

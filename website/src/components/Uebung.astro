@@ -1,0 +1,20 @@
+---
+interface Props {
+  titel: string;
+  nr?: string;
+  typ?: 'Übung' | 'Challenge' | 'Bonus' | 'KI-Übung';
+  ki?: 'frei' | 'erlaubt' | 'ohne';
+}
+const { titel, nr, typ = 'Übung', ki } = Astro.props;
+const klasse = typ === 'Challenge' ? 'challenge' : typ === 'Bonus' ? 'bonus' : typ === 'KI-Übung' ? 'ki' : '';
+const kiMode = ki ?? (typ === 'KI-Übung' ? 'erlaubt' : typ === 'Bonus' ? 'ohne' : 'frei');
+---
+<section class={`aufgabe ${klasse}`}>
+  <header>
+    <span class="titel">{nr ? `${nr} · ` : ''}{titel}</span>
+    <span class="pill typ">{typ}</span>
+    {kiMode === 'frei' && <span class="pill frei" title="Bitte ohne KI-Unterstützung lösen">🚫 KI-frei lösen</span>}
+    {kiMode === 'erlaubt' && <span class="pill erlaubt" title="KI darf verwendet werden">✓ KI erlaubt</span>}
+  </header>
+  <div class="body"><slot /></div>
+</section>

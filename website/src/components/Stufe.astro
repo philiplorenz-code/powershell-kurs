@@ -1,0 +1,9 @@
+---
+interface Props { stufe: 'Core' | 'Optional' | 'Bonus' | 'Reserve'; zeit?: string; lab?: string }
+const { stufe, zeit, lab } = Astro.props;
+---
+<div class="meta-row">
+  <span class={`pill ${stufe.toLowerCase()}`}>{stufe}</span>
+  {zeit && <span class="pill reserve">⏱ {zeit}</span>}
+  {lab && <span class="pill reserve">🖥 {lab}</span>}
+</div>

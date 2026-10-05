@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>PowerShell in 3 Tagen – Folien</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/reveal/reveal.css">
+  <link rel="stylesheet" href="vendor/reveal/theme/black.css" id="theme">
+  <link rel="stylesheet" href="vendor/highlight/monokai.css">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- 1 Titel -->
+    <section>
+      <p class="prompt">PS C:\&gt; Start-Kurs -Tage 3</p>
+      <h1>PowerShell in 3 Tagen</h1>
+      <p class="muted">Praxisnahe Schulung für Windows-Administratoren</p>
+      <p class="small muted">Philip Lorenz</p>
+      <aside class="notes">Begrüßung. Kurz Namen und Erwartungen abfragen (siehe Folie „Organisatorisches“).</aside>
+    </section>
+
+    <!-- 2 Agenda -->
+    <section>
+      <h2>Drei Tage im Überblick</h2>
+      <div class="cols three">
+        <div class="card"><h3>Tag 1 · Fundament</h3><ul><li>Konsole, Hilfe, Verb-Noun</li><li>Pipeline und Objekte</li><li>Variablen, Datentypen</li></ul></div>
+        <div class="card"><h3>Tag 2 · Administration</h3><ul><li>Filtern, Logik, Schleifen</li><li>CSV, Dienste, Prozesse</li><li>Active Directory, Remoting</li></ul></div>
+        <div class="card"><h3>Tag 3 · Skripte</h3><ul><li>Funktionen, Fehler, Debugging</li><li>Secrets, CIM, Zeitpläne</li><li>Abschlussprojekt<br>(optional: PowerShell + KI)</li></ul></div>
+      </div>
+    </section>
+
+    <!-- 3 Lernziele -->
+    <section>
+      <h2>Das kannst du nach drei Tagen</h2>
+      <ul>
+        <li>PowerShell als <b>Objekt-Shell</b> verstehen und effizient nutzen</li>
+        <li>Alltagsaufgaben in <b>Windows und Active Directory</b> automatisieren</li>
+        <li>Befehle auf <b>mehreren Rechnern</b> gleichzeitig ausführen</li>
+        <li>Skripte <b>strukturieren, absichern und zeitgesteuert</b> laufen lassen</li>
+        <li>Fremden Code lesen und beurteilen</li>
+      </ul>
+    </section>
+
+    <!-- 4 Trainer -->
+    <section>
+      <h2>Trainer</h2>
+      <h3>Philip Lorenz</h3>
+      <p class="muted">PowerShell, Windows, Azure</p>
+      <div class="editable">
+        <!-- EDITIERBAR: Hier Kurzvita, Schwerpunkte und Erfahrung ergänzen. Keine Angaben erfinden. -->
+        ✎ Platzhalter: Kurzvita, Schwerpunkte, Projekterfahrung (in <code>slides/index.html</code> ergänzen)
+      </div>
+      <p class="small muted" style="margin-top:1em">
+        <a href="https://www.linkedin.com/in/philip-lorenz-a8942a1aa/">LinkedIn</a> ·
+        <a href="https://www.youtube.com/@Philip-Lorenz">YouTube</a> ·
+        <a href="https://personal.philiplorenz.com">personal.philiplorenz.com</a>
+      </p>
+    </section>
+
+    <!-- 5 Organisatorisches -->
+    <section>
+      <h2>Organisatorisches</h2>
+      <ul>
+        <li>Drei Tage, <b>3 Teilnehmende</b>, jede Person mit eigener VM</li>
+        <li>Wechsel aus <b>kurzen Erklärphasen</b> und <b>Übungsblöcken</b></li>
+        <li>Pausen nach Gefühl, nicht nach Stoppuhr</li>
+        <li>Fragen jederzeit, auch „dumme“</li>
+        <li>Inhalte stehen auf der <b>Kurswebsite</b> und bleiben danach verfügbar</li>
+      </ul>
+      <p class="small muted">Kurze Vorstellungsrunde: Erfahrung mit PowerShell, typische Aufgaben im Alltag, ein Wunschthema.</p>
+    </section>
+
+    <!-- 6 Lab -->
+    <section>
+      <h2>Die Lab-Umgebung</h2>
+      <div class="cols">
+        <div>
+          <ul>
+            <li><b>DC01</b>: Domänencontroller<br><span class="small muted">pslab.internal</span></li>
+            <li><b>PSLAB-01 … 03</b>: Deine VM</li>
+            <li>PowerShell 7, VS Code, AD-Modul, Remoting</li>
+            <li>Beispieldaten unter <code>C:\Kurs</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Zugang</h3>
+          <ul>
+            <li>RDP auf deine VM</li>
+            <li>Benutzer: <code>PSLAB\teilnehmerNN</code></li>
+            <li>Passwort: vom Trainer</li>
+            <li>Alles ist ein Übungsraum: ausprobieren erlaubt</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 Umgang mit Übungen -->
+    <section>
+      <h2>So arbeiten wir mit Übungen</h2>
+      <table>
+        <tr><th>Art</th><th>Bedeutung</th></tr>
+        <tr><td><b>Übung</b></td><td>Pflichtprogramm, passt zum Stoff davor</td></tr>
+        <tr><td><b>Challenge</b></td><td>anspruchsvoller, weniger Hinweise</td></tr>
+        <tr><td><b>Bonus</b></td><td>Vertiefung für Schnelle</td></tr>
+        <tr><td><b>Lösung</b></td><td>eingeklappt unter der Aufgabe, erst selbst versuchen</td></tr>
+      </table>
+      <p class="small muted">Stufen: <b>Core</b> · <b>Optional</b> · <b>Bonus</b> · <b>Reserve</b></p>
+    </section>
+
+    <!-- 8 Keine KI -->
+    <section>
+      <h2>Reguläre Übungen: ohne KI</h2>
+      <p class="big-claim">Erst verstehen, dann delegieren.</p>
+      <ul class="small">
+        <li>Du lernst, <b>Fehlermeldungen zu lesen</b> und Code zu beurteilen</li>
+        <li>Nur wer PowerShell versteht, erkennt falsche KI-Antworten</li>
+        <li>Erlaubt: <code>Get-Help</code>, Kursseiten, Kolleginnen und Kollegen</li>
+      </ul>
+      <p><span class="pill frei">🚫 KI-frei lösen</span> <span class="pill ok">✓ KI im optionalen Block</span></p>
+    </section>
+
+    <!-- 9 Tag 1 -->
+    <section>
+      <h2>Tag 1 · Fundament <span class="pill core">Core</span></h2>
+      <div class="cols">
+        <ul class="small">
+          <li>PowerShell 5.1 vs. 7, VS Code</li>
+          <li>Hilfesystem, Verb-Noun</li>
+          <li>Navigation, Dateien, Provider</li>
+          <li>Pipeline, Get-Member</li>
+        </ul>
+        <ul class="small">
+          <li>Variablen, Datentypen, Strings</li>
+          <li>Arrays, Hashtables, Objekte</li>
+          <li>Profil, Execution Policy</li>
+          <li><b>Abschluss:</b> Mini-Inventar</li>
+        </ul>
+      </div>
+      <p class="small muted">Lab: nur die eigene VM</p>
+    </section>
+
+    <!-- 10 Tag 2 -->
+    <section>
+      <h2>Tag 2 · Logik &amp; Administration <span class="pill core">Core</span></h2>
+      <div class="cols">
+        <ul class="small">
+          <li>Operatoren, Where/Sort/Select</li>
+          <li>if, switch, Schleifen</li>
+          <li>CSV-Import und -Export</li>
+        </ul>
+        <ul class="small">
+          <li>Prozesse und Dienste steuern</li>
+          <li><b>Active Directory</b> abfragen</li>
+          <li><b>Remoting</b> zwischen Rechnern</li>
+          <li>Module verwenden</li>
+        </ul>
+      </div>
+      <p class="small muted">Lab: DC01 und alle Kursrechner</p>
+    </section>
+
+    <!-- 11 Tag 3 -->
+    <section>
+      <h2>Tag 3 · Skripte &amp; Praxis <span class="pill core">Core</span></h2>
+      <div class="cols">
+        <ul class="small">
+          <li>Funktionen, Parameter</li>
+          <li>Fehlerbehandlung, Debugging</li>
+          <li>Secrets und Credentials</li>
+        </ul>
+        <ul class="small">
+          <li>CIM, Web-APIs</li>
+          <li>Zeitpläne, Logging</li>
+          <li><b>Abschlussprojekt:</b> Server-Inventar</li>
+        </ul>
+      </div>
+      <p class="small muted">Lab: alle Rechner, Internetzugang</p>
+    </section>
+
+    <!-- 12 KI -->
+    <section>
+      <h2>Optional: PowerShell + KI <span class="pill opt">Optional</span></h2>
+      <p class="muted small">Ca. ein halber Tag, flexibel kürzbar. Der Kurs hängt nicht davon ab.</p>
+      <ul class="small">
+        <li>Code erklären lassen, Review, Refactoring</li>
+        <li>Gute und schlechte Prompts</li>
+        <li><b>Halluzinationen erkennen</b> und gegen <code>Get-Help</code> prüfen</li>
+        <li>Datenschutz: Was nicht in externe Dienste gehört</li>
+      </ul>
+      <p class="big-claim small">Wie nutze ich KI als Werkzeug, nachdem ich PowerShell verstanden habe?</p>
+    </section>
+
+    <!-- 13 Abschluss -->
+    <section>
+      <h2>Nächste Schritte</h2>
+      <ul>
+        <li>Kurswebsite als Nachschlagewerk nutzen</li>
+        <li>Eigene Alltagsaufgabe automatisieren (klein anfangen)</li>
+        <li>Skripte versionieren und testen</li>
+        <li>Weiter: Microsoft Graph, Azure, Pester, Desired State Configuration</li>
+      </ul>
+      <p class="prompt">PS C:\&gt; Get-Help -Online <span class="muted">// viel Erfolg</span></p>
+      <p class="small muted">Philip Lorenz · <a href="mailto:contact@philiplorenz.com">contact@philiplorenz.com</a></p>
+    </section>
+
+  </div>
+</div>
+<script src="vendor/reveal/reveal.js"></script>
+<script src="vendor/notes/notes.js"></script>
+<script src="vendor/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true, slideNumber: 'c/t', transition: 'fade', width: 1280, height: 720, margin: 0.04,
+    plugins: [RevealNotes, RevealHighlight]
+  });
+</script>
+</body>
+</html>

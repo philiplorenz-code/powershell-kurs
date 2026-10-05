@@ -1,0 +1,63 @@
+---
+title: Für Teilnehmer
+description: Zugang zur eigenen VM, PowerShell starten, Regeln und wo es Lösungen gibt.
+sidebar:
+  order: 2
+---
+Hier steht alles, was du für den Start brauchst. Infrastrukturdetails brauchst du nicht.
+
+## 1. Auf deine VM zugreifen
+
+Jede Person hat eine **eigene Windows-VM** (`PSLAB-01`, `PSLAB-02` oder `PSLAB-03`). Deine Nummer und die Zugangsdaten bekommst du vom Trainer.
+
+1. Verbinde dich per **Remotedesktop (RDP)** mit der Adresse, die dir der Trainer nennt.
+2. Melde dich an mit dem Benutzernamen `PSLAB\teilnehmerNN` (NN ist deine Nummer, zum Beispiel `PSLAB\teilnehmer01`).
+3. Das Passwort bekommst du **persönlich vom Trainer**. Es steht nirgends in der Dokumentation.
+
+:::note[Passwort ändern?]
+Dein Konto ist für drei Tage gedacht. Wenn Windows nach einem neuen Passwort fragt, wähle ein neues und merke es dir. Probleme mit dem Konto? Der Trainer setzt es zurück.
+:::
+
+## 2. PowerShell starten
+
+Auf deiner VM sind beide PowerShell-Varianten installiert. **Im Kurs nutzen wir PowerShell 7.**
+
+- Starte das **Windows Terminal** (Taskleiste) oder tippe im Startmenü `pwsh`.
+- Prüfe die Version:
+
+```powershell
+$PSVersionTable.PSVersion
+```
+
+Es sollte `7.x` erscheinen. Wenn `5.1` erscheint, hast du `powershell.exe` gestartet (Windows PowerShell). Das ist in Ordnung, wir brauchen aber `pwsh`.
+
+- Für Skripte nutzen wir **VS Code** (Taskleiste oder Startmenü), mit der PowerShell-Erweiterung.
+- Für Aufgaben, die Administratorrechte brauchen (zum Beispiel Dienste stoppen), startest du das Terminal **als Administrator** (Rechtsklick).
+
+## 3. Die Kurswebsite öffnen
+
+Du liest sie gerade. Auf deiner VM findest du ein Lesezeichen im Browser, oder du rufst die Adresse auf, die der Trainer nennt.
+
+## 4. Deine Ordner
+
+Alles, was du im Kurs anlegst, liegt unter `C:\Kurs`:
+
+| Ordner | Inhalt |
+|---|---|
+| `C:\Kurs\Daten` | Beispieldaten (nur lesen). Dateien dort besser nicht ändern. |
+| `C:\Kurs\Ausgabe` | Hier speicherst du Ergebnisse. |
+| `C:\Kurs\Logs` | Logdateien aus den Übungen. |
+| `C:\Kurs\Skripte` | Deine Skripte. |
+| `C:\Kurs\KI` | Beispiele für den optionalen KI-Block. |
+
+## 5. Wichtige Regeln
+
+- **Reguläre Übungen ohne KI-Unterstützung.** Siehe [Umgang mit Übungen](/kurs/uebungen-und-ki/). Im optionalen KI-Block ist KI ausdrücklich erlaubt.
+- Das Lab ist ein **Übungsraum**: Probiere aus, mach Fehler, aber nimm keine Änderungen an anderen Rechnern vor, die nicht Teil der Aufgabe sind.
+- Gib im Lab **keine echten Zugangsdaten** oder Firmendaten ein.
+- Verändernde Befehle zuerst mit `-WhatIf` testen.
+- Frag nach. Das gilt besonders bei Fehlermeldungen: Zeig sie dem Trainer oder deinen Nachbarn.
+
+## 6. Wo finde ich Lösungen?
+
+Direkt unter jeder Aufgabe, **eingeklappt** („Lösung anzeigen"). Versuche es erst selbst: Wer sofort nachschaut, übt das Nachschauen und nicht PowerShell. Wenn du feststeckst, schau dir nur den ersten Schritt an und mache selbst weiter.

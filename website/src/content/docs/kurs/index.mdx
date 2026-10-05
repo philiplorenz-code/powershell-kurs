@@ -1,0 +1,56 @@
+---
+title: Kursübersicht
+description: Aufbau, Zielgruppe, Lernziele und Ablauf des Kurses.
+sidebar:
+  order: 1
+---
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import Stufe from '../../../components/Stufe.astro';
+
+Dieses Training begleitet drei intensive Tage. Du arbeitest praxisnah, führst alle Beispiele selbst aus und wendest sie sofort in Übungen an. Ziel: Nach dem Kurs schreibst du selbstbewusst eigene Skripte, automatisierst wiederkehrende Aufgaben und nutzt PowerShell sicher im Alltag.
+
+## Für wen ist der Kurs?
+
+Für **Windows-Administratoren** und Einsteiger, die PowerShell gezielt für die Verwaltung nutzen möchten. Du hast vielleicht schon einmal ein Skript ausgeführt oder angepasst. Programmierkenntnisse brauchst du nicht.
+
+## Das lernst du
+
+- PowerShell als **objektorientierte Shell** verstehen und effizient nutzen
+- Typische Aufgaben in **Windows und Active Directory** automatisieren
+- Befehle auf **anderen Rechnern** ausführen (Remoting)
+- Skripte **strukturieren, absichern, testen und zeitgesteuert ausführen**
+
+## Aufbau
+
+| Tag | Schwerpunkt | Übersicht | Übungen |
+|---|---|---|---|
+| 1 | Fundament: Shell, Hilfe, Pipeline, Variablen, Objekte | [Tag 1](/tag-1/) | [Block 1](/uebungen/tag-1-block-1/) · [Block 2](/uebungen/tag-1-block-2/) · [Block 3](/uebungen/tag-1-block-3/) |
+| 2 | Logik und Administration: Filter, Schleifen, CSV, Dienste, AD, Remoting | [Tag 2](/tag-2/) | [Block 1](/uebungen/tag-2-block-1/) · [Block 2](/uebungen/tag-2-block-2/) · [Block 3](/uebungen/tag-2-block-3/) |
+| 3 | Skripte und Praxis: Funktionen, Fehler, Secrets, CIM, Planen | [Tag 3](/tag-3/) | [Block 1](/uebungen/tag-3-block-1/) · [Block 2](/uebungen/tag-3-block-2/) · [Block 3](/uebungen/tag-3-block-3/) · [Abschlussprojekt](/uebungen/abschlussprojekt/) |
+| 3 (optional) | PowerShell im Zeitalter von KI | [KI-Block](/ki/) | [KI-Übungen](/ki/uebungen/) |
+
+## Inhalte kennzeichnen
+
+Nicht alles ist gleich wichtig. Jede Seite trägt eine Stufe:
+
+<div class="meta-row">
+  <span class="pill core">Core</span> <span>gehört zum festen Programm</span>
+</div>
+<div class="meta-row">
+  <span class="pill optional">Optional</span> <span>wird je nach Gruppe und Zeit behandelt</span>
+</div>
+<div class="meta-row">
+  <span class="pill bonus">Bonus</span> <span>zum Vertiefen, für schnelle Teilnehmer</span>
+</div>
+<div class="meta-row">
+  <span class="pill reserve">Reserve</span> <span>Nachschlagewerk und Zusatzthemen</span>
+</div>
+
+Übungen heißen **Übung** (Pflichtprogramm), **Challenge** (anspruchsvoller) oder **Bonus**. Lösungen stehen immer **eingeklappt** direkt unter der Aufgabe.
+
+## Voraussetzungen
+
+- Grundverständnis von Windows und Netzwerkkonzepten
+- Bereitschaft, Befehle selbst zu tippen und Fehlermeldungen zu lesen
+
+Alles Technische (VM, VS Code, PowerShell 7, Active Directory) bringt das Lab mit. Siehe [Lab-Umgebung](/kurs/lab/).

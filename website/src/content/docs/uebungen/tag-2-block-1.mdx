@@ -1,0 +1,185 @@
+---
+title: "Tag 2 · Block 1: Vergleichen, Filtern, Entscheiden, Wiederholen"
+description: "Übungen zu Operatoren, Where/Sort/Select, if/switch und Schleifen."
+sidebar:
+  order: 21
+---
+import Stufe from '../../../components/Stufe.astro';
+import Lernziele from '../../../components/Lernziele.astro';
+import Trainer from '../../../components/Trainer.astro';
+import Uebung from '../../../components/Uebung.astro';
+import Loesung from '../../../components/Loesung.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM" />
+
+:::caution[Bitte ohne KI-Unterstützung lösen]
+Logik und Schleifen lernst du nur durch eigenes Tippen und eigene Fehler. Teste jede Übung mit mehreren Eingaben.
+:::
+
+<Uebung nr="1.1" titel="Vergleichen">
+
+1. Lege `$a = 5` und `$b = 10` an. Gib die Ergebnisse (`True`/`False`) für `-eq`, `-ne`, `-lt`, `-ge` aus.
+2. Welche Ergebnisse liefern `"PowerShell" -like "*shell"`, `"PowerShell" -like "power*"` und `"PowerShell" -cmatch "^power"`? Begründe.
+3. Prüfe, ob `3` in `@(1, 2, 3, 4)` enthalten ist, einmal mit `-contains` und einmal mit `-in`.
+4. Prüfe mit einem einzigen Ausdruck, ob `$a` größer als 3 **und** kleiner als 8 ist.
+
+<Loesung>
+
+```powershell
+$a = 5; $b = 10
+$a -eq $b; $a -ne $b; $a -lt $b; $a -ge $b
+
+"PowerShell" -like "*shell"      # True  (Groß-/Kleinschreibung egal)
+"PowerShell" -like "power*"      # True
+"PowerShell" -cmatch "^power"    # False (c = case-sensitive: "P" ≠ "p")
+
+@(1, 2, 3, 4) -contains 3        # Sammlung links
+3 -in @(1, 2, 3, 4)              # Element links
+
+($a -gt 3) -and ($a -lt 8)
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.2" titel="Dateien filtern">
+
+Im Ordner `C:\Kurs\Daten\Logs` liegen Logdateien.
+
+1. Zeige alle Dateien an, die **größer als 10 KB** sind (Eigenschaft `Length`, Einheit `KB`).
+2. Zeige alle Dateien, die in den **letzten 7 Tagen** geändert wurden (Eigenschaft `LastWriteTime`, Tipp: `(Get-Date).AddDays(-7)`).
+3. Sortiere die Dateien nach Größe absteigend und gib nur `Name`, `Length` und `LastWriteTime` für die **drei größten** aus.
+4. Wie groß sind alle Dateien zusammen? Tipp: `Measure-Object -Property Length -Sum`.
+
+<Loesung>
+
+```powershell
+Get-ChildItem C:\Kurs\Daten\Logs | Where-Object { $_.Length -gt 10KB }
+
+Get-ChildItem C:\Kurs\Daten\Logs |
+    Where-Object { $_.LastWriteTime -gt (Get-Date).AddDays(-7) }
+
+Get-ChildItem C:\Kurs\Daten\Logs |
+    Sort-Object Length -Descending |
+    Select-Object -First 3 -Property Name, Length, LastWriteTime
+
+Get-ChildItem C:\Kurs\Daten\Logs | Measure-Object -Property Length -Sum
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.3" titel="Entscheidungen mit if">
+
+1. Lege `$temperatur = 15` an. Gib aus: über 25 → „Es ist heiß.", von 15 bis 25 → „Angenehm.", sonst → „Kühl." Teste mit 10, 15, 25 und 30.
+2. Prüfe, ob der Dienst `Spooler` läuft: `(Get-Service -Name Spooler).Status`. Gib „Druckdienst läuft" oder „Druckdienst steht" aus.
+3. Prüfe mit `Test-Path`, ob `C:\Kurs\Daten\Mitarbeiter.csv` existiert, und gib einen passenden Satz aus.
+
+<Loesung>
+
+```powershell
+$temperatur = 15
+if ($temperatur -gt 25) { "Es ist heiß." }
+elseif ($temperatur -ge 15) { "Angenehm." }
+else { "Kühl." }
+
+if ((Get-Service -Name Spooler).Status -eq 'Running') { "Druckdienst läuft" }
+else { "Druckdienst steht" }
+
+if (Test-Path C:\Kurs\Daten\Mitarbeiter.csv) { "Datei ist da." } else { "Datei fehlt." }
+```
+
+Beim `elseif` genügt `-ge 15`: Der Zweig wird nur erreicht, wenn der erste nicht zutraf (also nicht größer als 25).
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.4" titel="switch">
+
+1. Lege `$datei = "bericht_2026.csv"` an. Gib mit `switch -Wildcard` aus: `*.txt` → „Textdatei", `*.csv` → „CSV-Datei", sonst „Unbekannt". Teste mit weiteren Dateinamen.
+2. Schreibe einen `switch`, der aus einer Zahl `1` bis `3` den Wochentag Montag, Dienstag, Mittwoch macht, und bei jeder anderen Zahl „außerhalb" ausgibt.
+
+<Loesung>
+
+```powershell
+$datei = "bericht_2026.csv"
+switch -Wildcard ($datei) {
+    "*.txt" { "Textdatei" }
+    "*.csv" { "CSV-Datei" }
+    default { "Unbekannt" }
+}
+
+$zahl = 2
+switch ($zahl) {
+    1 { "Montag" }
+    2 { "Dienstag" }
+    3 { "Mittwoch" }
+    default { "außerhalb" }
+}
+```
+
+Anders als in vielen Sprachen prüft `switch` in PowerShell **alle** passenden Zweige. Mit `break` brichst du nach dem ersten Treffer ab, wenn das gewollt ist.
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.5" titel="Schleifen">
+
+1. Erstelle mit `1..5` ein Array und gib mit `foreach` für jedes Element „Aktuelle Zahl: X" aus.
+2. Mache dasselbe mit einer `for`-Schleife.
+3. Mache dasselbe mit einer `while`-Schleife.
+4. Gib mit `foreach` die Namen aller Dateien in `C:\Kurs\Daten\Logs` aus, aber nur von denen, die größer als 5 KB sind.
+
+<Loesung>
+
+```powershell
+$zahlen = 1..5
+foreach ($z in $zahlen) { "Aktuelle Zahl: $z" }
+
+for ($i = 0; $i -lt $zahlen.Count; $i++) { "Aktuelle Zahl: $($zahlen[$i])" }
+
+$i = 0
+while ($i -lt $zahlen.Count) {
+    "Aktuelle Zahl: $($zahlen[$i])"
+    $i++
+}
+
+foreach ($datei in Get-ChildItem C:\Kurs\Daten\Logs) {
+    if ($datei.Length -gt 5KB) { $datei.Name }
+}
+```
+
+</Loesung>
+</Uebung>
+
+<Uebung nr="1.6" titel="Alles zusammen: Städte" typ="Challenge">
+
+Gegeben ist `$staedte = @("Berlin", "München", "Hamburg", "Köln", "Leipzig")`.
+
+Gehe mit `foreach` durch das Array und gib aus:
+
+- bei Berlin: „Hauptstadt gefunden!"
+- bei Städten, die mit „L" beginnen: „Stadt mit L: Name"
+- sonst: „Andere Stadt: Name"
+
+**Bonus:** Zähle in einer Variable mit, wie viele Städte „Andere" waren, und gib die Anzahl am Ende aus.
+
+<Loesung>
+
+```powershell
+$staedte = @("Berlin", "München", "Hamburg", "Köln", "Leipzig")
+$andere = 0
+
+foreach ($stadt in $staedte) {
+    if ($stadt -eq "Berlin") { "Hauptstadt gefunden!" }
+    elseif ($stadt -like "L*") { "Stadt mit L: $stadt" }
+    else {
+        "Andere Stadt: $stadt"
+        $andere++
+    }
+}
+"Andere Städte: $andere"
+```
+
+</Loesung>
+</Uebung>

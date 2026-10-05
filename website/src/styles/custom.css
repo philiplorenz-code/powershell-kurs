@@ -1,0 +1,81 @@
+/* Farbwelt: PowerShell-Blau, passend zu den Slides */
+:root {
+  --sl-color-accent-low: #cfe6fb;
+  --sl-color-accent: #1d6fb8;
+  --sl-color-accent-high: #0b3a66;
+  --sl-font-system-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --kurs-core: #1d6fb8;
+  --kurs-optional: #8a5a00;
+  --kurs-bonus: #6b3fa0;
+  --kurs-ki: #0f7b6c;
+  --kurs-frei: #b3261e;
+  --kurs-trainer: #5b5b66;
+}
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #0b2a4a;
+  --sl-color-accent: #5aa9ec;
+  --sl-color-accent-high: #bfe0ff;
+  --kurs-core: #5aa9ec;
+  --kurs-optional: #e0b05a;
+  --kurs-bonus: #b896e6;
+  --kurs-ki: #4cc2ae;
+  --kurs-frei: #ff8a80;
+  --kurs-trainer: #a9a9b5;
+}
+.content-panel h1 { letter-spacing: -0.01em; }
+table { font-size: var(--sl-text-sm); }
+
+/* Meta-Zeile unter Kapitelüberschriften */
+.meta-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-block: 0.5rem 1.5rem; }
+.pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: var(--sl-text-xs); font-weight: 600; letter-spacing: 0.02em;
+  padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px solid currentColor;
+}
+.pill.core { color: var(--kurs-core); }
+.pill.optional { color: var(--kurs-optional); }
+.pill.bonus { color: var(--kurs-bonus); }
+.pill.reserve { color: var(--kurs-trainer); }
+
+/* Aufgabenkarten */
+.aufgabe {
+  border: 1px solid var(--sl-color-gray-5); border-left: 5px solid var(--kurs-core);
+  border-radius: 0.5rem; padding: 1rem 1.25rem; margin-block: 1.5rem;
+  background: var(--sl-color-bg-nav);
+}
+.aufgabe.challenge { border-left-color: var(--kurs-optional); }
+.aufgabe.bonus { border-left-color: var(--kurs-bonus); }
+.aufgabe.ki { border-left-color: var(--kurs-ki); }
+.aufgabe > header { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.aufgabe .titel { font-weight: 700; font-size: var(--sl-text-lg); margin-right: auto; color: var(--sl-color-white); }
+.aufgabe .pill.typ { color: var(--kurs-core); }
+.aufgabe.challenge .pill.typ { color: var(--kurs-optional); }
+.aufgabe.bonus .pill.typ { color: var(--kurs-bonus); }
+.aufgabe.ki .pill.typ { color: var(--kurs-ki); }
+.pill.frei { color: var(--kurs-frei); }
+.pill.erlaubt { color: var(--kurs-ki); }
+.aufgabe .body > :first-child { margin-top: 0; }
+.aufgabe .body > :last-child { margin-bottom: 0; }
+
+/* Lösungen: eingeklappt */
+details.loesung {
+  margin-top: 1rem; border: 1px dashed var(--sl-color-gray-4); border-radius: 0.4rem; padding: 0.25rem 0.9rem;
+}
+details.loesung > summary { cursor: pointer; font-weight: 600; padding: 0.4rem 0; color: var(--sl-color-accent); }
+details.loesung[open] > summary { border-bottom: 1px solid var(--sl-color-gray-5); margin-bottom: 0.5rem; }
+
+/* Trainer-Hinweis */
+.trainer {
+  border: 1px solid var(--sl-color-gray-5); border-left: 5px solid var(--kurs-trainer);
+  border-radius: 0.4rem; padding: 0.75rem 1rem; margin-block: 1.25rem; font-size: var(--sl-text-sm);
+  background: repeating-linear-gradient(135deg, transparent 0 12px, color-mix(in srgb, var(--kurs-trainer) 6%, transparent) 12px 24px);
+}
+.trainer > strong:first-child { display: block; text-transform: uppercase; font-size: var(--sl-text-xs); letter-spacing: 0.06em; color: var(--kurs-trainer); }
+
+/* Lernziele */
+.lernziele {
+  border: 1px solid var(--sl-color-gray-5); border-radius: 0.5rem; padding: 0.75rem 1.25rem; margin-block: 1.25rem;
+  background: color-mix(in srgb, var(--kurs-core) 7%, transparent);
+}
+.lernziele > strong:first-child { display: block; margin-bottom: 0.25rem; color: var(--kurs-core); }
+.lernziele ul { margin: 0; }

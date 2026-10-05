@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: powershell-kurs
+  namespace: powershell-kurs
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: powershell-kurs.philiplorenz.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: powershell-kurs
+                port:
+                  name: http
+  tls:
+    - secretName: powershell-kurs-tls
+      hosts:
+        - powershell-kurs.philiplorenz.com

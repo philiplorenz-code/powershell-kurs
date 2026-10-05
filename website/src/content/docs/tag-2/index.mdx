@@ -1,0 +1,39 @@
+---
+title: "Tag 2 · Logik und Administration"
+description: "Übersicht, Lernziele, Themen und Übungen von Tag 2."
+sidebar:
+  order: 0
+  label: Tagesübersicht
+---
+import Stufe from '../../../components/Stufe.astro';
+
+<Stufe stufe="Core" lab="PSLAB-VM, DC01, andere PSLAB-VMs" />
+
+## Lernziele
+
+Am Ende von Tag 2 kannst du
+
+- Bedingungen formulieren und mit `if`, `switch` und Schleifen Abläufe steuern,
+- Daten gezielt mit `Where-Object`, `Sort-Object`, `Select-Object` bearbeiten,
+- CSV-Dateien einlesen und schreiben,
+- Prozesse und Dienste abfragen und steuern,
+- Benutzer und Gruppen in **Active Directory** abfragen und einfache Änderungen vornehmen,
+- Befehle per **Remoting** auf anderen Rechnern ausführen,
+- Module finden und installieren.
+
+## Themen und Übungen
+
+| Zeit | Thema | Stufe | Übung |
+|---|---|---|---|
+| Vormittag | [Vergleichsoperatoren](/tag-2/01-vergleichsoperatoren/), [Where/Sort/Select](/tag-2/02-where-sort-select/), [Verzweigungen](/tag-2/03-verzweigungen/), [Schleifen](/tag-2/04-schleifen/) | Core | [Block 1](/uebungen/tag-2-block-1/) |
+| Mittag | [CSV](/tag-2/05-csv/), [Prozesse und Dienste](/tag-2/06-prozesse-dienste/) | Core | [Block 2](/uebungen/tag-2-block-2/) |
+| Nachmittag | [Active Directory](/tag-2/07-active-directory/), [Remoting](/tag-2/08-remoting/), [Module verwenden](/tag-2/09-module-verwenden/) | Core | [Block 3](/uebungen/tag-2-block-3/) |
+
+Challenges und Bonus-Aufgaben in den Blöcken sind Puffer: Wer schneller ist, vertieft, wer länger braucht, überspringt sie.
+
+## Lab-Komponenten
+
+- `DC01` (Active Directory, Remoting-Ziel)
+- `PSLAB-01` bis `PSLAB-03` (Remoting zwischen den Kursrechnern)
+- AD-Objekte: OUs, Benutzer, Gruppen, deaktivierte und abgelaufene Konten
+- `C:\Kurs\Daten` mit `Mitarbeiter.csv`, `Neue-Mitarbeiter.csv` und Logdateien
