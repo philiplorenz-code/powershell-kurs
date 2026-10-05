@@ -20,3 +20,5 @@ infrastructure/**/crash.log
 Thumbs.db
 slides/node_modules/
 slides/out/
+infrastructure/**/tfplan
+*.tfplan

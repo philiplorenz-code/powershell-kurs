@@ -144,6 +144,7 @@ switch ($Command) {
         Say "`nDas erstellt kostenpflichtige Ressourcen in der Subscription $SubscriptionId." Yellow
         if (-not (Confirm-Action 'Jetzt erstellen?')) { Say 'Abgebrochen. Es wurde nichts erstellt.'; break }
         Tf apply -input=false tfplan
+        Remove-Item (Join-Path $TfDir 'tfplan') -Force -ErrorAction SilentlyContinue   # Plan-Datei kann Geheimnisse enthalten
         Say "`nFertig. Zugangsdaten: ./lab.ps1 credentials   Prüfen: ./lab.ps1 test" Green
         Say 'Hinweis: Die Konfiguration der VMs (Domäne, Software) läuft in der Deployment-Phase ab; das dauert insgesamt ca. 30-45 Minuten.' Gray
         break
