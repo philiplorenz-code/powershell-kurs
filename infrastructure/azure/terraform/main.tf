@@ -48,6 +48,12 @@ resource "random_password" "student" {
 
 # ---------------- Netzwerk ----------------
 
+resource "random_string" "dns_suffix" {
+  length  = 5
+  upper   = false
+  special = false
+}
+
 resource "azurerm_virtual_network" "lab" {
   name                = "vnet-${var.name_prefix}"
   location            = azurerm_resource_group.lab.location
@@ -79,9 +85,11 @@ resource "azurerm_network_security_group" "lab" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "3389"
-    source_address_prefixes    = var.allowed_rdp_cidrs
+    source_address_prefix      = var.rdp_open_to_internet ? "*" : null
+    source_address_prefixes    = var.rdp_open_to_internet ? null : var.allowed_rdp_cidrs
     destination_address_prefix = "*"
   }
+  # Hinweis: Mit rdp_open_to_internet = true ist 3389 weltweit erreichbar. Siehe Variablenbeschreibung.
   # Verkehr innerhalb des VNets (WinRM, AD, DNS, SMB) erlaubt die Azure-Standardregel AllowVnetInBound.
   # Alles andere von außen wird durch DenyAllInBound verworfen.
 }
@@ -95,6 +103,7 @@ resource "azurerm_public_ip" "dc" {
   name                = "pip-dc01"
   location            = azurerm_resource_group.lab.location
   resource_group_name = azurerm_resource_group.lab.name
+  domain_name_label   = "${var.name_prefix}-dc01-${random_string.dns_suffix.result}"
   allocation_method   = "Static"
   sku                 = "Standard"
   tags                = local.tags
@@ -105,6 +114,7 @@ resource "azurerm_public_ip" "student" {
   name                = "pip-pslab-${each.key}"
   location            = azurerm_resource_group.lab.location
   resource_group_name = azurerm_resource_group.lab.name
+  domain_name_label   = "${var.name_prefix}-${each.key}-${random_string.dns_suffix.result}"
   allocation_method   = "Static"
   sku                 = "Standard"
   tags                = local.tags

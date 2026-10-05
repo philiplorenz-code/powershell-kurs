@@ -10,7 +10,8 @@ param(
     [Parameter(Mandatory)][string]$AdminPassword,
     [Parameter(Mandatory)][string]$StudentPasswordsJson,
     [int]$StudentCount = 3,
-    [string]$PwshVersion = '7.6.6'
+    [string]$PwshVersion = '7.6.6',
+    [string]$ParticipantsJson = '[]'
 )
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -32,6 +33,7 @@ Start-Sleep -Seconds 30   # SYSVOL/Netlogon und DNS-Registrierung nachlaufen las
 
 $base = (Get-ADDomain).DistinguishedName
 $studentPw = $StudentPasswordsJson | ConvertFrom-Json
+$participants = @($ParticipantsJson | ConvertFrom-Json)
 $sec = { param($p) ConvertTo-SecureString $p -AsPlainText -Force }
 
 # ---- DNS: Weiterleitung an Azure-DNS, damit die Kurs-VMs ins Internet auflösen können ----
@@ -41,7 +43,8 @@ try {
 
 # ---- Kennwortrichtlinie (Übung 3.4 verweist auf 12 Zeichen) ----
 Set-ADDefaultDomainPasswordPolicy -Identity $DomainName -MinPasswordLength 12 -ComplexityEnabled $true `
-    -MaxPasswordAge ([TimeSpan]::Zero) -LockoutThreshold 0
+    -MaxPasswordAge ([TimeSpan]::Zero) `
+    -LockoutThreshold 10 -LockoutDuration (New-TimeSpan -Minutes 15) -LockoutObservationWindow (New-TimeSpan -Minutes 15)   # Schutz gegen Rate-Guessing bei offenem RDP
 
 # ---- OUs ----
 function Ensure-OU($name, $path) {
@@ -81,6 +84,8 @@ for ($i = 1; $i -le $StudentCount; $i++) {
     $nn   = '{0:d2}' -f $i
     $sam  = "teilnehmer$nn"
     $pw   = $studentPw.$nn
+    $person = if ($participants.Count -ge $i) { $participants[$i - 1] } else { $null }
+    $display = if ($person -and $person.name) { $person.name } else { "Teilnehmer $nn" }
     if (-not (Get-ADUser -Filter "SamAccountName -eq '$sam'")) {
         New-ADUser -Name "Teilnehmer $nn" -GivenName 'Teilnehmer' -Surname $nn -SamAccountName $sam `
             -UserPrincipalName "$sam@$DomainName" -Department 'Kurs' -Title 'Kursteilnehmer' `
@@ -88,6 +93,11 @@ for ($i = 1; $i -le $StudentCount; $i++) {
     } else {
         Set-ADAccountPassword -Identity $sam -Reset -NewPassword (& $sec $pw)
     }
+    # Zuordnung Teilnehmer -> Konto (Anzeigename, Firma, Mail, Beschreibung mit VM-Nummer)
+    $attrs = @{ DisplayName = $display; Description = "$display (PSLAB-$nn)" }
+    if ($person -and $person.company) { $attrs.Company = $person.company }
+    if ($person -and $person.email)   { $attrs.EmailAddress = $person.email }
+    Set-ADUser -Identity $sam @attrs
     Add-ADGroupMember -Identity 'GG-Kurs-Teilnehmer' -Members $sam -ErrorAction SilentlyContinue
 
     # Eigene Übungs-OU mit voller Kontrolle nur für den jeweiligen Teilnehmer

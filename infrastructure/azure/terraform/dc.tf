@@ -94,6 +94,10 @@ resource "azurerm_virtual_machine_run_command" "dc_populate" {
     name  = "PwshVersion"
     value = var.pwsh_version
   }
+  parameter {
+    name  = "ParticipantsJson"
+    value = jsonencode(var.participants)
+  }
   protected_parameter {
     name  = "AdminPassword"
     value = random_password.admin.result
