@@ -26,7 +26,7 @@ Ergänzende Dokumente: [`TRAINER.md`](../TRAINER.md) (Lab-Betrieb, Befehle), [`L
 
 ### Zielgruppe und Teilnehmer
 
-Anfänger und Windows-/M365-Administratoren mit teilweise ersten PowerShell-Erfahrungen. Drei Teilnehmer (aus der Anmeldeliste; Angaben zu den Firmen aus öffentlichen Quellen, über die Personen selbst habe ich bewusst nichts recherchiert):
+Anfänger und Windows-/M365-Administratoren mit teilweise ersten PowerShell-Erfahrungen. Drei Teilnehmer (aus der Anmeldeliste; Angaben zu den Firmen aus öffentlichen Quellen):
 
 | # | Teilnehmer | Firma | Was man über die Firma weiß | Lab-Konto |
 |---|---|---|---|---|
@@ -35,6 +35,20 @@ Anfänger und Windows-/M365-Administratoren mit teilweise ersten PowerShell-Erfa
 | 3 | Matthes Lummer | Neuwoba | Wohnungsbaugenossenschaft Neubrandenburg (1954), rund 54 Beschäftigte, 2026 geplante Investitionen ca. 30 Mio. €. Kleine IT in einem Immobilienunternehmen. | `teilnehmer03` → `PSLAB-03` |
 
 Quellen: [Bayern International](https://bayern-international.de/en/company-database/company-details/qualido-gmbh-1040290), [Softguide](https://www.softguide.de/firma/qualido-gmbh), [devjobs.de](https://en.devjobs.de/job/edfd265c692665951d51d38c0c15a7f4), [Nordkurier](https://www.nordkurier.de/regional/neubrandenburg/diese-mega-projekte-stehen-in-den-naechsten-monaten-an-4235603).
+
+### Zu den Personen selbst
+
+**Recherche-Ergebnis (06.10.2026):** Eine gezielte Websuche je Person (Name plus Firma) hat **nichts Belastbares** ergeben. Es gab nur Treffer zu anderen Menschen mit ähnlichen Namen, die ich verworfen habe, um niemanden zu verwechseln. LinkedIn-Profile sind ohne Anmeldung nicht auswertbar. Ich habe bewusst nur nach beruflich öffentlich Sichtbarem gesucht und nichts Privates aufgenommen. Deshalb gilt: **Über die Personen weiß ich nur, was in der Anmeldeliste steht** (Name, Firma, Firmen-Mailadresse).
+
+**Hypothesen (nicht belegt, nur zur Vorbereitung):** Sie leiten sich ausschließlich aus Firmentyp und Mail-Domain ab. Am Montag nicht als Wahrheit behandeln, sondern in der Vorstellungsrunde bestätigen oder verwerfen (Folie 4).
+
+| # | Firmentyp | Mögliche Rolle (Hypothese) | Mögliche Anknüpfungspunkte (Hypothese) |
+|---|---|---|---|
+| 1 | Softwarehersteller (Qualitätsmanagement-Software) | eher Entwicklung, Betrieb oder Hosting | Deployment- und Betriebsautomatisierung, Konfigurationsprüfung, Lab als Infrastruktur-as-Code (Folie 16) |
+| 2 | Großer Sozialträger, viele Standorte | Systemadministration für verteilte Standorte | Remoting auf viele Rechner (Tag 2), Inventarisierung (Abschlussprojekt), AD-Pflege (Tag 2) |
+| 3 | Kleine IT in einer Wohnungsgenossenschaft | vermutlich Generalist, Server, Clients, Benutzerverwaltung | Benutzer- und Gruppenpflege per CSV/AD, wiederkehrende Berichte, Zeitpläne (Tag 3) |
+
+**Fragen für den Einstieg, um die Hypothesen zu prüfen:** Welche Windows-Server-Versionen und welches Active Directory (lokal, Entra ID, hybrid)? Wie viele Server und Clients betreust du allein? Welche Aufgabe wiederholst du pro Woche am häufigsten? Gibt es schon Skripte (von wem, wo liegen sie)? Microsoft 365 im Einsatz, und wer verwaltet es?
 
 **Was ich über die IT der Firmen nicht weiß** (am ersten Morgen erfragen, Folie 4 und 5): Windows-Server-Versionen, Active Directory oder Entra ID oder Hybrid, Microsoft 365, vorhandene Skripte, Wer administriert wie viele Server.
 
