@@ -21,6 +21,16 @@ Alles, was du brauchst, um den Kurs durchzuführen, auch Monate später noch.
 8. **RDP-Freigabe**: RDP ist nur von **deiner** IP erlaubt. Sitzen die Teilnehmer woanders, gib ihre IPs frei: `./lab.ps1 allow-ip 203.0.113.5/32` (pro Standort einmal).
 9. **Abends nach den Tests**: `./lab.ps1 end-of-day`, damit bis zum Kurs keine Kosten durch laufende VMs entstehen.
 
+## RDP-Dateien
+
+```powershell
+./lab.ps1 rdp                 # alle: trainer/ (Domänen-Admin, alle VMs) und teilnehmer/ (je ein Konto)
+./lab.ps1 rdp trainer -Open   # nur Trainer-Dateien erzeugen und direkt öffnen
+./lab.ps1 rdp participants    # nur Dateien zum Weitergeben
+```
+
+Die Dateien liegen in `.secrets/rdp/` (nicht in Git), enthalten Adresse und Benutzername, aber **kein Passwort**. Auf dem Mac mit Microsoft Remote Desktop öffnen.
+
 ## Morgens
 
 ```powershell

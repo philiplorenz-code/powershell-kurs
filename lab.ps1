@@ -18,6 +18,7 @@
       ./lab.ps1 reset-all         ALLES auf den Ursprung: alle Teilnehmer-VMs neu, AD-Inhalt neu, Passwörter wie bei deploy
       ./lab.ps1 allow-ip 203.0.113.5/32   weitere RDP-Quelladresse freischalten (nur im eingeschränkten Modus)
       ./lab.ps1 open-rdp / close-rdp      RDP von überall erlauben bzw. auf freigegebene IPs beschränken
+      ./lab.ps1 rdp [all|trainer|participants] [-Open] [-OutDir <Ordner>]   RDP-Dateien erzeugen (ohne Passwort)
       ./lab.ps1 slides            Folien mit Zugangsdaten je Teilnehmer erzeugen (nur lokal, .secrets/slides/)
       ./lab.ps1 cost              Kostenschätzung
       ./lab.ps1 destroy           komplettes Lab entfernen
@@ -25,7 +26,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, Mandatory)]
-    [ValidateSet('deploy', 'start', 'stop', 'end-of-day', 'status', 'credentials', 'test', 'test-exercises', 'reset-student', 'reset-all', 'allow-ip', 'open-rdp', 'close-rdp', 'slides', 'cost', 'destroy', 'help')]
+    [ValidateSet('deploy', 'start', 'stop', 'end-of-day', 'status', 'credentials', 'test', 'test-exercises', 'reset-student', 'reset-all', 'allow-ip', 'open-rdp', 'close-rdp', 'rdp', 'slides', 'cost', 'destroy', 'help')]
     [string]$Command,
 
     [Parameter(Position = 1)]
@@ -34,6 +35,8 @@ param(
     [string]$SubscriptionId = $env:LAB_SUBSCRIPTION_ID,
     [switch]$Force,
     [switch]$RestrictRdp,
+    [switch]$Open,
+    [string]$OutDir,
     [ValidateRange(1, 10)][int]$Students = 0,
     [switch]$Export
 )
@@ -256,6 +259,66 @@ switch ($Command) {
         Tf apply -input=false -auto-approve -target=azurerm_network_security_group.lab
         if ($vars.rdp_open_to_internet) { Say 'RDP (3389) ist jetzt von überall erreichbar. Nach dem Kurs: ./lab.ps1 close-rdp oder destroy.' Yellow }
         else { Say "RDP nur noch von: $($vars.allowed_rdp_cidrs -join ', ')" Green }
+        break
+    }
+
+    'rdp' {
+        Require-Tools
+        $json = & terraform "-chdir=$TfDir" output -json 2>$null | ConvertFrom-Json
+        if (-not $json -or -not $json.student_credentials) { Fail 'Keine Terraform-Ausgaben gefunden. Ist das Lab deployed?' }
+        $mode = if ($Argument) { $Argument.ToLower() } else { 'all' }
+        if ($mode -notin 'all', 'trainer', 'participants') { Fail "Verwendung: ./lab.ps1 rdp [all|trainer|participants] [-Open]" }
+        $dir = if ($OutDir) { $OutDir } else { Join-Path $SecretDir 'rdp' }
+        $rows = $json.student_credentials.value.PSObject.Properties | ForEach-Object { $_.Value } | Sort-Object vm
+        $domainNb = ($json.admin_username.value -split '\\')[0]
+
+        function New-RdpContent([string]$address, [string]$user) {
+            @(
+                "full address:s:$address"
+                "username:s:$user"
+                'prompt for credentials:i:1'            # Passwort wird beim Verbinden abgefragt (RDP-Dateien speichern keins)
+                'enablecredsspsupport:i:1'
+                'authentication level:i:2'              # Zertifikatswarnung bei selbstsignierten VM-Zertifikaten erwartbar
+                'screen mode id:i:2'
+                'use multimon:i:0'
+                'smart sizing:i:1'
+                'dynamic resolution:i:1'
+                'session bpp:i:32'
+                'redirectclipboard:i:1'
+                'audiomode:i:2'
+                'keyboardhook:i:2'
+                'networkautodetect:i:1'
+                'compression:i:1'
+            ) -join "`r`n"
+        }
+        $written = @()
+        if ($mode -in 'all', 'trainer') {
+            $tDir = Join-Path $dir 'trainer'; New-Item -ItemType Directory -Path $tDir -Force | Out-Null
+            $adminUser = $json.admin_username.value
+            Set-Content -Path (Join-Path $tDir 'DC01.rdp') -Value (New-RdpContent $json.dc_fqdn.value $adminUser) -Encoding ascii
+            $written += 'trainer/DC01.rdp'
+            foreach ($r in $rows) {
+                Set-Content -Path (Join-Path $tDir "$($r.vm).rdp") -Value (New-RdpContent $r.fqdn $adminUser) -Encoding ascii
+                $written += "trainer/$($r.vm).rdp"
+            }
+        }
+        if ($mode -in 'all', 'participants') {
+            $pDir = Join-Path $dir 'teilnehmer'; New-Item -ItemType Directory -Path $pDir -Force | Out-Null
+            foreach ($r in $rows) {
+                $label = if ($r.name) { '-' + (($r.name -replace '[^\p{L}\p{N}]+', '-').Trim('-')) } else { '' }
+                $file = "$($r.vm)$label.rdp"
+                Set-Content -Path (Join-Path $pDir $file) -Value (New-RdpContent $r.fqdn $r.user) -Encoding ascii
+                $written += "teilnehmer/$file"
+            }
+        }
+        Say "RDP-Dateien in $dir :" Green
+        $written | ForEach-Object { Say "  $_" }
+        Say 'Enthalten: Adresse und Benutzername, KEIN Passwort (wird beim Verbinden abgefragt; Passwörter: ./lab.ps1 credentials).' Yellow
+        Say 'trainer/ = Domänen-Admin (PSLAB\labadmin) für alle VMs, teilnehmer/ = je ein Konto, zum Weitergeben. Beim ersten Verbinden Zertifikatswarnung bestätigen.' Gray
+        if ($Open) {
+            $files = Get-ChildItem $dir -Recurse -Filter *.rdp | Where-Object { $mode -eq 'all' -or $_.DirectoryName -match $(if ($mode -eq 'trainer') { 'trainer$' } else { 'teilnehmer$' }) }
+            foreach ($f in $files) { if ($IsMacOS) { & open $f.FullName } elseif ($IsWindows) { Start-Process $f.FullName } else { Say "Bitte manuell öffnen: $($f.FullName)" } }
+        }
         break
     }
 
