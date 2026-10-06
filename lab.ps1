@@ -183,8 +183,8 @@ switch ($Command) {
         }
         if (-not $ok) { Say 'AD antwortet noch nicht. Starte die Teilnehmer-VMs trotzdem; Anmeldungen können kurz scheitern.' Yellow }
         Say 'Starte Teilnehmer-VMs ...' Cyan
-        $students = $vms | Where-Object name -ne 'DC01' | ForEach-Object name
-        if ($students) { az vm start -g $Rg --ids (@($students) | ForEach-Object { az vm show -g $Rg -n $_ --query id -o tsv }) | Out-Null }
+        $studentVms = $vms | Where-Object name -ne 'DC01' | ForEach-Object name
+        if ($studentVms) { az vm start -g $Rg --ids (@($studentVms) | ForEach-Object { az vm show -g $Rg -n $_ --query id -o tsv }) | Out-Null }
         & $PSCommandPath status
         break
     }
