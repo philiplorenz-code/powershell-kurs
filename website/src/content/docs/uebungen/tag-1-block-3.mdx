@@ -59,7 +59,11 @@ Get-ExecutionPolicy -List
 
 Set-Content -Path C:\Kurs\Skripte\hallo.ps1 -Value 'Write-Output "Hallo aus dem Skript"'
 C:\Kurs\Skripte\hallo.ps1
+```
 
+Jetzt die Richtlinie für diese Sitzung verschärfen:
+
+```powershell
 Set-ExecutionPolicy -ExecutionPolicy Restricted -Scope Process
 C:\Kurs\Skripte\hallo.ps1       # Fehlermeldung: Skriptausführung ist deaktiviert
 ```

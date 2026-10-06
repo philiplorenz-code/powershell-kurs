@@ -115,8 +115,17 @@ New-ADUser -Name "Max Mustermann" -SamAccountName max.mustermann.t01 `
 
 Get-ADUser -Identity max.mustermann.t01
 Set-ADUser -Identity max.mustermann.t01 -Department IT
-Add-ADGroupMember -Identity GRP-IT -Members max.mustermann.t01     # Zugriff verweigert
+```
 
+Die Gruppe liegt außerhalb deiner OU:
+
+```powershell
+Add-ADGroupMember -Identity GRP-IT -Members max.mustermann.t01     # Zugriff verweigert
+```
+
+Aufräumen:
+
+```powershell
 Remove-ADUser -Identity max.mustermann.t01 -Confirm:$false
 ```
 

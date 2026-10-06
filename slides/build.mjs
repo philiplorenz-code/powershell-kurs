@@ -9,6 +9,7 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(join(out, 'vendor'), { recursive: true });
 cpSync(join(here, 'index.html'), join(out, 'index.html'));
 cpSync(join(here, 'theme.css'), join(out, 'theme.css'));
+cpSync(join(here, 'assets'), join(out, 'assets'), { recursive: true });
 cpSync(join(here, 'node_modules/reveal.js/dist'), join(out, 'vendor/reveal'), { recursive: true });
 cpSync(join(here, 'node_modules/reveal.js/plugin/highlight'), join(out, 'vendor/highlight'), { recursive: true });
 cpSync(join(here, 'node_modules/reveal.js/plugin/notes'), join(out, 'vendor/notes'), { recursive: true });

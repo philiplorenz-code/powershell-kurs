@@ -6,7 +6,7 @@
 .DESCRIPTION
     Der Trainer muss keine einzelnen Azure-Kommandos kennen:
 
-      ./lab.ps1 deploy            Plan anzeigen (inkl. Kostenschätzung), nach Bestätigung alles erstellen
+      ./lab.ps1 deploy [-Students 1]   Plan anzeigen (inkl. Kostenschätzung), nach Bestätigung alles erstellen
       ./lab.ps1 start             DC starten, auf AD warten, dann Teilnehmer-VMs starten
       ./lab.ps1 stop              alle VMs deallokieren (keine Compute-Kosten)
       ./lab.ps1 end-of-day        wie stop, plus Kontrolle und Hinweis auf weiterlaufende Kosten
@@ -34,6 +34,7 @@ param(
     [string]$SubscriptionId = $env:LAB_SUBSCRIPTION_ID,
     [switch]$Force,
     [switch]$RestrictRdp,
+    [ValidateRange(1, 10)][int]$Students = 0,
     [switch]$Export
 )
 
@@ -110,9 +111,10 @@ function Get-CostEstimate {
 }
 
 function Show-Cost {
-    $e = Get-CostEstimate
-    Say "`nKostenschätzung (Germany West Central, 1 DC B2s + 3 Teilnehmer B2ms, Windows-Lizenz enthalten):" Yellow
-    Say ("  Laufend:        {0} EUR pro Stunde (alle 4 VMs an)" -f $e.LaufendProStunde)
+    $n = (Read-LocalVars).student_count
+    $e = if ($n) { Get-CostEstimate -Students $n } else { Get-CostEstimate }
+    Say "`nKostenschätzung (Germany West Central, 1 DC B2s + $(if ($n) { $n } else { 3 }) Teilnehmer B2ms, Windows-Lizenz enthalten):" Yellow
+    Say ("  Laufend:        {0} EUR pro Stunde (alle VMs an)" -f $e.LaufendProStunde)
     Say ("  Ein Kurstag:    ca. {0} EUR (9 Stunden)   Drei Kurstage: ca. {1} EUR" -f $e.KursTagEUR, $e.DreiKursTageEUR)
     Say ("  Gestoppt:       ca. {0} EUR pro Tag / {1} EUR pro Monat (nur Disks und öffentliche IPs)" -f $e.GestopptProTag, $e.GestopptProMonat)
     Say "  -> Lab nach dem Kurs mit './lab.ps1 destroy' entfernen. Die Beträge sind Schätzungen ohne Steuern und ohne Datenverkehr." Yellow
@@ -128,6 +130,7 @@ switch ($Command) {
         Require-Tools; Resolve-Subscription
         $vars = Read-LocalVars
         $vars.subscription_id = $SubscriptionId
+        if ($Students -gt 0) { $vars.student_count = $Students }
         if (-not $RestrictRdp -and -not $vars.ContainsKey('rdp_open_to_internet')) { $vars.rdp_open_to_internet = $true }
         if ($vars.rdp_open_to_internet) {
             Say 'RDP ist von jeder IP erreichbar (Teilnehmer-IPs unbekannt). Schutz: lange Zufallspasswörter, NLA, Kontosperre. Nach dem Kurs destroy!' Yellow

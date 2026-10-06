@@ -28,7 +28,7 @@ Grundlage ist der komplette Inhalt von `/docs` (rund 19.400 Wörter, 38 Markdown
 - **Windows-spezifisch:** Registry-Provider (`HKLM:`), `Cert:`, `Env:`, ISE, Task Scheduler, WinRM/WSMan, WMI/CIM, Execution Policy
 - **Nicht vorhanden:** Active Directory, Dateisystem-Verwaltung über Kopieren und Löschen, NTFS/SMB, Event Logs, `-WhatIf`/`-Confirm`, `Start-Service` und `Stop-Service`. Alle Praxisübungen laufen gegen lokale Daten, `localhost` oder GitHub.
 - **Versionen:** Der Kurs nennt PowerShell 7 nur beim Task Scheduler (`pwsh.exe`). Sonst ist unklar, ob 5.1 oder 7 gemeint ist.
-- **Externe Abhängigkeiten:** `api.github.com`, PSGallery, `docs.microsoft.com` (veraltete Domain), Marketplace-Links, Hotlinks auf `personal.philiplorenz.com` für Favicon und Logo
+- **Externe Abhängigkeiten:** `api.github.com`, PSGallery, `docs.microsoft.com` (veraltete Domain), Marketplace-Links, Hotlinks auf eine private Domain für Favicon und Logo
 - **Implizit vorausgesetzte Pfade:** `C:\Daten`, `C:\API`, `C:\CIM`, `C:\Logs`, `C:\Scripts`, `C:\PSModuleDemo`. Nirgends wird erklärt, dass die Ordner angelegt werden müssen.
 
 ## 2. Lernzielmodell und Abhängigkeitsprobleme
