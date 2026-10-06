@@ -4,6 +4,7 @@ sidebar:
   order: 7
 ---
 import Stufe from '../../../components/Stufe.astro';
+import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 
@@ -132,3 +133,5 @@ Die Teilnehmer haben im Lab Schreibrechte nur in der OU `OU=Kurs`. Außerhalb be
 - `Import-Module ActiveDirectory`, dann `Get-ADUser`, `Get-ADGroup`, `Get-ADComputer`.
 - `-Filter` filtert auf dem Server, `-Properties` holt zusätzliche Eigenschaften.
 - Änderungen mit `New-ADUser`, `Set-ADUser`, `Add-ADGroupMember`, immer erst mit `-WhatIf`.
+
+<Uebungsbanner items={[{"nr": "3.1", "titel": "Domäne und Benutzer ansehen", "href": "/uebungen/tag-2-block-3/#u-3-1", "typ": "Übung"}, {"nr": "3.2", "titel": "Konten mit Problemen", "href": "/uebungen/tag-2-block-3/#u-3-2", "typ": "Übung"}, {"nr": "3.3", "titel": "Gruppen", "href": "/uebungen/tag-2-block-3/#u-3-3", "typ": "Übung"}, {"nr": "3.4", "titel": "Benutzer anlegen", "href": "/uebungen/tag-2-block-3/#u-3-4", "typ": "Übung"}, {"nr": "3.5", "titel": "Benutzer aus CSV anlegen", "href": "/uebungen/tag-2-block-3/#u-3-5", "typ": "Challenge"}]} />

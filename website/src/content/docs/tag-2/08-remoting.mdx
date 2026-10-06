@@ -4,6 +4,7 @@ sidebar:
   order: 8
 ---
 import Stufe from '../../../components/Stufe.astro';
+import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 
@@ -109,3 +110,5 @@ Cmdlets wie `Get-Process -ComputerName` oder `Get-Service -ComputerName` gab es 
 - `Invoke-Command` führt Skriptblöcke auf einem oder mehreren Rechnern aus, `$using:` reicht Variablen weiter.
 - Ergebnisse sind Kopien ohne Methoden. In der Domäne zählt der Computername (Kerberos).
 - Für PowerShell 7 auf dem Ziel: `-ConfigurationName PowerShell.7`.
+
+<Uebungsbanner items={[{"nr": "3.6", "titel": "Verbindung herstellen", "href": "/uebungen/tag-2-block-3/#u-3-6", "typ": "Übung"}, {"nr": "3.7", "titel": "Remote abfragen", "href": "/uebungen/tag-2-block-3/#u-3-7", "typ": "Übung"}, {"nr": "3.8", "titel": "Eine Sitzung wiederverwenden", "href": "/uebungen/tag-2-block-3/#u-3-8", "typ": "Bonus"}]} />

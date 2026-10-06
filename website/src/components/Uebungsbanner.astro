@@ -1,0 +1,22 @@
+---
+interface Item { nr: string; titel: string; href: string; typ?: string }
+interface Props { items: Item[]; ki?: boolean; hinweis?: string }
+const { items, ki = false, hinweis } = Astro.props;
+---
+<aside class={`uebungsbanner ${ki ? 'ki' : ''}`} aria-label="Übungshinweis">
+  <div class="ub-kopf">
+    <span class="ub-titel">✍️ Jetzt ihr: {items.length > 1 ? 'Übungen' : 'Übung'}</span>
+    {ki
+      ? <span class="pill erlaubt">✓ KI erlaubt</span>
+      : <span class="pill frei" title="Bitte ohne KI-Unterstützung lösen">🚫 KI-frei lösen</span>}
+  </div>
+  <ul>
+    {items.map((i) => (
+      <li>
+        <a href={i.href}><strong>{i.nr}</strong> · {i.titel}</a>
+        {i.typ && i.typ !== 'Übung' && <span class="ub-typ">{i.typ}</span>}
+      </li>
+    ))}
+  </ul>
+  {hinweis && <p class="ub-hinweis">{hinweis}</p>}
+</aside>

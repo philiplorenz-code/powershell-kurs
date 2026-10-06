@@ -4,6 +4,7 @@ sidebar:
   order: 1
 ---
 import Stufe from '../../../components/Stufe.astro';
+import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 
@@ -78,3 +79,5 @@ Get-ChildItem -Path C:\Users
 - PowerShell arbeitet mit Objekten, CMD mit Text.
 - Auf Windows existieren Windows PowerShell 5.1 (`powershell.exe`) und PowerShell 7 (`pwsh.exe`).
 - Mit `$PSVersionTable` siehst du, welche Version du gerade benutzt.
+
+<Uebungsbanner items={[{"nr": "1.1", "titel": "Welche PowerShell läuft?", "href": "/uebungen/tag-1-block-1/#u-1-1", "typ": "Übung"}]} />

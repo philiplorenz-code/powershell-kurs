@@ -5,6 +5,7 @@ sidebar:
 ---
 
 import Stufe from '../../../components/Stufe.astro';
+import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
@@ -130,3 +131,4 @@ Get-Service -Name BITS, Spooler | Select-Object Name, Status, StartType
 
 Diese Cmdlets sind zentrale Werkzeuge in der Systemadministration und bieten eine flexible Möglichkeit, Prozesse und Dienste zu überwachen und zu verwalten.
 
+<Uebungsbanner items={[{"nr": "2.3", "titel": "Prozesse", "href": "/uebungen/tag-2-block-2/#u-2-3", "typ": "Übung"}, {"nr": "2.4", "titel": "Dienste steuern", "href": "/uebungen/tag-2-block-2/#u-2-4", "typ": "Übung"}, {"nr": "2.5", "titel": "Tägliches Monitoring", "href": "/uebungen/tag-2-block-2/#u-2-5", "typ": "Challenge"}]} />

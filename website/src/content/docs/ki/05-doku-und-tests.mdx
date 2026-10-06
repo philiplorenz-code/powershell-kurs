@@ -5,6 +5,7 @@ sidebar:
   order: 5
 ---
 import Stufe from '../../../components/Stufe.astro';
+import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
@@ -53,3 +54,5 @@ Invoke-Pester -Path C:\Kurs\Skripte
 :::note
 Pester 5 ist die aktuelle Hauptversion. Windows PowerShell 5.1 bringt Pester 3.4 mit. Prüfe mit `Get-Module Pester -ListAvailable`, welche Version geladen wird.
 :::
+
+<Uebungsbanner items={[{"nr": "K.6", "titel": "Dokumentation und Tests", "href": "/ki/uebungen/#u-K-6", "typ": "KI-Übung"}]} ki />
