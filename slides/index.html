@@ -355,7 +355,128 @@
       <aside class="notes">Alle gemeinsam einloggen, jede Person bestätigt die Version. Danach Wechsel zu Kapitel 1 der Kursseite (Tag 1).</aside>
     </section>
 
-    <!-- 18 Abschluss / Kontakt -->
+    <!-- 18 Woher kommt PowerShell -->
+    <section>
+      <h2>Woher kommt PowerShell?</h2>
+      <div class="cols">
+        <ul style="font-size:0.78em">
+          <li><b>2002:</b> Jeffrey Snover schreibt bei Microsoft das <b>„Monad Manifesto“</b></li>
+          <li>Die Idee: Administration mit <b>Objekten statt Text</b>, aufgebaut auf .NET</li>
+          <li><b>2006:</b> Aus „Monad“ wird <b>Windows PowerShell 1.0</b></li>
+          <li><b>2016:</b> Open Source, plattformübergreifend</li>
+        </ul>
+        <div class="card hl" style="align-self:center">
+          <h3>Der Kerngedanke</h3>
+          <p style="font-size:0.95em;margin:0">Die Pipeline transportiert <b>Objekte</b>, nicht Text. Deshalb muss man nichts zerlegen (parsen).</p>
+        </div>
+      </div>
+      <aside class="notes">Hintergrund: Windows hatte lange keine gute Shell, Administration war GUI-lastig. Unix-Shells reichen Text weiter, Monad reicht .NET-Objekte weiter. Der Namenswechsel zu PowerShell wurde im April 2006 angekündigt, 1.0 erschien im November 2006. Quellen: Wikipedia „PowerShell“, Microsoft Learn.</aside>
+    </section>
+
+    <!-- 19 Timeline -->
+    <section>
+      <h2>Wie hat sie sich entwickelt?</h2>
+      <svg class="arch" viewBox="0 0 1200 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zeitstrahl der PowerShell-Entwicklung von 2002 bis 2026">
+        <line x1="40" y1="150" x2="1160" y2="150" stroke="#7cc4ff" stroke-width="4"/>
+        <g font-size="22" text-anchor="middle">
+          <circle cx="90" cy="150" r="12" fill="#7cc4ff"/><text x="90" y="112" font-weight="700" style="fill:#7cc4ff">2002</text><text x="90" y="196">Monad</text><text x="90" y="222" font-size="17" style="fill:#9db8d4">Manifesto</text>
+          <circle cx="265" cy="150" r="12" fill="#7cc4ff"/><text x="265" y="112" font-weight="700" style="fill:#7cc4ff">2006</text><text x="265" y="196">PowerShell 1.0</text><text x="265" y="222" font-size="17" style="fill:#9db8d4">Windows only</text>
+          <circle cx="440" cy="150" r="12" fill="#7cc4ff"/><text x="440" y="112" font-weight="700" style="fill:#7cc4ff">2009</text><text x="440" y="196">Version 2.0</text><text x="440" y="222" font-size="17" style="fill:#9db8d4">Remoting, ISE</text>
+          <circle cx="615" cy="150" r="12" fill="#ffc46b"/><text x="615" y="112" font-weight="700" style="fill:#ffc46b">2016</text><text x="615" y="196">Version 5.1</text><text x="615" y="222" font-size="17" style="fill:#9db8d4">+ Open Source</text>
+          <circle cx="790" cy="150" r="12" fill="#6fe0c8"/><text x="790" y="112" font-weight="700" style="fill:#6fe0c8">2018</text><text x="790" y="196">PowerShell 6</text><text x="790" y="222" font-size="17" style="fill:#9db8d4">„Core“, Linux, macOS</text>
+          <circle cx="965" cy="150" r="12" fill="#6fe0c8"/><text x="965" y="112" font-weight="700" style="fill:#6fe0c8">2020</text><text x="965" y="196">PowerShell 7</text><text x="965" y="222" font-size="17" style="fill:#9db8d4">ersetzt „Core“</text>
+          <circle cx="1120" cy="150" r="14" fill="#6fe0c8" stroke="#fff" stroke-width="3"/><text x="1120" y="112" font-weight="700" style="fill:#6fe0c8">2026</text><text x="1120" y="196">7.6 LTS</text><text x="1120" y="222" font-size="17" style="fill:#9db8d4">.NET 10</text>
+        </g>
+        <text x="40" y="290" font-size="20" style="fill:#9db8d4">Gelb: 5.1 ist die letzte Windows PowerShell (.NET Framework) · Grün: PowerShell auf modernem .NET, aktiv weiterentwickelt</text>
+      </svg>
+      <aside class="notes">Daten: 1.0 im Nov. 2006; 2.0 im Okt. 2009 (Windows 7/Server 2008 R2: Remoting, ISE); 5.1 im Aug. 2016 (Windows 10 Anniversary, Server 2016) ist die letzte Windows-PowerShell; Aug. 2016 Open-Source-Ankündigung (MIT-Lizenz); 6.0 im Jan. 2018; 7.0 im März 2020; 7.6 LTS im März 2026 auf .NET 10. LTS-Versionen erscheinen etwa alle zwei Jahre.</aside>
+    </section>
+
+    <!-- 20 Zwei PowerShells -->
+    <section>
+      <h2>Zwei PowerShells auf einem Rechner</h2>
+      <table style="font-size:0.64em; width:100%">
+        <tr><th></th><th>Windows PowerShell 5.1</th><th>PowerShell 7</th></tr>
+        <tr><td><b>Programm</b></td><td><code>powershell.exe</code></td><td><code>pwsh.exe</code></td></tr>
+        <tr><td><b>Basis</b></td><td>.NET Framework 4.x</td><td>modernes .NET (7.6: .NET 10)</td></tr>
+        <tr><td><b>Plattformen</b></td><td>nur Windows</td><td>Windows, Linux, macOS</td></tr>
+        <tr><td><b>Weiterentwicklung</b></td><td>nur Sicherheits- und kritische Fixes</td><td>aktiv, LTS etwa alle zwei Jahre</td></tr>
+        <tr><td><b>Installation</b></td><td>Teil von Windows</td><td>separat (MSI, winget)</td></tr>
+        <tr><td><b>Editor</b></td><td>ISE oder VS Code</td><td>VS Code</td></tr>
+      </table>
+      <p class="small muted" style="margin-top:0.8em">Beide laufen nebeneinander. Die Grundlagen sind gleich, Unterschiede markieren wir im Kurs.</p>
+      <aside class="notes">Wichtig: Windows PowerShell 5.1 verschwindet nicht, es ist Bestandteil von Windows. Wer „PowerShell“ sagt, meint im Alltag oft beides. Deshalb immer die Version prüfen.</aside>
+    </section>
+
+    <!-- 21 Neu in 7 -->
+    <section>
+      <h2>Was ist neu in PowerShell 7?</h2>
+      <div class="cols">
+        <div>
+          <p class="small muted" style="margin:0">Ternärer Operator</p>
+          <pre class="code"><code class="language-powershell">$s = $dienst.Status -eq 'Running' ? 'läuft' : 'steht'</code></pre>
+          <p class="small muted" style="margin:0.4em 0 0">Null-Coalescing</p>
+          <pre class="code"><code class="language-powershell">$name = $eingabe ?? 'Standard'</code></pre>
+        </div>
+        <div>
+          <p class="small muted" style="margin:0">Pipeline-Verkettung</p>
+          <pre class="code"><code class="language-powershell">Test-Path C:\Kurs &amp;&amp; Write-Output 'da'</code></pre>
+          <p class="small muted" style="margin:0.4em 0 0">Parallel arbeiten</p>
+          <pre class="code"><code class="language-powershell">1..5 | ForEach-Object -Parallel { $_ * 2 }</code></pre>
+        </div>
+      </div>
+      <p class="small muted">Dazu: bessere Fehlermeldungen, modernes .NET, schneller, plattformübergreifend, Remoting auch über SSH.</p>
+      <aside class="notes">Diese Syntax gibt es in 5.1 nicht. Wer Skripte für beide Versionen schreibt, muss darauf achten. Details: Kursseite, Kap. „PowerShell vs. CMD“ (Tag 1) und „Verzweigungen“/„Schleifen“ (Tag 2).</aside>
+    </section>
+
+    <!-- 22 Welche Version wann -->
+    <section>
+      <h2>Welche Version nehme ich wann?</h2>
+      <div class="cols">
+        <div class="card hl"><h3>PowerShell 7 für</h3>
+          <ul><li>neue Skripte und Automatisierung</li><li>Cloud, Linux, Container</li><li>alles, was wir im Kurs tun</li></ul></div>
+        <div class="card"><h3>Windows PowerShell 5.1 für</h3>
+          <ul><li>Altbestand und alte Skripte</li><li>Module, die nur 5.1 kennen</li><li>Server ohne PowerShell 7</li></ul></div>
+      </div>
+      <p class="lead" style="margin-top:0.7em">Welche habe ich gerade?</p>
+      <div class="big-cmd"><span class="c">PS&gt;</span> $PSVersionTable.PSEdition   <span class="c"># Core = 7, Desktop = 5.1</span></div>
+      <aside class="notes">PowerShell 7 lädt viele Windows-Module über eine Kompatibilitätsschicht; erzwingen mit: Import-Module X -UseWindowsPowerShell. Im Lab sind beide installiert.</aside>
+    </section>
+
+    <!-- 23 ISE -->
+    <section>
+      <h2>Die ISE: ein Auslaufmodell</h2>
+      <div class="cols">
+        <ul style="font-size:0.76em">
+          <li>Grafischer Editor für Windows PowerShell, seit 2009</li>
+          <li>Nur für <b>5.1</b>, <b>nicht</b> für PowerShell 6 und 7</li>
+          <li><b>Keine neuen Features</b>, nur noch Sicherheits- und kritische Fixes</li>
+          <li>Nur Windows</li>
+        </ul>
+        <div class="card"><h3>Du begegnest ihr</h3>
+          <ul><li>auf älteren Servern</li><li>in alten Anleitungen und Skripten</li><li>bei Kollegen mit Gewohnheit</li></ul></div>
+      </div>
+      <p class="quote" style="font-size:1.05em">Microsoft empfiehlt als Ersatz Visual Studio Code mit der PowerShell-Erweiterung.</p>
+      <aside class="notes">Quelle: Microsoft Learn „Introducing the Windows PowerShell ISE“. Die ISE ist weiterhin Teil von Windows und wird für Sicherheitsfixes gewartet, bekommt aber keine neuen Funktionen und läuft nicht mit PowerShell 7.</aside>
+    </section>
+
+    <!-- 24 VS Code -->
+    <section>
+      <h2>Warum wir VS Code nutzen</h2>
+      <table style="font-size:0.62em; width:100%">
+        <tr><th></th><th>ISE</th><th>VS Code + PowerShell-Erweiterung</th></tr>
+        <tr><td><b>PowerShell-Versionen</b></td><td>nur 5.1</td><td>5.1 und 7</td></tr>
+        <tr><td><b>Plattformen</b></td><td>nur Windows</td><td>Windows, Linux, macOS</td></tr>
+        <tr><td><b>Weiterentwicklung</b></td><td>Wartung</td><td>aktiv</td></tr>
+        <tr><td><b>Debugging</b></td><td>einfach</td><td>Breakpoints, Call Stack, Variablen</td></tr>
+        <tr><td><b>Git und Erweiterungen</b></td><td>nein</td><td>ja</td></tr>
+        <tr><td><b>Terminal im Editor</b></td><td>ja</td><td>ja, gleiche Sitzung</td></tr>
+      </table>
+      <p class="quote" style="font-size:1.05em;margin-top:0.7em">Gleiche Sprache, besserer Editor: Was du lernst, gilt überall.</p>
+      <aside class="notes">Im Lab ist VS Code samt Erweiterung installiert. F8 führt die markierte Zeile aus, F5 die ganze Datei. Später kann hier Git und KI-Unterstützung im Editor ergänzt werden.</aside>
+    </section>
+
+    <!-- 25 Abschluss / Kontakt -->
     <section class="center">
       <h2>Kontakt und nächste Schritte</h2>
       <div class="qrs">

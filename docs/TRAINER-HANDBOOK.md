@@ -99,9 +99,9 @@ Windows-Administrationsgrundlagen, Netzwerkbegriffe. **Keine** Programmierkenntn
 | ☐ | Auto-Shutdown beachtet | Standard 20:00 Uhr (täglich) | Morgens `./lab.ps1 start` |
 | ☐ | RDP von überall | `./lab.ps1 status` zeigt Adressen | Teilnehmer-IPs unbekannt → offen (bewusst) |
 | ☐ | Kursseite erreichbar | `https://powershell-kurs.philiplorenz.com` | 200, Zertifikat gültig |
-| ☐ | Slides getestet | `…/slides/`, alle 18 Folien durchklicken, `F` für Vollbild | keine abgeschnittenen Elemente |
-| ☐ | Hyperlinks getestet | Trainer-Folie (3) und Kontakt (18): Links anklicken | `me.philiplorenz.com`, LinkedIn öffnen |
-| ☐ | QR-Codes getestet | Mit dem Handy scannen (Folie 3 und 18) | führen auf Website und LinkedIn |
+| ☐ | Slides getestet | `…/slides/`, alle 25 Folien durchklicken, `F` für Vollbild | keine abgeschnittenen Elemente |
+| ☐ | Hyperlinks getestet | Trainer-Folie (3) und Kontakt (25): Links anklicken | `me.philiplorenz.com`, LinkedIn öffnen |
+| ☐ | QR-Codes getestet | Mit dem Handy scannen (Folie 3 und 25) | führen auf Website und LinkedIn |
 | ☐ | Zugangsfolien | `./lab.ps1 slides` | `.secrets/slides/index.html` enthält pro Teilnehmer eine Folie |
 | ☐ | Tools lokal | `pwsh`, `az`, `terraform`, Beamer-Adapter | vorhanden |
 | ☐ | Zugangsdaten bereit | Chat-Nachricht je Teilnehmer vorbereiten | Passwörter **nicht** in den öffentlichen Folien |
@@ -130,15 +130,15 @@ Zeiten sind Orientierung (Annahme: 09:00 bis 17:00, ca. 15 Minuten Pause am Vor-
 ### Tag 1: Fundament
 
 **Tagesziel:** Konsole sicher bedienen, Hilfe selbst finden, Pipeline und Objekte verstehen, Variablen und Datenstrukturen nutzen.
-**Slides:** 1–10, danach Folie 11 (Tagesplan), Folie 17 (erster Befehl).
+**Slides:** 1–10, danach Folie 11 (Tagesplan), Folie 17 (erster Befehl), Folien 18–24 (Herkunft, Zeitstrahl, 5.1 vs. 7, ISE und VS Code).
 **Lab:** nur eigene VM (kein Domänenzugriff nötig).
 
 | Zeit | Inhalt | Typ | Slides / Kap. / Ü |
 |---|---|---|---|
 | 09:00–10:00 | Willkommen, Vorstellung, Erwartungen, KI-Frage, Lab-Zugang | Diskussion | Folien 1–9, 17; Zugangsfolien (privat) |
-| 10:00–10:30 | PowerShell 5.1 vs. 7, VS Code, erster Start | Live-Demo | Kap. `tag-1/01-powershell-vs-cmd`, `02-terminal-ise-vscode` |
-| 10:30–10:45 | Pause | | |
-| 10:45–11:30 | Hilfesystem, Verb-Noun | Demo + eigene Übung | Kap. `03-hilfesystem`, `04-verb-noun`; **Ü 1.1–1.3** (Seite *Tag 1 · Block 1*) |
+| 10:00–10:45 | Woher kommt PowerShell, 5.1 vs. 7, ISE und VS Code, erster Start | Vortrag + Live-Demo | **Folien 18–24**; Kap. `tag-1/01-powershell-vs-cmd`, `02-terminal-ise-vscode` |
+| 10:45–11:00 | Pause | | |
+| 11:00–11:45 | Hilfesystem, Verb-Noun | Demo + eigene Übung | Kap. `03-hilfesystem`, `04-verb-noun`; **Ü 1.1–1.3** (Seite *Tag 1 · Block 1*) |
 | 11:30–12:30 | Navigation, Dateien, Aliase | Demo + eigene Übung | Kap. `05-navigation-provider`, `06-aliase-shortcuts`; **Ü 1.4–1.7** |
 | 12:30–13:30 | Mittag | | |
 | 13:30–14:45 | Pipeline und Objekte | Theorie/Demo + Übung | Kap. `07-pipeline`; **Ü 2.1–2.5** (*Block 2*, Teil Pipeline) |
@@ -201,7 +201,7 @@ Zeiten sind Orientierung (Annahme: 09:00 bis 17:00, ca. 15 Minuten Pause am Vor-
 | 13:30–14:15 | CIM, Zeitpläne, Logging | Lab | Kap. `08-cim`, `09-planen`, `10-logging`; **Ü 3.2–3.4** (*Block 3*); Web-APIs (Kap. `07-web-apis`, Ü 3.1) optional |
 | 14:15–14:30 | Pause | | |
 | 14:30–16:30 | **Wahlblock (gemeinsam entscheiden):** A) Abschlussprojekt oder B) PowerShell + AI | Lab / Gemeinsam | A: **Ü P.1** (Seite *Abschlussprojekt*), B: Kapitel H |
-| 16:30–17:00 | Rückblick, Transfer in den Alltag, Feedback | Diskussion | Folie 18 |
+| 16:30–17:00 | Rückblick, Transfer in den Alltag, Feedback | Diskussion | Folie 25 |
 
 **Typische Verständnisprobleme:** `try/catch` fängt nur terminierende Fehler (`-ErrorAction Stop`), Ausgabe aus Funktionen (alles ohne Zuweisung wird ausgegeben), `SecretStore` verlangt ein Passwort, geplanter Task läuft nur bei angemeldetem Benutzer.
 **Typische Fragen:** „Wie speichere ich Credentials sicher?" (SecretManagement, Kap. 06), „Wo logge ich?" (Transcript vs. eigenes Log).
@@ -466,7 +466,14 @@ Erfundene Cmdlets/Parameter, falsche PowerShell-Version (5.1 vs. 7), veraltete P
 | 15 | Optional: PowerShell + AI |
 | 16 | Das Lab gehört euch |
 | 17 | Los geht’s: dein erster Befehl |
-| 18 | Kontakt, QR-Codes |
+| 18 | Woher kommt PowerShell? (Monad, 2006) |
+| 19 | Zeitstrahl 2002–2026 |
+| 20 | Zwei PowerShells: 5.1 vs. 7 (Tabelle) |
+| 21 | Was ist neu in PowerShell 7? (Beispiele) |
+| 22 | Welche Version wann? (`$PSVersionTable.PSEdition`) |
+| 23 | Die ISE: ein Auslaufmodell |
+| 24 | Warum wir VS Code nutzen |
+| 25 | Kontakt, QR-Codes |
 
 In der privaten Version (`./lab.ps1 slides`) folgen nach Folie 8 die **Zugangsfolien** (Trainer-Übersicht und eine Folie pro Teilnehmer).
 
