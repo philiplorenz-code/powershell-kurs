@@ -1,0 +1,102 @@
+# Das Lab selbst deployen
+
+Die komplette Kursumgebung ist Code. Du kannst sie in deiner **eigenen Azure-Subscription** nachbauen, um Übungen zu wiederholen oder eigene Experimente zu machen.
+
+:::caution[Kosten]
+Azure-Ressourcen kosten Geld, solange sie existieren. Laufend ca. **0,32 € pro Stunde** (alle 4 VMs). Auch **gestoppt** laufen Disks und öffentliche IP-Adressen weiter (ca. **1,9 € pro Tag**). Wenn du mit dem Üben fertig bist: `./lab.ps1 destroy`. Mehr dazu im Abschnitt „Kosten im Griff behalten".
+:::
+
+## 1. Voraussetzungen
+
+| Was | Wofür |
+|---|---|
+| Azure-Subscription mit Rechten zum Anlegen von Ressourcen (Contributor) | Das Lab entsteht in der Resource Group `rg-pslab` |
+| [PowerShell 7](https://learn.microsoft.com/de-de/powershell/scripting/install/installing-powershell) | `lab.ps1` ist ein PowerShell-7-Skript |
+| [Azure CLI](https://learn.microsoft.com/de-de/cli/azure/install-azure-cli) | Anmeldung und VM-Steuerung |
+| [Terraform](https://developer.hashicorp.com/terraform/install) ab 1.6 | Erstellt die Infrastruktur |
+| Git | Repository holen |
+| Quota für B-Serie-VMs (mind. 8 vCPUs) in der Region | 1 × B2s und 3 × B2ms |
+
+Den Code erhältst du vom Trainer (Einladung zum Repository `philiplorenz-code/powershell-kurs` oder als ZIP).
+
+## 2. Deployment
+
+```powershell
+git clone https://github.com/philiplorenz-code/powershell-kurs.git
+cd powershell-kurs
+
+az login
+az account set --subscription "<deine-subscription-id>"
+
+./lab.ps1 deploy -SubscriptionId "<deine-subscription-id>"
+```
+
+`deploy` zeigt zuerst den **Plan und eine Kostenschätzung** und fragt, ob du fortfahren willst. Danach dauert der Aufbau **ca. 45 bis 60 Minuten** (Domäne erstellen, Rechner beitreten, Software installieren).
+
+Weniger Rechner (und Kosten): `./lab.ps1 deploy -Students 1` baut einen DC und eine Teilnehmer-VM.
+
+Optional in `infrastructure/azure/terraform/lab.auto.tfvars.json` (wird nicht in Git gespeichert):
+
+```json
+{
+  "subscription_id": "<deine-subscription-id>",
+  "student_count": 1,
+  "location": "germanywestcentral",
+  "budget_alert_email": "du@example.org"
+}
+```
+
+## 3. Zugriff
+
+```powershell
+./lab.ps1 credentials          # Benutzer, Passwörter, RDP-Adressen
+./lab.ps1 status               # Zustand der VMs
+```
+
+Verbinde dich per **Remotedesktop (RDP)** mit der Adresse deiner VM (`pslab-01-….germanywestcentral.cloudapp.azure.com`) und melde dich als `PSLAB\teilnehmer01` an.
+
+Standardmäßig ist RDP von **jeder IP** erreichbar (die Passwörter sind lange Zufallswerte). Willst du es einschränken: `./lab.ps1 close-rdp`, dann `./lab.ps1 allow-ip <deine-ip>/32`.
+
+## 4. Start, Stopp, erneuter Start
+
+| Aktion | Befehl | Wirkung |
+|---|---|---|
+| Stoppen | `./lab.ps1 stop` oder `end-of-day` | Alle VMs werden **deallokiert** (keine Compute-Kosten) |
+| Starten | `./lab.ps1 start` | Startet zuerst den DC, wartet auf Active Directory, dann die übrigen VMs |
+| Prüfen | `./lab.ps1 status` | Zeigt, was läuft |
+| Zurücksetzen | `./lab.ps1 reset-student 1` oder `reset-all` | Baut VMs und AD-Inhalt auf den Ursprung zurück |
+| Smoke-Test | `./lab.ps1 test` | Prüft Domäne, Remoting, Software |
+
+:::note
+Ein Herunterfahren **im Betriebssystem** (Start → Herunterfahren) deallokiert die VM **nicht**. Sie kostet weiter. Nutze immer `./lab.ps1 stop`.
+:::
+
+## 5. Aufräumen
+
+```powershell
+./lab.ps1 destroy
+```
+
+Du musst den Namen der Resource Group (`rg-pslab`) eintippen. Der Befehl löscht alles und prüft am Ende, ob etwas übrig ist.
+
+## 6. Kosten im Griff behalten
+
+- **Auto-Shutdown:** Alle VMs werden täglich um **20:00 Uhr** deallokiert (anpassbar mit `autoshutdown_time`). Das ist ein Sicherheitsnetz.
+- **Budgetwarnung:** Mit `budget_alert_email` bekommst du bei 80 % und 100 % des Monatsbudgets (Standard 60 €) eine E-Mail.
+- **Selbst prüfen:** Im Azure-Portal unter *Kostenverwaltung → Kostenanalyse* für die Resource Group `rg-pslab`.
+- **Immer destroy:** Wer fertig ist, löscht. Gestoppt kostet das Lab weiter ca. 57 € pro Monat.
+- **Zeitplan-Erinnerung:** Lege dir direkt nach dem Deploy einen Kalendereintrag „Lab löschen" an.
+
+## 7. Typische Probleme
+
+| Problem | Ursache und Lösung |
+|---|---|
+| `az` meldet „refresh token has expired" | `az login` erneut ausführen |
+| Fehler „quota exceeded" | Zu wenige B-Serie-vCPUs in der Region. Quota im Portal erhöhen oder `-Students 1` und anderen `location` verwenden |
+| Deployment bricht mittendrin ab | `./lab.ps1 deploy` erneut starten. Terraform macht dort weiter, wo es aufgehört hat |
+| RDP verbindet nicht | `./lab.ps1 status` (läuft die VM?), danach `./lab.ps1 open-rdp`. Manche Firmennetze blockieren Port 3389 |
+| Anmeldung scheitert direkt nach `start` | Der DC braucht 2 bis 5 Minuten, bis Active Directory antwortet. Kurz warten |
+| Domänenkonto gesperrt | Nach 10 falschen Passwörtern 15 Minuten gesperrt. Warten oder als `labadmin` entsperren |
+| `Install-PSResource`/Gallery blockiert | Firmenproxy oder Firewall im eigenen Netz. Im Lab selbst ist Internet erlaubt |
+| State-Datei verloren | Dann kannst du nicht per `destroy` löschen. Resource Group `rg-pslab` im Portal löschen |
+| Teilnehmer-VM kaputt | `./lab.ps1 reset-student <Nummer>` |

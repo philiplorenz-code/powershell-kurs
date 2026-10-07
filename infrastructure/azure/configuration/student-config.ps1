@@ -73,16 +73,16 @@ if (-not (Get-ChildItem $extDir -Filter 'ms-vscode.powershell*' -ErrorAction Sil
 }
 icacls.exe $extDir /grant 'Users:(OI)(CI)RX' /T | Out-Null
 
-Step 'Module (Pester 5, SecretManagement)'
-& $pwsh -NoProfile -Command {
-    $ErrorActionPreference = 'Stop'
-    Set-PSResourceRepository -Name PSGallery -Trusted -ErrorAction SilentlyContinue
-    foreach ($m in 'Pester') {
-        if (-not (Get-PSResource -Name $m -Scope AllUsers -ErrorAction SilentlyContinue | Where-Object { $_.Version -ge [version]'5.0' })) {
-            Install-PSResource -Name $m -Scope AllUsers -TrustRepository -Reinstall
-        }
-    }
+Step 'Module (Pester)'
+# Als Text übergeben: ein Scriptblock würde an pwsh.exe nur als Zeichenkette weitergereicht und nie ausgeführt.
+& $pwsh -NoProfile -Command @'
+$ErrorActionPreference = 'Stop'
+Set-PSResourceRepository -Name PSGallery -Trusted -ErrorAction SilentlyContinue
+if (-not (Get-PSResource -Name Pester -ErrorAction SilentlyContinue | Where-Object { $_.Version -ge [version]'5.0' })) {
+    Install-PSResource -Name Pester -Scope AllUsers -TrustRepository -Reinstall
 }
+'@
+if ($LASTEXITCODE -ne 0) { throw "Pester-Installation fehlgeschlagen ($LASTEXITCODE)" }
 
 Step 'Kursordner und Beispieldaten'
 $root = 'C:\Kurs'

@@ -40,3 +40,64 @@
 .reveal .progress { color: var(--accent); }
 .reveal .slide-number { color: var(--muted); background: transparent; }
 @media print { .reveal-viewport { background: var(--bg) !important; } }
+
+/* ---------- Erweiterung: Schedule, Trainer, Diagramm, Kontakt ---------- */
+.reveal { font-size: 30px; }
+.reveal h2 { font-size: 1.25em; margin-bottom: 0.45em; }
+.reveal section { text-align: left; }
+.reveal section.center { text-align: center; }
+.reveal .lead { font-size: 1.05em; color: var(--muted); margin: 0 0 0.6em; }
+.reveal .quote { font-size: 1.35em; font-weight: 700; line-height: 1.25; color: #fff; border-left: 6px solid var(--accent); padding-left: 0.6em; margin: 0.4em 0; }
+
+/* Schedule */
+.reveal table.sched { width: 100%; font-size: 0.64em; border-collapse: separate; border-spacing: 0 3px; margin: 0; }
+.reveal table.sched td { padding: 0.2em 0.6em; border: 0; background: rgba(255,255,255,0.06); vertical-align: middle; text-align: left; }
+.reveal table.sched td:first-child { width: 11.5em; font-family: var(--mono); color: var(--accent); border-radius: 8px 0 0 8px; white-space: nowrap; }
+.reveal table.sched td:last-child { width: 12.5em; border-radius: 0 8px 8px 0; white-space: nowrap; }
+.reveal table.sched tr.pause td { background: rgba(255,255,255,0.025); color: var(--muted); font-style: italic; }
+.reveal table.sched tr.opt td { background: rgba(224,176,90,0.24); }
+.reveal .t { display: inline-block; font-size: 0.82em; font-weight: 700; padding: 0.05em 0.6em; border-radius: 999px; border: 2px solid currentColor; }
+.reveal .t.theorie { color: #7cc4ff; } .reveal .t.demo { color: #6fe0c8; } .reveal .t.gemein { color: #c3a6ff; }
+.reveal .t.uebung { color: #ffc46b; } .reveal .t.lab { color: #8be28b; } .reveal .t.disk { color: #ff9ccf; } .reveal .t.pause { color: #9db8d4; }
+.reveal .note { margin-top: 0.5em; font-size: 0.6em; color: var(--fg); border: 1px dashed var(--muted); border-radius: 10px; padding: 0.45em 0.8em; background: rgba(255,255,255,0.04); }
+.reveal .legend { font-size: 0.5em; margin-top: 0.5em; color: var(--muted); }
+.reveal .legend .t { margin-right: 0.5em; }
+
+/* Trainer */
+.reveal .trainer { display: grid; grid-template-columns: 300px 1fr; gap: 1.6em; align-items: center; }
+.reveal .trainer img.foto { width: 280px; height: 280px; border-radius: 50%; object-fit: cover; border: 6px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.4); margin: 0; }
+.reveal .trainer h3 { margin: 0; font-size: 1.6em; }
+.reveal .trainer .rolle { color: var(--accent); font-size: 0.9em; margin: 0.1em 0 0.5em; font-weight: 600; }
+.reveal .trainer ul { font-size: 0.7em; margin: 0 0 0.6em; }
+.reveal .links { display: flex; gap: 1.2em; align-items: center; flex-wrap: wrap; }
+.reveal .links a { font-size: 0.68em; padding: 0.25em 0.8em; border: 2px solid var(--accent); border-radius: 999px; text-decoration: none; }
+.reveal .links img.qr { width: 150px; height: 150px; border-radius: 8px; margin: 0; background: #fff; }
+.reveal .qrs { display: flex; gap: 1.6em; justify-content: center; margin-top: 0.8em; }
+.reveal .qrs figure { margin: 0; text-align: center; }
+.reveal .qrs img { width: 270px; height: 270px; border-radius: 12px; background: #fff; margin: 0; }
+.reveal .qrs figcaption { font-size: 0.6em; margin-top: 0.4em; }
+.reveal .qrs a { text-decoration: none; }
+
+/* Karten, Spalten */
+.reveal .cols.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.reveal .card.hl { border-color: var(--accent); background: rgba(124,196,255,0.12); }
+.reveal .card.wide ul { font-size: 0.66em; }
+.reveal .card p { font-size: 0.62em; margin: 0.2em 0; }
+.reveal ol.fragen { font-size: 0.95em; padding-left: 1.2em; margin: 0; }
+.reveal ol.fragen li { margin: 0.35em 0; }
+.reveal .person { min-height: 3.2em; border: 2px dashed rgba(255,255,255,0.25); border-radius: 10px; padding: 0.4em 0.7em; font-size: 0.55em; color: var(--muted); }
+
+/* Diagramm */
+.reveal svg.arch { width: 100%; height: auto; max-height: 470px; }
+.reveal svg.arch text { font-family: var(--sans); fill: #eef5fc; }
+.reveal svg.arch .mono { font-family: var(--mono); }
+.reveal .chips { display: flex; gap: 0.6em; flex-wrap: wrap; margin-top: 0.5em; font-size: 0.5em; }
+.reveal .chips span { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 0.25em 0.9em; }
+.reveal pre.code { font-size: 0.62em; }
+.reveal .big-cmd { font-family: var(--mono); font-size: 0.9em; background: rgba(0,0,0,0.35); border-radius: 12px; padding: 0.6em 0.9em; margin: 0.4em 0; color: #cfe6fb; }
+.reveal .big-cmd .c { color: #6fe0c8; }
+
+.reveal .links figure { margin: 0; text-align: center; font-size: 0.45em; }
+.reveal .links figure figcaption { margin-top: 0.2em; color: var(--muted); }
+
+.reveal .card code { word-break: break-all; font-size: 0.82em; }

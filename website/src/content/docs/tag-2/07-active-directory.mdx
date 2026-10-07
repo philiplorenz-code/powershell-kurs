@@ -92,7 +92,7 @@ Get-ADPrincipalGroupMembership -Identity teilnehmer01 | Select-Object Name
 Get-ADComputer -Filter * | Select-Object Name, DNSHostName
 Search-ADAccount -LockedOut
 Search-ADAccount -AccountDisabled | Select-Object Name
-Search-ADAccount -PasswordExpired | Select-Object Name
+Search-ADAccount -AccountExpired -UsersOnly | Select-Object Name, AccountExpirationDate
 ```
 
 ## 5. Ändern: Benutzer anlegen, Gruppen füllen

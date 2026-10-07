@@ -43,8 +43,17 @@ function Show-Hallo {
     param([Parameter(Mandatory = $true)][string]$Name)
     "Hallo, $Name!"
 }
-Show-Hallo               # PowerShell fragt nach dem Wert
+```
 
+Ohne `-Name` fragt PowerShell nach dem Wert:
+
+```powershell
+Show-Hallo               # PowerShell fragt nach dem Wert (im Skript: Fehler)
+```
+
+Mit Standardwert wird der Parameter optional:
+
+```powershell
 function Show-Hallo {
     param([string]$Name = "Welt")
     "Hallo, $Name!"
@@ -77,6 +86,11 @@ function Get-Begruessung {
     }
 }
 Get-Begruessung -Name "Max" -Sprache EN
+```
+
+Ein ungültiger Wert wird abgelehnt:
+
+```powershell
 Get-Begruessung -Name "Max" -Sprache IT     # Fehler: Wert nicht erlaubt
 ```
 

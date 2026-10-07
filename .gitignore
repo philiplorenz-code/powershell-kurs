@@ -8,6 +8,7 @@ infrastructure/**/.terraform/
 infrastructure/**/*.tfstate
 infrastructure/**/*.tfstate.*
 infrastructure/**/*.tfvars
+infrastructure/**/*.tfvars.json
 !infrastructure/**/*.tfvars.example
 infrastructure/**/crash.log
 .secrets/
@@ -19,3 +20,8 @@ infrastructure/**/crash.log
 Thumbs.db
 slides/node_modules/
 slides/out/
+infrastructure/**/tfplan
+*.tfplan
+*.rdp
+teilnehmer/
+trainer/

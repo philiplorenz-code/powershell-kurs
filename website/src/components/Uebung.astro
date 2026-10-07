@@ -6,10 +6,11 @@ interface Props {
   ki?: 'frei' | 'erlaubt' | 'ohne';
 }
 const { titel, nr, typ = 'Übung', ki } = Astro.props;
+const anchorId = nr && /^[0-9PK.]+$/.test(nr) ? 'u-' + nr.replace(/\./g, '-') : undefined;
 const klasse = typ === 'Challenge' ? 'challenge' : typ === 'Bonus' ? 'bonus' : typ === 'KI-Übung' ? 'ki' : '';
 const kiMode = ki ?? (typ === 'KI-Übung' ? 'erlaubt' : typ === 'Bonus' ? 'ohne' : 'frei');
 ---
-<section class={`aufgabe ${klasse}`}>
+<section class={`aufgabe ${klasse}`} id={anchorId}>
   <header>
     <span class="titel">{nr ? `${nr} · ` : ''}{titel}</span>
     <span class="pill typ">{typ}</span>

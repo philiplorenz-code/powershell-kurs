@@ -43,9 +43,10 @@ Remove-Item `$path -ErrorAction SilentlyContinue
     foreach ($line in ($raw -split "`n")) {
         if ($line -match '^RESULT\t(?<s>[^\t]+)\t(?<id>[^\t]+)\t?(?<m>.*)$') {
             $total++
-            $ok = $Matches.s -in 'OK', 'OK*'
+            $ok = $Matches.s -in 'OK', 'OK*', 'LIMIT'
             if (-not $ok) { $failed++ }
-            Write-Host ("{0,-5} {1}  {2}" -f $Matches.s, $Matches.id, $Matches.m.Trim()) -ForegroundColor ($ok ? 'Green' : 'Red')
+            $color = if ($Matches.s -eq 'LIMIT') { 'Yellow' } elseif ($ok) { 'Green' } else { 'Red' }
+            Write-Host ("{0,-5} {1}  {2}" -f $Matches.s, $Matches.id, $Matches.m.Trim()) -ForegroundColor $color
         } elseif ($line.Trim()) {
             Write-Host "      $($line.Trim())" -ForegroundColor DarkGray
         }

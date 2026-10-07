@@ -14,6 +14,18 @@ output "student_public_ips" {
   value = { for k, v in azurerm_public_ip.student : "PSLAB-${k}" => v.ip_address }
 }
 
+output "student_fqdns" {
+  value = { for k, v in azurerm_public_ip.student : "PSLAB-${k}" => v.fqdn }
+}
+
+output "dc_fqdn" {
+  value = azurerm_public_ip.dc.fqdn
+}
+
+output "rdp_open_to_internet" {
+  value = var.rdp_open_to_internet
+}
+
 output "domain" {
   value = var.domain_name
 }
@@ -40,6 +52,10 @@ output "student_credentials" {
       user     = "${var.domain_netbios}\\teilnehmer${k}"
       password = v.result
       rdp      = azurerm_public_ip.student[k].ip_address
+      fqdn     = azurerm_public_ip.student[k].fqdn
+      name     = try(var.participants[tonumber(k) - 1].name, "")
+      company  = try(var.participants[tonumber(k) - 1].company, "")
+      email    = try(var.participants[tonumber(k) - 1].email, "")
     }
   }
   sensitive = true

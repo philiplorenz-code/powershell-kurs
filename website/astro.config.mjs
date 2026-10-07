@@ -32,6 +32,7 @@ export default defineConfig({
             { label: 'Für Teilnehmer', slug: 'kurs/teilnehmer' },
             { label: 'Umgang mit Übungen', slug: 'kurs/uebungen-und-ki' },
             { label: 'Lab-Umgebung', slug: 'kurs/lab' },
+            { label: 'Lab selbst deployen', slug: 'kurs/lab-selbst-deployen' },
           ],
         },
         { label: 'Tag 1 · Fundament', collapsed: true, items: [{ autogenerate: { directory: 'tag-1' } }] },

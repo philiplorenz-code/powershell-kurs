@@ -36,13 +36,30 @@ variable "domain_netbios" {
   default = "PSLAB"
 }
 
+variable "rdp_open_to_internet" {
+  description = "true = RDP (TCP 3389) von jeder IP erlaubt. Bequem, wenn die Teilnehmer-IPs unbekannt sind. Schutz dann: lange Zufallspasswörter, NLA, Domänen-Kontosperre. Nur für die Kursdauer verwenden."
+  type        = bool
+  default     = false
+}
+
 variable "allowed_rdp_cidrs" {
-  description = "Quell-Adressen (CIDR), die per RDP auf die VMs dürfen, z. B. [\"203.0.113.7/32\"]. lab.ps1 trägt automatisch die aktuelle öffentliche IP des Trainers ein."
+  description = "Quell-Adressen (CIDR) für RDP, wenn rdp_open_to_internet = false. Beispiel: [\"203.0.113.7/32\"]."
   type        = list(string)
+  default     = []
   validation {
-    condition     = length(var.allowed_rdp_cidrs) > 0 && !contains(var.allowed_rdp_cidrs, "0.0.0.0/0") && !contains(var.allowed_rdp_cidrs, "*")
-    error_message = "Mindestens ein CIDR angeben. RDP für die ganze Welt (0.0.0.0/0) ist nicht erlaubt."
+    condition     = !contains(var.allowed_rdp_cidrs, "0.0.0.0/0") && !contains(var.allowed_rdp_cidrs, "*")
+    error_message = "Für RDP von überall bitte rdp_open_to_internet = true setzen (bewusste Entscheidung)."
   }
+}
+
+variable "participants" {
+  description = "Teilnehmer (Zuordnung zu teilnehmer01..NN): name, email, company. Gehört in lab.auto.tfvars.json (nicht in Git)."
+  type = list(object({
+    name    = string
+    email   = optional(string, "")
+    company = optional(string, "")
+  }))
+  default = []
 }
 
 variable "dc_vm_size" {

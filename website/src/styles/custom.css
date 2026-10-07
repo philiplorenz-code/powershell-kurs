@@ -79,3 +79,18 @@ details.loesung[open] > summary { border-bottom: 1px solid var(--sl-color-gray-5
 }
 .lernziele > strong:first-child { display: block; margin-bottom: 0.25rem; color: var(--kurs-core); }
 .lernziele ul { margin: 0; }
+
+/* Übungsbanner am Kapitelende */
+.uebungsbanner {
+  margin-block: 2rem 1rem; padding: 0.9rem 1.2rem; border-radius: 0.6rem;
+  border: 2px solid var(--kurs-core); background: color-mix(in srgb, var(--kurs-core) 10%, transparent);
+}
+.uebungsbanner.ki { border-color: var(--kurs-ki); background: color-mix(in srgb, var(--kurs-ki) 10%, transparent); }
+.uebungsbanner .ub-kopf { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; }
+.uebungsbanner .ub-titel { font-weight: 700; font-size: var(--sl-text-lg); color: var(--sl-color-white); margin-right: auto; }
+.uebungsbanner ul { margin: 0; padding-left: 1.2rem; }
+.uebungsbanner li { margin: 0.2rem 0; }
+.uebungsbanner .ub-typ { margin-left: 0.5rem; font-size: var(--sl-text-xs); font-weight: 700; color: var(--kurs-optional); border: 1px solid currentColor; border-radius: 999px; padding: 0 0.5rem; }
+.uebungsbanner .ub-hinweis { margin: 0.5rem 0 0; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+
+.uebungsbanner .ub-info { color: var(--sl-color-gray-2); font-size: var(--sl-text-sm); }

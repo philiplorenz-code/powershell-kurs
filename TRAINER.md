@@ -21,6 +21,16 @@ Alles, was du brauchst, um den Kurs durchzuführen, auch Monate später noch.
 8. **RDP-Freigabe**: RDP ist nur von **deiner** IP erlaubt. Sitzen die Teilnehmer woanders, gib ihre IPs frei: `./lab.ps1 allow-ip 203.0.113.5/32` (pro Standort einmal).
 9. **Abends nach den Tests**: `./lab.ps1 end-of-day`, damit bis zum Kurs keine Kosten durch laufende VMs entstehen.
 
+## RDP-Dateien
+
+```powershell
+./lab.ps1 rdp                 # alle: trainer/ (Domänen-Admin, alle VMs) und teilnehmer/ (je ein Konto)
+./lab.ps1 rdp trainer -Open   # nur Trainer-Dateien erzeugen und direkt öffnen
+./lab.ps1 rdp participants    # nur Dateien zum Weitergeben
+```
+
+Die Dateien liegen in `.secrets/rdp/` (nicht in Git), enthalten Adresse und Benutzername, aber **kein Passwort**. Auf dem Mac mit Microsoft Remote Desktop öffnen.
+
 ## Morgens
 
 ```powershell
@@ -76,7 +86,7 @@ Dann: Folien öffnen, Teilnehmern ihre Zugangsdaten geben (persönlich, nicht pe
 | Domäne | `pslab.internal` (NetBIOS `PSLAB`) |
 | Rechner | `DC01` (Server 2025, B2s), `PSLAB-01..03` (Server 2025, B2ms) |
 | Konten | `PSLAB\labadmin` (Domänen-Admin, Trainer), `PSLAB\teilnehmer01..03` (jeder lokaler Admin auf allen `PSLAB-0x`, Schreibrechte nur in der eigenen OU) |
-| Demo-Daten AD | OU `Kurs` mit `Benutzer` (24 Konten, 3 deaktiviert, 2 mit abgelaufenem Passwort), `Gruppen` (`GRP-IT`, `GRP-HR`, `GRP-Finanzen`, `GRP-Vertrieb`, `GG-Kurs-Teilnehmer`), `Computer`, `Teilnehmer`, `Uebung\T01..T03` |
+| Demo-Daten AD | OU `Kurs` mit `Benutzer` (24 Konten, 3 deaktiviert, 2 mit abgelaufenem Konto), `Gruppen` (`GRP-IT`, `GRP-HR`, `GRP-Finanzen`, `GRP-Vertrieb`, `GG-Kurs-Teilnehmer`), `Computer`, `Teilnehmer`, `Uebung\T01..T03` |
 | Kursdaten | `C:\Kurs\{Daten,Ausgabe,Logs,Skripte,KI}`, `Mitarbeiter.csv`, 12 Logdateien |
 | Software | PowerShell 7.6 (LTS), VS Code mit PowerShell-Erweiterung, RSAT-AD, Pester 5 |
 
