@@ -26,7 +26,7 @@ Ergänzende Dokumente: [`TRAINER.md`](../TRAINER.md) (Lab-Betrieb, Befehle), [`L
 
 ### Zielgruppe und Teilnehmer
 
-Anfänger und Windows-/M365-Administratoren mit teilweise ersten PowerShell-Erfahrungen. Drei Teilnehmer (aus der Anmeldeliste; Angaben zu den Firmen aus öffentlichen Quellen):
+Anfänger und Windows-Administratoren mit teilweise ersten PowerShell-Erfahrungen. Drei Teilnehmer (aus der Anmeldeliste; Angaben zu den Firmen aus öffentlichen Quellen):
 
 | # | Teilnehmer | Firma | Was man über die Firma weiß | Lab-Konto |
 |---|---|---|---|---|
@@ -48,9 +48,9 @@ Quellen: [Bayern International](https://bayern-international.de/en/company-datab
 | 2 | Großer Sozialträger, viele Standorte | Systemadministration für verteilte Standorte | Remoting auf viele Rechner (Tag 2), Inventarisierung (Abschlussprojekt), AD-Pflege (Tag 2) |
 | 3 | Kleine IT in einer Wohnungsgenossenschaft | vermutlich Generalist, Server, Clients, Benutzerverwaltung | Benutzer- und Gruppenpflege per CSV/AD, wiederkehrende Berichte, Zeitpläne (Tag 3) |
 
-**Fragen für den Einstieg, um die Hypothesen zu prüfen:** Welche Windows-Server-Versionen und welches Active Directory (lokal, Entra ID, hybrid)? Wie viele Server und Clients betreust du allein? Welche Aufgabe wiederholst du pro Woche am häufigsten? Gibt es schon Skripte (von wem, wo liegen sie)? Microsoft 365 im Einsatz, und wer verwaltet es?
+**Fragen für den Einstieg, um die Hypothesen zu prüfen:** Welche Windows-Server-Versionen und welches Active Directory (lokal oder hybrid)? Wie viele Server und Clients betreust du allein? Welche Aufgabe wiederholst du pro Woche am häufigsten? Gibt es schon Skripte (von wem, wo liegen sie)?
 
-**Was ich über die IT der Firmen nicht weiß** (am ersten Morgen erfragen, Folie 4 und 5): Windows-Server-Versionen, Active Directory oder Entra ID oder Hybrid, Microsoft 365, vorhandene Skripte, Wer administriert wie viele Server.
+**Was ich über die IT der Firmen nicht weiß** (am ersten Morgen erfragen, Folie 4 und 5): Windows-Server-Versionen, Active Directory (lokal oder hybrid), vorhandene Skripte, Wer administriert wie viele Server.
 
 **Kontext** (Annahme): Der Kurs läuft im Rahmen einer Heise-Academy-Schulung „PowerShell für Systemadministratoren – Effiziente Automatisierung und Verwaltung", drei Tage. Das Datum in der Anmeldeliste lautet 7.–9. Oktober, ich gehe von 2026 aus.
 
@@ -416,7 +416,7 @@ Nur wenn die Gruppe zustimmt (Folie 7 und 15, Abstimmung spätestens Tag 2, 16:4
 
 > schreib mir ein powershell script für inaktive benutzer
 
-Probleme: Kein System (AD/Entra?), „inaktiv" undefiniert, keine Ausgabe, keine Sicherheitsvorgaben.
+Probleme: Kein System (Active Directory? lokal?), „inaktiv" undefiniert, keine Ausgabe, keine Sicherheitsvorgaben.
 
 **Verbessert:**
 

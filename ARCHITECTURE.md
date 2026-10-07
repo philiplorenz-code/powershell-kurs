@@ -43,7 +43,7 @@ rg-pslab (Germany West Central)
 | IaC | **Terraform** (`azurerm` 4.x) | Bekannt, deklarativ, `plan` zeigt vorab, was entsteht. Keine Module-Hierarchie: ein Verzeichnis mit fünf kleinen Dateien |
 | Windows-Konfiguration | **PowerShell-Skripte per Azure Run Command** | Kein zusätzliches Werkzeug (kein Ansible, kein DSC-Pull-Server). Skripte sind selbst idempotent (prüfen vor dem Anlegen) und lassen sich auch von Hand auf einer VM starten. Der Domänenbeitritt läuft über die offizielle Erweiterung `JsonADDomainExtension` |
 | Reihenfolge | DC promote → Pause für den Neustart → DC füllen → VMs anlegen → Domänenbeitritt → Software | Terraform-Abhängigkeiten (`depends_on`) plus `time_sleep` für die Neustarts |
-| Betriebssystem | Windows Server 2025 für alle VMs | Windows-11-Clients bräuchten eine Client-Lizenz (in Azure nur mit Visual-Studio- oder M365-Lizenz). Server-GUI verhält sich für den Kurs wie ein Admin-Arbeitsplatz |
+| Betriebssystem | Windows Server 2025 für alle VMs | Windows-11-Clients bräuchten eine Client-Lizenz (in Azure nur mit passender Client-Lizenz). Server-GUI verhält sich für den Kurs wie ein Admin-Arbeitsplatz |
 | Größen | DC B2s (4 GiB), Teilnehmer B2ms (8 GiB) | VS Code, Browser und Server-GUI laufen mit 4 GiB zäh. Der DC verwaltet nur ein Dutzend Objekte |
 | Domäne | `pslab.internal` | `.internal` ist von der ICANN für private Netze reserviert, keine Kollision mit echten Domains |
 | Zugriff | **RDP über Public IPs, per NSG auf Trainer-IP (und freigegebene Adressen) beschränkt** | Siehe unten |

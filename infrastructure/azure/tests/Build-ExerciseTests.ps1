@@ -35,6 +35,19 @@ function Report([string]$id, [string]$status, [string]$msg) { "RESULT`t$status`t
 Set-Location C:\Kurs
 '@
 
+# SecretStore fragt beim ersten Zugriff interaktiv nach einem Tresorpasswort. Für den Test vorab ohne Abfrage konfigurieren.
+$secretStorePrep = @'
+Install-PSResource Microsoft.PowerShell.SecretManagement, Microsoft.PowerShell.SecretStore -Scope CurrentUser -TrustRepository -Reinstall -ErrorAction SilentlyContinue
+Import-Module Microsoft.PowerShell.SecretStore
+Reset-SecretStore -Scope CurrentUser -Authentication None -Interaction None -Force -Confirm:$false
+'@
+
+# Bekannte Grenzen des Testaufbaus (kein Fehler der Aufgabe): wird als LIMIT gemeldet
+$knownLimits = @{
+    'tag-3-block-3 3.3' = 'Interaktiver Task läuft nur bei angemeldetem Benutzer (der Test hat keine RDP-Sitzung). Aktion wird per smoke.ps1 geprüft.'
+}
+$expectedErrorPattern = '#.*(Fehlermeldung|Fehler:|Zugriff verweigert|fragt nach dem Wert)'
+
 function Get-Exercises([string]$text) {
     foreach ($m in [regex]::Matches($text, '(?s)<Uebung\s+([^>]*?)>(.*?)</Uebung>')) {
         $attrs = $m.Groups[1].Value
@@ -61,13 +74,14 @@ foreach ($page in $pages) {
         # Ausgangsdaten der Aufgabe (z. B. $zeile = ...) nur, wenn sie als Code in der Aufgabe stehen
         # und keine Datei-Inhalte sind. Dateiinhalte (Summe.ps1) legt die Lösung bzw. der Test selbst an.
         $blocks = @()
-        foreach ($b in Get-CodeBlocks $ex.Task) { $blocks += [pscustomobject]@{ Kind = 'Aufgabe'; Code = $b } }
+        if ($page -ne 'ki/uebungen') { foreach ($b in Get-CodeBlocks $ex.Task) { $blocks += [pscustomobject]@{ Kind = 'Aufgabe'; Code = $b } } }
         foreach ($b in Get-CodeBlocks $ex.Solution) { $blocks += [pscustomobject]@{ Kind = 'Lösung'; Code = $b } }
         # Spezialfall Debugging-Übung: Summe.ps1 liegt als Codeblock in der Aufgabe und soll als Datei existieren
         if ($id -eq 'tag-3-block-2 2.4') {
             $summe = ($blocks | Where-Object { $_.Kind -eq 'Aufgabe' -and $_.Code -match '\$summe = 0' } | Select-Object -First 1).Code
             $blocks = @([pscustomobject]@{ Kind = 'Setup'; Code = "@'`n$summe'@ | Set-Content C:\Kurs\Skripte\Summe.ps1" }) + @($blocks | Where-Object { $_.Code -notmatch '\$summe = 0' })
         }
+        if ($id -eq 'tag-3-block-2 2.6') { $blocks = @([pscustomobject]@{ Kind = 'Setup'; Code = $secretStorePrep }) + $blocks }
         $i = 0
         foreach ($b in $blocks) {
             $i++
@@ -87,12 +101,23 @@ foreach ($page in $pages) {
                 [void]$sb.AppendLine("Report '$blockId' 'SYNTAX' '$($err[0].Message -replace "'", "''")'")
                 continue
             }
+            $hasCatch = $code -match '\bcatch\b'
+            $expectErr = $code -match $expectedErrorPattern
+            $limit = $knownLimits[$id]
             [void]$sb.AppendLine('$Error.Clear(); $__s = ''OK''; $__m = ''''')
             [void]$sb.AppendLine('try { . {')
             [void]$sb.AppendLine($code)
             [void]$sb.AppendLine('} *> $null } catch { $__s = ''ERR''; $__m = $_.Exception.Message }')
-            [void]$sb.AppendLine('if ($__s -eq ''OK'' -and $Error.Count) { $__s = ''ERR''; $__m = (($Error | ForEach-Object { $_.Exception.Message }) | Select-Object -First 2) -join '' | '' }')
+            # Behandelte Fehler (catch im Block) stehen trotzdem in $Error und zählen deshalb nicht
+            if (-not $hasCatch) {
+                [void]$sb.AppendLine('if ($__s -eq ''OK'' -and $Error.Count) { $__s = ''ERR''; $__m = (($Error | ForEach-Object { $_.Exception.Message }) | Select-Object -First 2) -join '' | '' }')
+            }
+            if ($expectErr) {
+                # Gewollter Fehler: Es MUSS ein Fehler auftreten
+                [void]$sb.AppendLine('if ($__s -eq ''ERR'') { $__s = ''OK''; $__m = ''erwarteter Fehler: '' + $__m } elseif ($Error.Count -eq 0) { $__s = ''ERR''; $__m = ''erwarteter Fehler blieb aus'' } else { $__s = ''OK''; $__m = ''erwarteter Fehler: '' + $Error[0].Exception.Message }')
+            }
             [void]$sb.AppendLine("if (`$__s -eq 'OK' -and $skipped -gt 0) { `$__m = 'teilweise übersprungen' ; `$__s = 'OK*' }")
+            if ($limit) { [void]$sb.AppendLine("if (`$__s -eq 'ERR') { `$__s = 'LIMIT'; `$__m = '$($limit -replace "'", "''") ' + `$__m }") }
             [void]$sb.AppendLine("Report '$blockId' `$__s `$__m")
             $count++
         }

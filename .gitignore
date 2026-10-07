@@ -22,3 +22,6 @@ slides/node_modules/
 slides/out/
 infrastructure/**/tfplan
 *.tfplan
+*.rdp
+teilnehmer/
+trainer/
