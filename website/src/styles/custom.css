@@ -94,3 +94,12 @@ details.loesung[open] > summary { border-bottom: 1px solid var(--sl-color-gray-5
 .uebungsbanner .ub-hinweis { margin: 0.5rem 0 0; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
 
 .uebungsbanner .ub-info { color: var(--sl-color-gray-2); font-size: var(--sl-text-sm); }
+
+/* Tipps (aufklappbar, vor der Lösung) */
+.tipps { margin-top: 1rem; }
+.tipps-kopf { font-weight: 700; color: var(--sl-color-white); margin-bottom: 0.3rem; }
+.tipps-kopf span { font-weight: 400; font-size: var(--sl-text-xs); color: var(--sl-color-gray-2); margin-left: 0.4rem; }
+details.tipp { border: 1px solid color-mix(in srgb, var(--kurs-optional) 55%, transparent); border-radius: 0.4rem; padding: 0.15rem 0.8rem; margin: 0.3rem 0; background: color-mix(in srgb, var(--kurs-optional) 7%, transparent); }
+details.tipp > summary { cursor: pointer; padding: 0.35rem 0; color: var(--sl-color-white); }
+details.tipp[open] > summary { border-bottom: 1px solid var(--sl-color-gray-5); margin-bottom: 0.4rem; }
+details.tipp p { margin: 0 0 0.5rem; font-size: var(--sl-text-sm); }

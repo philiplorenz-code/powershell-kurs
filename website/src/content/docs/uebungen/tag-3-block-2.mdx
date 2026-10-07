@@ -9,6 +9,7 @@ import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
 import Loesung from '../../../components/Loesung.astro';
+import Tipps from '../../../components/Tipps.astro';
 
 <Stufe stufe="Core" lab="PSLAB-VM" />
 
@@ -21,7 +22,9 @@ Fehler zu lesen, zu verstehen und zu beheben ist der Kern der Arbeit mit PowerSh
 1. Führe `Get-Content C:\Kurs\gibt-es-nicht.txt` in einem `try`/`catch` aus, ohne weitere Parameter. Wird der `catch`-Block ausgeführt? Warum (nicht)?
 2. Ändere es so, dass der `catch` greift. Gib eine verständliche Meldung mit `$_.Exception.Message` aus.
 3. Füge einen `finally`-Block hinzu, der „Fertig." ausgibt. Wann läuft er?
-4. Lies den Typ des Fehlers aus (`$_.Exception.GetType().FullName`) und schreibe einen **speziellen** `catch` für genau diesen Fehlertyp.
+4. *(Bonus)* Lies den Typ des Fehlers aus (`$_.Exception.GetType().FullName`) und schreibe einen **speziellen** `catch` für genau diesen Fehlertyp.
+
+<Tipps items={[{"huerde": "Der `catch`-Block läuft nicht", "tipp": "Das ist die Falle: `Get-Content` meldet einen **nicht-terminierenden** Fehler. Füge `-ErrorAction Stop` hinzu, dann greift der `catch`."}, {"huerde": "Ich weiß nicht, wie ich die Meldung ausgebe", "tipp": "Im `catch` steht der Fehler in `$_`. `$_.Exception.Message` ist der lesbare Text."}, {"huerde": "Wie finde ich den Fehlertyp?", "tipp": "(Bonus) `$_.Exception.GetType().FullName`. Den Namen schreibst du in eckige Klammern: `catch [Typname] { … }`."}]} />
 
 <Loesung>
 
@@ -54,7 +57,9 @@ catch { "Anderer Fehler: $($_.Exception.Message)" }
 
 <Uebung nr="2.2" titel="Robuste Funktion">
 
-Schreibe die Funktion `Read-DateiSicher` mit `-Pfad`. Sie liest die Datei und gibt den Inhalt zurück. Existiert die Datei nicht, gibt sie eine **Warnung** (`Write-Warning`) aus und liefert nichts zurück. Teste mit `C:\Windows\win.ini` und mit einer nicht vorhandenen Datei.
+Gerüst: `try { Get-Content … -ErrorAction Stop } catch { Write-Warning … }`. Schreibe die Funktion `Read-DateiSicher` mit `-Pfad`. Sie liest die Datei und gibt den Inhalt zurück. Existiert die Datei nicht, gibt sie eine **Warnung** (`Write-Warning`) aus und liefert nichts zurück. Teste mit `C:\Windows\win.ini` und mit einer nicht vorhandenen Datei.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich anfangen soll", "tipp": "Gerüst: `function Read-DateiSicher { param($Pfad) try { Get-Content … } catch { Write-Warning … } }`."}, {"huerde": "Die Funktion meldet nichts, obwohl die Datei fehlt", "tipp": "`Get-Content -Path $Pfad -ErrorAction Stop`. Ohne `Stop` springt PowerShell nicht in den `catch`."}, {"huerde": "Ich weiß nicht, wie eine Warnung aussieht", "tipp": "`Write-Warning \"Datei '$Pfad' konnte nicht gelesen werden\"`. Die Funktion gibt dann nichts zurück."}]} />
 
 <Loesung>
 
@@ -84,8 +89,10 @@ Das Verb `Read` ist ein genehmigtes Verb (`Get-Verb`).
 Ein Skript soll den Dienst `Spooler` auf mehreren Rechnern abfragen. Einer davon existiert nicht.
 
 1. Hinweis: `Get-Service -ComputerName` gibt es in PowerShell 7 nicht. Nutze `Invoke-Command` pro Rechner.
-2. Lasse die Liste `@("PSLAB-02", "PSLAB-03", "GIBTSNICHT")` durchlaufen.
+2. Nimm pro Rechner einen `try/catch` innerhalb einer `foreach`-Schleife. Lasse die Liste `@("PSLAB-02", "PSLAB-03", "GIBTSNICHT")` durchlaufen.
 3. Fange den Fehler für den ungültigen Rechner ab, gib eine Warnung mit dem Rechnernamen aus und mache mit dem nächsten Rechner weiter.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich mehrere Rechner nacheinander abfrage", "tipp": "`foreach ($r in $rechner) { … }` mit einem `try/catch` **innerhalb** der Schleife."}, {"huerde": "Der Fehler stoppt meine ganze Schleife", "tipp": "Der `catch` muss pro Durchlauf stehen, nicht um die Schleife herum. Dann geht es mit dem nächsten Rechner weiter."}, {"huerde": "Der Fehler wird nicht abgefangen", "tipp": "Hänge `-ErrorAction Stop` an den `Invoke-Command`-Aufruf, sonst bleibt der Fehler nicht-terminierend."}]} />
 
 <Loesung>
 
@@ -110,7 +117,7 @@ Die Schleife läuft weiter, weil der Fehler im `catch` behandelt wurde.
 
 <Uebung nr="2.4" titel="Fehlersuche mit Verbose und Breakpoints">
 
-1. Erweitere `Get-FreierSpeicher` aus Block 1 um `[CmdletBinding()]` und eine `Write-Verbose`-Zeile („Lese Laufwerk X"). Rufe sie mit und ohne `-Verbose` auf.
+1. *(Bonus)* Erweitere `Get-FreierSpeicher` aus Block 1 um `[CmdletBinding()]` und eine `Write-Verbose`-Zeile („Lese Laufwerk X"). Rufe sie mit und ohne `-Verbose` auf.
 2. Das folgende Skript soll die Summe von 1 bis 10 berechnen und ergibt nicht 55. Finde den Fehler mit einem Breakpoint und den Debug-Befehlen:
 
 ```powershell
@@ -122,6 +129,8 @@ $summe
 ```
 
 Speichere es als `C:\Kurs\Skripte\Summe.ps1`, setze `Set-PSBreakpoint -Script ... -Line 3`, starte es und beobachte `$i` und `$summe`. Behebe den Fehler.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich Verbose-Meldungen anzeige", "tipp": "(Bonus) `[CmdletBinding()]` vor `param(...)` und `Write-Verbose \"…\"` in die Funktion. Anzeige mit `-Verbose`."}, {"huerde": "Der Breakpoint löst nicht aus", "tipp": "`Set-PSBreakpoint -Script C:\\Kurs\\Skripte\\Summe.ps1 -Line 3`. Danach das Skript über seinen **Pfad** starten, nicht einzelne Zeilen markieren."}, {"huerde": "Ich sehe den Fehler im Code nicht", "tipp": "Am Prompt `[DBG]:` tippst du `$i` und `$summe`. Wird `$summe` addiert oder überschrieben? Die Lösung ist ein Zeichen: `+=`."}]} />
 
 <Loesung>
 
@@ -154,7 +163,9 @@ Fehler: In Zeile 3 steht `$summe = $i` statt `$summe += $i`. Der Wert wird über
 
 1. Erstelle mit `Get-Credential` ein Anmeldeobjekt für `PSLAB\teilnehmerNN` (deine Nummer). Welche Eigenschaften hat es? Zeigt es das Passwort im Klartext an?
 2. Verbinde dich mit diesem Objekt: `Invoke-Command -ComputerName PSLAB-02 -Credential $cred -ScriptBlock { whoami }`.
-3. Erzeuge ein `PSCredential` **ohne** Eingabefenster aus einem `SecureString` mit `ConvertTo-SecureString -AsPlainText -Force`. Warum ist das in echten Skripten keine gute Idee?
+3. *(Bonus)* Erzeuge ein `PSCredential` **ohne** Eingabefenster aus einem `SecureString` mit `ConvertTo-SecureString -AsPlainText -Force`. Warum ist das in echten Skripten keine gute Idee?
+
+<Tipps items={[{"huerde": "Das Anmeldefenster erscheint nicht", "tipp": "`$cred = Get-Credential -UserName 'PSLAB\\teilnehmer01'`. Das Fenster kann hinter anderen Fenstern liegen."}, {"huerde": "Ich sehe das Passwort nicht", "tipp": "Das ist richtig so: `$cred.Password` ist ein `SecureString`, kein Klartext. Sieh dir `$cred | Get-Member` an."}, {"huerde": "Wie erzeuge ich ein Credential ohne Fenster?", "tipp": "(Bonus) `$secure = ConvertTo-SecureString 'Text' -AsPlainText -Force`, dann `[PSCredential]::new('PSLAB\\teilnehmer01', $secure)`."}]} />
 
 <Loesung>
 
@@ -180,7 +191,9 @@ Das Klartextpasswort steht im Skript und damit in Dateien, Versionsverwaltung un
 1. Installiere die Module `Microsoft.PowerShell.SecretManagement` und `Microsoft.PowerShell.SecretStore` für deinen Benutzer, falls sie fehlen.
 2. Registriere einen lokalen Tresor `KursTresor` als Standard. Der `SecretStore` verlangt beim ersten Mal ein Passwort für den Tresor.
 3. Lege ein Geheimnis `LabToken` mit einem beliebigen Wert an (Wert per `Read-Host -AsSecureString` abfragen) und lies es wieder aus. Wie bekommst du den Wert als Klartext, wenn du ihn wirklich brauchst?
-4. Lege dein Anmeldeobjekt aus der vorigen Übung als Geheimnis `LabAdmin` ab und verwende es für `Invoke-Command`.
+4. *(Bonus)* Lege dein Anmeldeobjekt aus der vorigen Übung als Geheimnis `LabAdmin` ab und verwende es für `Invoke-Command`.
+
+<Tipps items={[{"huerde": "Die Installation schlägt fehl", "tipp": "`Install-PSResource Microsoft.PowerShell.SecretManagement, Microsoft.PowerShell.SecretStore -Scope CurrentUser -TrustRepository`. Internet nötig."}, {"huerde": "Der Tresor fragt nach einem Passwort", "tipp": "Beim ersten `Set-Secret` legt der SecretStore ein Tresorpasswort fest. Merke es dir, das ist normal."}, {"huerde": "Wie lese ich das Geheimnis?", "tipp": "`Get-Secret -Name LabToken` liefert einen `SecureString`, mit `-AsPlainText` den Klartext. Bonus: `Set-Secret -Name LabAdmin -Secret $cred`."}]} />
 
 <Loesung>
 

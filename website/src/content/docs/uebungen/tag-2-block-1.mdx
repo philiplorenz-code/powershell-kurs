@@ -9,6 +9,7 @@ import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
 import Loesung from '../../../components/Loesung.astro';
+import Tipps from '../../../components/Tipps.astro';
 
 <Stufe stufe="Core" lab="PSLAB-VM" />
 
@@ -19,9 +20,11 @@ Logik und Schleifen lernst du nur durch eigenes Tippen und eigene Fehler. Teste 
 <Uebung nr="1.1" titel="Vergleichen">
 
 1. Lege `$a = 5` und `$b = 10` an. Gib die Ergebnisse (`True`/`False`) für `-eq`, `-ne`, `-lt`, `-ge` aus.
-2. Welche Ergebnisse liefern `"PowerShell" -like "*shell"`, `"PowerShell" -like "power*"` und `"PowerShell" -cmatch "^power"`? Begründe.
+2. Welche Ergebnisse liefern `"PowerShell" -like "*shell"` und `"PowerShell" -like "power*"`? Begründe. *(Bonus: Was liefert `"PowerShell" -cmatch "^power"`?)*
 3. Prüfe, ob `3` in `@(1, 2, 3, 4)` enthalten ist, einmal mit `-contains` und einmal mit `-in`.
 4. Prüfe mit einem einzigen Ausdruck, ob `$a` größer als 3 **und** kleiner als 8 ist.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich Vergleiche ausgebe", "tipp": "Schreib den Vergleich einfach in die Konsole: `$a -eq $b`. Das Ergebnis ist `True` oder `False`, du brauchst dafür kein `if`."}, {"huerde": "Ich verwechsle `-contains` und `-in`", "tipp": "Bei `-contains` steht die **Sammlung links** (`$liste -contains 3`), bei `-in` das **Element links** (`3 -in $liste`)."}, {"huerde": "Ich weiß nicht, wie ich zwei Bedingungen verbinde", "tipp": "Setze jede Bedingung in Klammern und verbinde sie mit `-and`: `($a -gt 3) -and ($a -lt 8)`."}]} />
 
 <Loesung>
 
@@ -48,8 +51,10 @@ Im Ordner `C:\Kurs\Daten\Logs` liegen Logdateien.
 
 1. Zeige alle Dateien an, die **größer als 10 KB** sind (Eigenschaft `Length`, Einheit `KB`).
 2. Zeige alle Dateien, die in den **letzten 7 Tagen** geändert wurden (Eigenschaft `LastWriteTime`, Tipp: `(Get-Date).AddDays(-7)`).
-3. Sortiere die Dateien nach Größe absteigend und gib nur `Name`, `Length` und `LastWriteTime` für die **drei größten** aus.
-4. Wie groß sind alle Dateien zusammen? Tipp: `Measure-Object -Property Length -Sum`.
+3. Sortiere die Dateien nach Größe absteigend und gib für die **drei größten** `Name` und `Length` aus.
+4. *(Bonus)* Wie groß sind alle Dateien zusammen? Tipp: `Measure-Object -Property Length -Sum`.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie man nach Größe filtert", "tipp": "Die Größe steht in `Length` (Bytes). `10KB` versteht PowerShell direkt: `Where-Object { $_.Length -gt 10KB }`."}, {"huerde": "Ich komme mit dem Datum nicht klar", "tipp": "`(Get-Date).AddDays(-7)` ist der Zeitpunkt vor sieben Tagen. Vergleiche `LastWriteTime` mit `-gt` damit."}, {"huerde": "Meine Ausgabe ist nicht sortiert oder zu lang", "tipp": "Baue die Pipeline schrittweise: erst filtern, dann `Sort-Object Length -Descending`, dann `Select-Object -First 3`."}]} />
 
 <Loesung>
 
@@ -71,9 +76,11 @@ Get-ChildItem C:\Kurs\Daten\Logs | Measure-Object -Property Length -Sum
 
 <Uebung nr="1.3" titel="Entscheidungen mit if">
 
-1. Lege `$temperatur = 15` an. Gib aus: über 25 → „Es ist heiß.", von 15 bis 25 → „Angenehm.", sonst → „Kühl." Teste mit 10, 15, 25 und 30.
+1. Lege `$temperatur = 15` an. Gib aus: über 25 → „Es ist heiß.", von 15 bis 25 → „Angenehm.", sonst → „Kühl." Teste mit 10 und 30.
 2. Prüfe, ob der Dienst `Spooler` läuft: `(Get-Service -Name Spooler).Status`. Gib „Druckdienst läuft" oder „Druckdienst steht" aus.
 3. Prüfe mit `Test-Path`, ob `C:\Kurs\Daten\Mitarbeiter.csv` existiert, und gib einen passenden Satz aus.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich mehrere Fälle unterscheide", "tipp": "Nutze `if … elseif … else`. Die Reihenfolge zählt: erst `-gt 25`, dann `-ge 15`, der Rest ist der `else`-Zweig."}, {"huerde": "Meine Klammern stimmen nicht", "tipp": "Aufbau: `if (Bedingung) { Aktion }`. Die Bedingung steht in runden, die Aktion in geschweiften Klammern."}, {"huerde": "Ich weiß nicht, wie ich den Dienststatus vergleiche", "tipp": "`(Get-Service -Name Spooler).Status` ist ein Wert wie `Running`. Vergleiche ihn mit `-eq 'Running'`. `Test-Path` liefert direkt `True` oder `False`."}]} />
 
 <Loesung>
 
@@ -97,7 +104,9 @@ Beim `elseif` genügt `-ge 15`: Der Zweig wird nur erreicht, wenn der erste nich
 <Uebung nr="1.4" titel="switch">
 
 1. Lege `$datei = "bericht_2026.csv"` an. Gib mit `switch -Wildcard` aus: `*.txt` → „Textdatei", `*.csv` → „CSV-Datei", sonst „Unbekannt". Teste mit weiteren Dateinamen.
-2. Schreibe einen `switch`, der aus einer Zahl `1` bis `3` den Wochentag Montag, Dienstag, Mittwoch macht, und bei jeder anderen Zahl „außerhalb" ausgibt.
+2. *(Bonus)* Schreibe einen `switch`, der aus einer Zahl `1` bis `3` den Wochentag Montag, Dienstag, Mittwoch macht, und bei jeder anderen Zahl „außerhalb" ausgibt.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie `switch` aufgebaut ist", "tipp": "Aufbau: `switch ($x) { Wert { Aktion } default { Aktion } }`. `default` fängt alle anderen Fälle."}, {"huerde": "Die Endungen werden nicht erkannt", "tipp": "Für Muster mit `*` brauchst du `switch -Wildcard ($datei)`. Ohne `-Wildcard` wird exakt verglichen."}, {"huerde": "Ich weiß nicht, wie ich Zahlen zuordne", "tipp": "Schreibe die Zahl direkt als Fall: `1 { 'Montag' }`. Für alles andere `default { 'außerhalb' }`."}]} />
 
 <Loesung>
 
@@ -127,8 +136,10 @@ Anders als in vielen Sprachen prüft `switch` in PowerShell **alle** passenden Z
 
 1. Erstelle mit `1..5` ein Array und gib mit `foreach` für jedes Element „Aktuelle Zahl: X" aus.
 2. Mache dasselbe mit einer `for`-Schleife.
-3. Mache dasselbe mit einer `while`-Schleife.
+3. *(Bonus)* Mache dasselbe mit einer `while`-Schleife.
 4. Gib mit `foreach` die Namen aller Dateien in `C:\Kurs\Daten\Logs` aus, aber nur von denen, die größer als 5 KB sind.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie `foreach` aussieht", "tipp": "`foreach ($z in $zahlen) { \"Aktuelle Zahl: $z\" }`. Links die Laufvariable, rechts die Sammlung."}, {"huerde": "Meine `for`-Schleife läuft nicht richtig", "tipp": "Drei Teile in Klammern: Start, Bedingung, Schritt: `for ($i = 0; $i -lt $zahlen.Count; $i++)`. Das Element holst du mit `$zahlen[$i]`."}, {"huerde": "Meine `while`-Schleife läuft endlos", "tipp": "Erhöhe den Zähler in der Schleife (`$i++`), sonst wird die Bedingung nie falsch. Abbrechen mit Strg+C."}]} />
 
 <Loesung>
 
@@ -156,13 +167,15 @@ foreach ($datei in Get-ChildItem C:\Kurs\Daten\Logs) {
 
 Gegeben ist `$staedte = @("Berlin", "München", "Hamburg", "Köln", "Leipzig")`.
 
-Gehe mit `foreach` durch das Array und gib aus:
+Zerlege es in drei Teile: Schleife, `if`/`elseif`/`else`, Ausgabe. Gehe mit `foreach` durch das Array und gib aus:
 
 - bei Berlin: „Hauptstadt gefunden!"
 - bei Städten, die mit „L" beginnen: „Stadt mit L: Name"
 - sonst: „Andere Stadt: Name"
 
 **Bonus:** Zähle in einer Variable mit, wie viele Städte „Andere" waren, und gib die Anzahl am Ende aus.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich anfangen soll", "tipp": "Schreib zuerst nur die Schleife: `foreach ($stadt in $staedte) { $stadt }`. Erweitere sie dann Schritt für Schritt."}, {"huerde": "Ich weiß nicht, wie ich „beginnt mit L\" prüfe", "tipp": "Mit Platzhalter: `$stadt -like 'L*'`."}, {"huerde": "Meine Fälle überschneiden sich", "tipp": "Nutze `if / elseif / else`: Berlin zuerst, dann `L*`, alles andere im `else`. So trifft jede Stadt genau einen Fall."}]} />
 
 <Loesung>
 

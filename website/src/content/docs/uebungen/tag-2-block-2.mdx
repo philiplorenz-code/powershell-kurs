@@ -9,6 +9,7 @@ import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
 import Loesung from '../../../components/Loesung.astro';
+import Tipps from '../../../components/Tipps.astro';
 
 <Stufe stufe="Core" lab="PSLAB-VM" />
 
@@ -24,7 +25,9 @@ Die Datei `C:\Kurs\Daten\Mitarbeiter.csv` hat die Spalten `Name`, `Abteilung` un
 2. Zeige nur die Mitarbeiter der Abteilung `IT`.
 3. Sortiere **alle** Mitarbeiter nach Alter, aufsteigend. Achte darauf, dass 9 vor 30 kommt, auch wenn die Datei Texte liefert.
 4. Exportiere die IT-Mitarbeiter, sortiert nach Alter, als `C:\Kurs\Ausgabe\Mitarbeiter_IT.csv`.
-5. Wie viele Mitarbeiter hat jede Abteilung? (Tipp: `Group-Object Abteilung`, und lies die Hilfe.)
+5. *(Bonus)* Wie viele Mitarbeiter hat jede Abteilung? (Tipp: `Group-Object Abteilung`, und lies die Hilfe.)
+
+<Tipps items={[{"huerde": "Der Import liefert nur Text", "tipp": "`Import-Csv C:\\Kurs\\Daten\\Mitarbeiter.csv` macht aus jeder Zeile ein Objekt mit den Eigenschaften `Name`, `Abteilung`, `Alter`."}, {"huerde": "Die Altersreihenfolge stimmt nicht (9 steht hinten)", "tipp": "Alle Werte aus einer CSV sind Text. Wandle beim Sortieren in eine Zahl um: `Sort-Object { [int]$_.Alter }`."}, {"huerde": "Ich weiß nicht, wie ich exportiere", "tipp": "Hänge `| Export-Csv C:\\Kurs\\Ausgabe\\Mitarbeiter_IT.csv` ans Ende der Pipeline (Filter und Sortierung davor). Bonus Zählen: `Group-Object Abteilung`."}]} />
 
 <Loesung>
 
@@ -51,9 +54,11 @@ $mitarbeiter | Group-Object Abteilung | Select-Object Name, Count
 
 <Uebung nr="2.2" titel="Eine CSV selbst erzeugen">
 
-1. Erzeuge mit `[PSCustomObject]` drei Produkte mit `Name`, `Preis` und `Lager` und speichere sie als `C:\Kurs\Ausgabe\Produkte.csv` mit Semikolon als Trennzeichen.
+1. Erzeuge mit `[PSCustomObject]` drei Produkte mit `Name`, `Preis` und `Lager` (Beispiel: Laptop 1200/10, Tablet 600/25, Smartphone 800/15) und speichere sie als `C:\Kurs\Ausgabe\Produkte.csv` mit Semikolon als Trennzeichen.
 2. Lies die Datei wieder ein, achte dabei auf das Trennzeichen.
 3. Welche Produkte kosten mehr als 700? Beachte, dass der Preis nach dem Import Text ist.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich eigene Objekte erzeuge", "tipp": "`[PSCustomObject]@{ Name = 'Laptop'; Preis = 1200; Lager = 10 }`. Pack drei davon in ein Array `@( … , … , … )`."}, {"huerde": "Beim Einlesen steht alles in einer Spalte", "tipp": "Du hast mit `;` geschrieben, also musst du auch mit `;` lesen: `Import-Csv … -Delimiter ';'`."}, {"huerde": "Der Preisvergleich liefert falsche Treffer", "tipp": "Der Preis ist nach dem Import Text. Wandle um: `Where-Object { [int]$_.Preis -gt 700 }`."}]} />
 
 <Loesung>
 
@@ -76,7 +81,9 @@ $gelesen | Where-Object { [int]$_.Preis -gt 700 }
 
 1. Zeige alle Prozesse, die mehr als 150 MB Arbeitsspeicher belegen, absteigend nach Speicher sortiert.
 2. Starte `notepad` mit `Start-Process`, finde den Prozess mit `Get-Process` und beende ihn mit `Stop-Process`. Teste das Beenden vorher mit `-WhatIf`.
-3. Speichere eine Liste der zehn Prozesse mit der höchsten CPU-Zeit in `C:\Kurs\Ausgabe\TopProzesse.csv` (nur `Name`, `Id`, `CPU`).
+3. *(Bonus)* Speichere eine Liste der zehn Prozesse mit der höchsten CPU-Zeit in `C:\Kurs\Ausgabe\TopProzesse.csv` (nur `Name`, `Id`, `CPU`).
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich Speicher vergleiche", "tipp": "Die Eigenschaft heißt `WorkingSet` (Bytes). `150MB` versteht PowerShell: `Where-Object { $_.WorkingSet -gt 150MB }`."}, {"huerde": "Notepad lässt sich nicht beenden", "tipp": "Erst `Start-Process notepad`, dann `Get-Process -Name notepad | Stop-Process`. Probiere vorher `-WhatIf`."}, {"huerde": "Mein Export enthält zu viele Spalten", "tipp": "(Bonus) `Sort-Object CPU -Descending`, `Select-Object -First 10`, dann `Select-Object Name, Id, CPU` und `Export-Csv`."}]} />
 
 <Loesung>
 
@@ -106,7 +113,9 @@ Arbeite in einer **Administrator**-PowerShell.
 1. Welchen Status und welchen Starttyp hat der Dienst `Spooler`? (Tipp: `Select-Object Name, Status, StartType`.)
 2. Stoppe den Dienst, prüfe den Status und starte ihn wieder. Teste vorher mit `-WhatIf`.
 3. Liste alle **laufenden** Dienste, deren Name mit `W` beginnt. Exportiere das Ergebnis nach `C:\Kurs\Ausgabe\Dienste_W.csv`.
-4. Welche Dienste sind auf **Automatisch** gestellt, laufen aber nicht? Das ist eine typische Monitoring-Frage.
+4. *(Bonus)* Welche Dienste sind auf **Automatisch** gestellt, laufen aber nicht? Das ist eine typische Monitoring-Frage.
+
+<Tipps items={[{"huerde": "Der Befehl meldet „Zugriff verweigert\"", "tipp": "Starte PowerShell als **Administrator** (Rechtsklick auf das Symbol). Ohne Adminrechte darfst du keine Dienste stoppen."}, {"huerde": "Ich weiß nicht, wie ich einen Dienst stoppe und starte", "tipp": "`Stop-Service -Name Spooler`, `Get-Service -Name Spooler`, `Start-Service -Name Spooler`. Mit `-WhatIf` testest du vorher."}, {"huerde": "Mein Filter mit Name und Status klappt nicht", "tipp": "Zwei Bedingungen mit `-and`: `Where-Object { $_.Status -eq 'Running' -and $_.Name -like 'W*' }`."}]} />
 
 <Loesung>
 
@@ -135,9 +144,11 @@ Einige Dienste mit Starttyp „Automatisch (verzögert)" oder „Trigger-Start" 
 
 <Uebung nr="2.5" titel="Tägliches Monitoring" typ="Challenge">
 
-Schreibe die Befehle für einen Bericht „Welche Dienste mit Starttyp Automatisch laufen nicht?" so auf, dass sie in **einer** Pipeline stehen und das Ergebnis in `C:\Kurs\Ausgabe\ServiceReport.csv` landet. Ergänze eine zusätzliche Spalte mit dem aktuellen Datum.
+Gehe in drei Teilen vor: Dienste holen, filtern, auswählen und exportieren. Schreibe die Befehle für einen Bericht „Welche Dienste mit Starttyp Automatisch laufen nicht?" so auf, dass sie in **einer** Pipeline stehen und das Ergebnis in `C:\Kurs\Ausgabe\ServiceReport.csv` landet. Ergänze eine zusätzliche Spalte mit dem aktuellen Datum.
 
 Tipp: Mit `Select-Object` kannst du berechnete Eigenschaften anlegen: `@{ Name = 'Datum'; Expression = { Get-Date -Format 'yyyy-MM-dd' } }`.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wo ich anfangen soll", "tipp": "Löse zuerst die Frage ohne Datum: Dienste holen und filtern (`StartType` ist `Automatic`, `Status` ist nicht `Running`)."}, {"huerde": "Die Datumsspalte funktioniert nicht", "tipp": "Berechnete Eigenschaft in `Select-Object`: `@{ Name = 'Datum'; Expression = { Get-Date -Format 'yyyy-MM-dd' } }` (steht in der Aufgabe). Setze sie hinter die anderen Eigenschaften."}, {"huerde": "Der Export ist leer oder falsch", "tipp": "Der Export kommt zuletzt: `… | Export-Csv C:\\Kurs\\Ausgabe\\ServiceReport.csv`. Kontrolle mit `Import-Csv … | Format-Table`."}]} />
 
 <Loesung>
 

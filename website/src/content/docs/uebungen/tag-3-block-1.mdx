@@ -9,6 +9,7 @@ import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
 import Loesung from '../../../components/Loesung.astro';
+import Tipps from '../../../components/Tipps.astro';
 
 <Stufe stufe="Core" lab="PSLAB-VM, VS Code" />
 
@@ -23,7 +24,9 @@ Arbeite ab jetzt in **VS Code** und speichere deine Skripte in `C:\Kurs\Skripte`
 1. Schreibe eine Funktion `Show-Hallo`, die „Hallo, PowerShell!" ausgibt. Rufe sie auf.
 2. Gib ihr einen Parameter `-Name` (Text). Die Ausgabe lautet dann „Hallo, Anna!".
 3. Mache `-Name` **verpflichtend** (`Mandatory`). Was passiert, wenn du ihn weglässt?
-4. Gib `-Name` den Standardwert `"Welt"` und mache ihn dafür optional.
+4. *(Bonus)* Gib `-Name` den Standardwert `"Welt"` und mache ihn dafür optional.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie eine Funktion aufgebaut ist", "tipp": "`function Show-Hallo { \"Hallo, PowerShell!\" }`. Danach rufst du sie mit ihrem Namen auf."}, {"huerde": "Mein Parameter funktioniert nicht", "tipp": "In der Funktion: `param([string]$Name)`. Nutze `$Name` im Text: `\"Hallo, $Name!\"`."}, {"huerde": "Wie mache ich ihn zur Pflicht oder gebe einen Standardwert?", "tipp": "Pflicht: `[Parameter(Mandatory = $true)]` vor den Parameter. Standardwert (Bonus): `[string]$Name = 'Welt'`."}]} />
 
 <Loesung>
 
@@ -66,7 +69,9 @@ Show-Hallo
 
 <Uebung nr="1.2" titel="Parameter validieren">
 
-Schreibe `Get-Begruessung` mit den Parametern `-Name` (Pflicht) und `-Sprache`. Für `-Sprache` sind nur `DE`, `EN` und `FR` erlaubt (`ValidateSet`). Die Funktion gibt „Hallo, NAME!", „Hello, NAME!" oder „Bonjour, NAME!" aus. Teste auch einen ungültigen Wert und beobachte die Fehlermeldung.
+Gehe in drei Schritten vor: erst nur `-Name`, dann `-Sprache` ohne Prüfung, dann die Einschränkung. Schreibe `Get-Begruessung` mit den Parametern `-Name` (Pflicht) und `-Sprache`. Für `-Sprache` sind nur `DE`, `EN` und `FR` erlaubt (`ValidateSet`). Die Funktion gibt „Hallo, NAME!", „Hello, NAME!" oder „Bonjour, NAME!" aus. Teste auch einen ungültigen Wert und beobachte die Fehlermeldung.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich anfangen soll", "tipp": "Drei Schritte: erst nur `-Name` mit Ausgabe, dann `-Sprache` ohne Prüfung, dann die Einschränkung."}, {"huerde": "Wie erlaube ich nur DE, EN und FR?", "tipp": "`[ValidateSet('DE', 'EN', 'FR')]` direkt vor den Parameter `[string]$Sprache`."}, {"huerde": "Wie wähle ich die richtige Begrüßung?", "tipp": "Mit `switch ($Sprache) { 'DE' { \"Hallo, $Name!\" } … }`. Ein ungültiger Wert wird schon vorher abgelehnt."}]} />
 
 <Loesung>
 
@@ -101,9 +106,11 @@ Mit `ValidateSet` erhältst du außerdem Tab-Vervollständigung für `-Sprache`.
 
 <Uebung nr="1.3" titel="Eine nützliche Funktion: Speicherplatz">
 
-Schreibe eine Funktion `Get-FreierSpeicher` mit dem Parameter `-Laufwerk` (Standard `C`). Sie soll ein **Objekt** mit den Eigenschaften `Laufwerk`, `FreiGB` und `GesamtGB` zurückgeben (gerundet auf eine Nachkommastelle).
+Schreibe eine Funktion `Get-FreierSpeicher` mit dem Parameter `-Laufwerk` (Standard `C`). Sie soll ein **Objekt** mit den Eigenschaften `Laufwerk` und `FreiGB` zurückgeben (Bonus: zusätzlich `GesamtGB`) (gerundet auf eine Nachkommastelle).
 
 Tipp: `Get-PSDrive -Name $Laufwerk` liefert `Used` und `Free`.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, woher ich den freien Speicher bekomme", "tipp": "`Get-PSDrive -Name C` liefert die Eigenschaften `Used` und `Free` (in Bytes)."}, {"huerde": "Ich bekomme Text statt eines Objekts", "tipp": "Gib ein `[PSCustomObject]@{ Laufwerk = …; FreiGB = … }` zurück, keinen formatierten Text."}, {"huerde": "Die Zahlen sind unleserlich", "tipp": "Rechne in GB und runde: `[math]::Round($d.Free / 1GB, 1)`. Bonus `GesamtGB`: `($d.Used + $d.Free)`."}]} />
 
 <Loesung>
 
@@ -133,7 +140,9 @@ Mache aus der Challenge „Dienste mit Starttyp Automatisch, die nicht laufen" v
 
 1. Das Skript hat einen Kommentarkopf (Zweck, Autor, Beispiel) und einen Parameter `-Pfad` für die Ausgabedatei (Standard `C:\Kurs\Ausgabe\ServiceReport.csv`).
 2. Es schreibt den Bericht mit Datum als CSV und gibt am Ende eine Meldung mit der Anzahl der gefundenen Dienste aus.
-3. Prüfe mit `Get-Help C:\Kurs\Skripte\Get-DienstReport.ps1`, ob dein Kommentarkopf als Hilfe erscheint.
+3. *(Bonus)* Prüfe mit `Get-Help C:\Kurs\Skripte\Get-DienstReport.ps1`, ob dein Kommentarkopf als Hilfe erscheint.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich einen Befehl in ein Skript verwandle", "tipp": "Kopiere die Pipeline in eine `.ps1`-Datei und ersetze den festen Pfad durch die Variable `$Pfad`."}, {"huerde": "Der Parameter wird nicht erkannt", "tipp": "Ganz oben im Skript (nach dem Kommentarkopf): `param([string]$Pfad = 'C:\\Kurs\\Ausgabe\\ServiceReport.csv')`."}, {"huerde": "Wie gebe ich die Anzahl aus?", "tipp": "Speichere das Ergebnis in `$gefunden`, schreibe es mit `Export-Csv` weg und gib `\"$(@($gefunden).Count) Dienst(e) gefunden\"` aus."}]} />
 
 <Loesung>
 
@@ -169,6 +178,8 @@ Write-Output "$(@($gefunden).Count) Dienst(e) gefunden. Bericht: $Pfad"
 1. Lege `C:\Kurs\Skripte\KursTools` an und darin `KursTools.psm1` mit deinen Funktionen `Show-Hallo` und `Get-FreierSpeicher`.
 2. Erstelle ein Manifest mit `New-ModuleManifest` (`-RootModule` nicht vergessen).
 3. Lade das Modul mit `Import-Module`, rufe beide Funktionen auf und prüfe mit `Get-Command -Module KursTools`.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ein Modul aufgebaut ist", "tipp": "Ein Ordner `KursTools` mit der Datei `KursTools.psm1` darin, die enthält deine Funktionen."}, {"huerde": "Das Manifest funktioniert nicht", "tipp": "`New-ModuleManifest -Path …\\KursTools.psd1 -RootModule KursTools.psm1`. Ohne `-RootModule` lädt PowerShell den Code nicht."}, {"huerde": "Die Funktionen sind nach dem Import nicht da", "tipp": "`Import-Module C:\\Kurs\\Skripte\\KursTools -Force`, prüfen mit `Get-Command -Module KursTools`."}]} />
 
 <Loesung>
 
