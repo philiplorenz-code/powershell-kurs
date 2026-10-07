@@ -4,7 +4,6 @@ sidebar:
   order: 4
 ---
 import Stufe from '../../../components/Stufe.astro';
-import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 
@@ -145,5 +144,3 @@ $Error[0] | Format-List * -Force
 - `try`/`catch` fängt nur terminierende Fehler. `-ErrorAction Stop` macht Cmdlet-Fehler terminierend.
 - `$_` im `catch` enthält die Fehlerinformation. `finally` läuft immer.
 - Den Fehlertyp liest du mit `$_.Exception.GetType().FullName` aus.
-
-<Uebungsbanner items={[{"nr": "2.1", "titel": "Fehler abfangen", "href": "/uebungen/tag-3-block-2/#u-2-1", "typ": "Übung"}, {"nr": "2.2", "titel": "Robuste Funktion", "href": "/uebungen/tag-3-block-2/#u-2-2", "typ": "Übung"}, {"nr": "2.3", "titel": "Mehrere Rechner, ein Fehler", "href": "/uebungen/tag-3-block-2/#u-2-3", "typ": "Übung"}]} />

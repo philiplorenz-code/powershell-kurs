@@ -5,7 +5,6 @@ sidebar:
   order: 4
 ---
 import Stufe from '../../../components/Stufe.astro';
-import Uebungsbanner from '../../../components/Uebungsbanner.astro';
 import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
@@ -48,5 +47,3 @@ Ein Skript enthält `$pw = "Sommer2024!"`. Wer es zur Fehlersuche komplett hochl
 - **Sicherheitsprobleme erkennen lassen:** KI ist ein guter Zweitleser für `Invoke-Expression`, Klartextpasswörter, überweite Berechtigungen. Siehe Übung K.4.
 - **Aber:** KI-generierter Code kann selbst unsichere Muster enthalten (zum Beispiel `Set-ExecutionPolicy Bypass` oder Passwörter im Klartext). Prüfe ihn wie Code eines Fremden, bevor er mit Adminrechten läuft.
 - **Lieferkette:** Empfohlene Module aus der PowerShell Gallery prüfen. Erfundene Modulnamen können von Angreifern besetzt werden.
-
-<Uebungsbanner items={[{"nr": "K.4", "titel": "Sicherheitsprüfung", "href": "/ki/uebungen/#u-K-4", "typ": "KI-Übung"}]} ki />
