@@ -9,6 +9,7 @@ import Lernziele from '../../../components/Lernziele.astro';
 import Trainer from '../../../components/Trainer.astro';
 import Uebung from '../../../components/Uebung.astro';
 import Loesung from '../../../components/Loesung.astro';
+import Tipps from '../../../components/Tipps.astro';
 
 <Stufe stufe="Core" lab="DC01, PSLAB-01 bis -03" />
 
@@ -24,8 +25,10 @@ Du arbeitest jetzt in einer echten Domäne. Fehlermeldungen wie „Zugriff verwe
 
 1. Lade das Modul `ActiveDirectory` und zeige Informationen zur Domäne an.
 2. Zeige dich selbst als AD-Benutzer an, mit den Eigenschaften `Department`, `Title` und `LastLogonDate`.
-3. Wie viele Benutzer hat die OU `OU=Benutzer,OU=Kurs,DC=pslab,DC=internal`?
+3. *(Bonus)* Wie viele Benutzer hat die OU `OU=Benutzer,OU=Kurs,DC=pslab,DC=internal`?
 4. Welche Benutzer gehören zur Abteilung `IT`? Gib nur `Name` und `SamAccountName` aus.
+
+<Tipps items={[{"huerde": "Das AD-Cmdlet wird nicht gefunden", "tipp": "Lade das Modul mit `Import-Module ActiveDirectory`. Dann gibt es `Get-ADDomain` und `Get-ADUser`."}, {"huerde": "Es erscheinen zu wenige Eigenschaften", "tipp": "`Get-ADUser` zeigt standardmäßig nur wenige. Fordere mehr an: `-Properties Department, Title, LastLogonDate`. Deinen Namen liefert `$env:USERNAME`."}, {"huerde": "Mein Filter nach Abteilung liefert nichts", "tipp": "Der Filter ist ein Text: `-Filter \"Department -eq 'IT'\"`. Außen doppelte, innen einfache Anführungszeichen."}]} />
 
 <Loesung>
 
@@ -49,7 +52,9 @@ Get-ADUser -Filter "Department -eq 'IT'" -Properties Department |
 
 1. Finde alle **deaktivierten** Benutzerkonten.
 2. Finde alle Konten, die **abgelaufen** sind (Ablaufdatum des Kontos überschritten, `Search-ADAccount`).
-3. Exportiere die deaktivierten Konten mit `Name`, `SamAccountName` und `Enabled` als `C:\Kurs\Ausgabe\ad-deaktiviert.csv`.
+3. *(Bonus)* Exportiere die deaktivierten Konten mit `Name`, `SamAccountName` und `Enabled` als `C:\Kurs\Ausgabe\ad-deaktiviert.csv`.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich deaktivierte Konten finde", "tipp": "`Get-ADUser -Filter 'Enabled -eq $false'`. Der Filter steht in einfachen Anführungszeichen."}, {"huerde": "Ich finde die abgelaufenen Konten nicht", "tipp": "Dafür gibt es `Search-ADAccount -AccountExpired -UsersOnly`."}, {"huerde": "Der Export gelingt nicht", "tipp": "(Bonus) Spalten wählen mit `Select-Object Name, SamAccountName, Enabled` und `Export-Csv C:\\Kurs\\Ausgabe\\ad-deaktiviert.csv` anhängen."}]} />
 
 <Loesung>
 
@@ -70,7 +75,9 @@ Get-ADUser -Filter 'Enabled -eq $false' |
 1. Zeige alle Gruppen, deren Name mit `GRP-` beginnt.
 2. Zeige die Mitglieder der Gruppe `GRP-IT`.
 3. In welchen Gruppen bist du selbst Mitglied?
-4. Welche Benutzer sind **in keiner** `GRP-`-Gruppe? Das ist eine Challenge. Gehe schrittweise vor: Ermittle zuerst alle Mitglieder aller `GRP-`-Gruppen in einer Variable.
+4. *(Bonus, Challenge)* Welche Benutzer sind **in keiner** `GRP-`-Gruppe? Gehe schrittweise vor: Ermittle zuerst alle Mitglieder aller `GRP-`-Gruppen in einer Variable.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich Gruppen mit Namensmuster finde", "tipp": "`Get-ADGroup -Filter \"Name -like 'GRP-*'\"`."}, {"huerde": "Wie bekomme ich die Mitglieder?", "tipp": "`Get-ADGroupMember -Identity GRP-IT`. Deine eigenen Gruppen: `Get-ADPrincipalGroupMembership -Identity $env:USERNAME`."}, {"huerde": "Die Challenge ist zu groß", "tipp": "(Bonus) Drei Schritte: 1) Alle `GRP-`-Gruppen mit `Get-ADGroupMember` durchlaufen und die `SamAccountName` in `$mitglieder` sammeln. 2) Alle Benutzer holen. 3) Mit `-notin $mitglieder` filtern."}]} />
 
 <Loesung>
 
@@ -98,8 +105,10 @@ Lege in **deiner** OU (`OU=TNN,OU=Uebung,OU=Kurs,DC=pslab,DC=internal`) einen Be
 1. Lege `$ou` mit dem Pfad deiner OU an.
 2. Frage ein Startpasswort mit `Read-Host -AsSecureString` ab. Das Lab-Passwortrichtlinie verlangt mindestens 12 Zeichen mit Groß- und Kleinbuchstaben, Zahl und Sonderzeichen.
 3. Lege mit `New-ADUser` den Benutzer `max.mustermann.tNN` an, **zuerst mit `-WhatIf`**.
-4. Prüfe, ob er existiert. Setze `Department` auf `IT` und füge ihn der Gruppe `GRP-IT` hinzu. (Hinweis: Dafür fehlt dir das Recht. Was meldet PowerShell? Warum ist das so gewollt?)
+4. Prüfe, ob er existiert. *(Bonus: Setze `Department` auf `IT` und füge ihn der Gruppe `GRP-IT` hinzu.)* (Hinweis: Dafür fehlt dir das Recht. Was meldet PowerShell? Warum ist das so gewollt?)
 5. Lösche den Benutzer wieder mit `Remove-ADUser`.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie der Pfad meiner OU aussieht", "tipp": "`OU=T01,OU=Uebung,OU=Kurs,DC=pslab,DC=internal`. Setze statt `T01` deine Nummer (`T02`, `T03`)."}, {"huerde": "`New-ADUser` meldet fehlende Parameter oder einen Passwortfehler", "tipp": "Pflicht sind `-Name`, `-SamAccountName`, `-Path`, `-AccountPassword` und `-Enabled $true`. Das Passwort braucht 12+ Zeichen mit Groß- und Kleinbuchstaben, Zahl und Sonderzeichen."}, {"huerde": "Ich weiß nicht, wie ich ihn wieder lösche", "tipp": "`Remove-ADUser -Identity max.mustermann.t01 -Confirm:$false` (mit deiner Nummer). Teste vorher mit `-WhatIf`. Dass `GRP-IT` scheitert, ist gewollt (Bonus)."}]} />
 
 <Loesung>
 
@@ -138,9 +147,11 @@ Remove-ADUser -Identity max.mustermann.t01 -Confirm:$false
 
 Im Lab liegt `C:\Kurs\Daten\Neue-Mitarbeiter.csv` mit den Spalten `Vorname`, `Nachname` und `Abteilung`.
 
-Lege für **jede Zeile** einen Benutzer in deiner OU an. Der `SamAccountName` soll `vorname.nachname.tNN` (alles klein) lauten. Teste zuerst mit `-WhatIf`. Lösche alle neuen Benutzer danach wieder.
+Gehe in vier Etappen vor: CSV einlesen, `foreach`, `New-ADUser -WhatIf`, aufräumen. Lege für **jede Zeile** einen Benutzer in deiner OU an. Der `SamAccountName` soll `vorname.nachname.tNN` (alles klein) lauten. Teste zuerst mit `-WhatIf`. Lösche alle neuen Benutzer danach wieder.
 
 Tipps: `foreach`, `.ToLower()`, `Import-Csv`, ein gemeinsames Startpasswort.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wo ich anfangen soll", "tipp": "Etappen: 1) `Import-Csv` und eine `foreach`-Schleife, die nur den Namen ausgibt. 2) Den `SamAccountName` bauen. 3) `New-ADUser … -WhatIf`."}, {"huerde": "Mein SamAccountName sieht falsch aus", "tipp": "`(\"{0}.{1}.t01\" -f $m.Vorname, $m.Nachname).ToLower()`, mit deiner Nummer statt `t01`."}, {"huerde": "Ich bin beim Aufräumen unsicher", "tipp": "Alle Benutzer deiner OU: `Get-ADUser -Filter * -SearchBase $ou | Remove-ADUser -Confirm:$false`. Prüfe vorher mit `-WhatIf`."}]} />
 
 <Loesung>
 
@@ -169,9 +180,11 @@ Umlaute im `SamAccountName` können Probleme machen. Die Lab-Datei enthält desh
 
 <Uebung nr="3.6" titel="Verbindung herstellen">
 
-1. Prüfe mit `Test-WSMan`, ob `PSLAB-02` erreichbar ist (wenn du `PSLAB-02` bist, nimm `PSLAB-03`). Teste auch `DC01`.
+1. Prüfe mit `Test-WSMan`, ob `PSLAB-02` erreichbar ist (wenn du `PSLAB-02` bist, nimm `PSLAB-03`). Teste auch `DC01` *(optional)*.
 2. Öffne mit `Enter-PSSession` eine interaktive Sitzung auf dem Nachbarrechner. Lass dir den Rechnernamen (`hostname`) und den aktuellen Benutzer (`whoami`) ausgeben und beende die Sitzung.
 3. Führe von deinem Rechner aus mit `Invoke-Command` auf **beiden** anderen Kursrechnern den Befehl `hostname` aus.
+
+<Tipps items={[{"huerde": "`Test-WSMan` antwortet nicht", "tipp": "`Test-WSMan -ComputerName PSLAB-02`. Nimm den **Namen**, keine IP-Adresse. Bist du selbst `PSLAB-02`, nimm `PSLAB-03`."}, {"huerde": "Ich komme nicht in die Sitzung hinein oder wieder heraus", "tipp": "`Enter-PSSession -ComputerName PSLAB-02`. Du erkennst die Sitzung am Prompt `[PSLAB-02]:`. Beenden mit `Exit-PSSession`."}, {"huerde": "`Invoke-Command` liefert nichts oder einen Fehler", "tipp": "`Invoke-Command -ComputerName PSLAB-02, PSLAB-03 -ScriptBlock { hostname }`. Rechnernamen mit Komma trennen, den Befehl in `{ }`."}]} />
 
 <Loesung>
 
@@ -197,7 +210,9 @@ Wenn du `PSLAB-01` bist, sind die anderen beiden `PSLAB-02` und `PSLAB-03`.
 1. Zeige mit `Invoke-Command` den Status des Dienstes `Spooler` auf den **anderen** beiden Kursrechnern. Welche Spalte verrät dir, von welchem Rechner die Zeile stammt?
 2. Gib den Dienstnamen über eine **Variable** an, `$dienst`, und übergib sie mit `$using:`.
 3. Prüfe auf allen drei Rechnern (auch deinem eigenen), welche PowerShell-7-Version installiert ist (`$PSVersionTable.PSVersion`). Tipp: `-ConfigurationName PowerShell.7`.
-4. Liste die zehn größten Dateien in `C:\Kurs\Daten` auf `PSLAB-02`. Kommen die Ergebnisse als „echte" Dateiobjekte zurück? (Probiere `Get-Member`.)
+4. *(Bonus)* Liste die zehn größten Dateien in `C:\Kurs\Daten` auf `PSLAB-02`. Kommen die Ergebnisse als „echte" Dateiobjekte zurück? (Probiere `Get-Member`.)
+
+<Tipps items={[{"huerde": "Ich sehe nicht, von welchem Rechner die Zeile kommt", "tipp": "Jedes Remote-Ergebnis hat die Eigenschaft `PSComputerName`. Mit `Select-Object PSComputerName, Name, Status` machst du sie sichtbar."}, {"huerde": "Meine Variable ist im Skriptblock leer", "tipp": "Der Skriptblock läuft auf dem anderen Rechner und kennt `$dienst` nicht. Schreibe `$using:dienst` hinein."}, {"huerde": "Der PowerShell-7-Endpunkt wird nicht gefunden", "tipp": "(Bonus) `-ConfigurationName PowerShell.7`. Ohne den Parameter antwortet Windows PowerShell 5.1."}]} />
 
 <Loesung>
 
@@ -227,6 +242,8 @@ Invoke-Command -ComputerName PSLAB-02 -ScriptBlock {
 2. Setze darin eine Variable `$x = 42` und lies sie in einem zweiten `Invoke-Command` wieder aus. Was passiert ohne `-Session`?
 3. Schließe die Sitzung ordentlich.
 
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich eine Sitzung anlege", "tipp": "`$s = New-PSSession -ComputerName PSLAB-02`."}, {"huerde": "Die Variable ist in der zweiten Abfrage leer", "tipp": "Nur mit `-Session $s` läuft der zweite Aufruf in derselben Sitzung. Ohne `-Session` startet jeder Aufruf eine neue."}, {"huerde": "Ich weiß nicht, wie ich aufräume", "tipp": "`Remove-PSSession $s`."}]} />
+
 <Loesung>
 
 ```powershell
@@ -248,8 +265,10 @@ Remove-PSSession $s
 2. Wie viele Cmdlets bringt das Modul `ActiveDirectory` mit?
 3. Suche in der PowerShell Gallery nach dem Modul `ImportExcel` (`Find-PSResource` oder `Find-Module`) und lies Version und Beschreibung.
 4. Installiere es für deinen Benutzer (ohne Adminrechte).
-5. Welche Cmdlets enthält es? Finde mit der Hilfe heraus, was `Export-Excel` kann, und exportiere `Get-Service` in eine Excel-Datei `C:\Kurs\Ausgabe\dienste.xlsx`.
+5. *(Bonus)* Welche Cmdlets enthält es? Finde mit der Hilfe heraus, was `Export-Excel` kann, und exportiere `Get-Service` in eine Excel-Datei `C:\Kurs\Ausgabe\dienste.xlsx`.
 6. Entferne das Modul wieder aus der Sitzung.
+
+<Tipps items={[{"huerde": "Ich weiß nicht, wie ich Module auflisten kann", "tipp": "`Get-Module` zeigt geladene, `Get-Module -ListAvailable` alle installierten Module."}, {"huerde": "Die Installation fragt nach oder scheitert", "tipp": "`Install-PSResource -Name ImportExcel -Scope CurrentUser -TrustRepository` braucht keine Adminrechte, aber Internet."}, {"huerde": "Ich finde nicht heraus, was `Export-Excel` kann", "tipp": "(Bonus) `Get-Help Export-Excel -Examples`. Der einfachste Aufruf: `Get-Service | Export-Excel C:\\Kurs\\Ausgabe\\dienste.xlsx`."}]} />
 
 <Loesung>
 

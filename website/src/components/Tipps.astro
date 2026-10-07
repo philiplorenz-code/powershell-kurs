@@ -1,0 +1,16 @@
+---
+interface Tipp { huerde: string; tipp: string }
+interface Props { items: Tipp[] }
+const { items } = Astro.props;
+// Text escapen, danach `code` in <code> umwandeln
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/`([^`]+)`/g, '<code>$1</code>');
+---
+<div class="tipps" role="group" aria-label="Tipps">
+  <div class="tipps-kopf">💡 Tipps <span>nur bei Bedarf aufklappen, einer nach dem anderen</span></div>
+  {items.map((t, i) => (
+    <details class="tipp">
+      <summary><strong>Tipp {i + 1}</strong> · <span set:html={esc(t.huerde)} /></summary>
+      <p set:html={esc(t.tipp)} />
+    </details>
+  ))}
+</div>
