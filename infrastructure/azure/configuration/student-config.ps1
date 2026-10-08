@@ -7,7 +7,9 @@ param(
     [Parameter(Mandatory)][string]$DomainName,
     [Parameter(Mandatory)][string]$NetbiosName,
     [string]$PwshVersion = '7.6.6',
-    [string]$CourseSiteUrl = 'https://powershell-kurs.philiplorenz.com'
+    [string]$CourseSiteUrl = 'https://powershell-kurs.philiplorenz.com',
+    # 'false' für die Trainer-VM: Teilnehmer bekommen dort weder Admin- noch RDP-Rechte noch Schreibrechte
+    [string]$ParticipantAccess = 'true'
 )
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -53,10 +55,12 @@ Enable-PSRemoting -Force -SkipNetworkProfileCheck | Out-Null
 
 Step 'Lokale Gruppen: Kursteilnehmer = Administratoren und RDP-Nutzer'
 $grp = "$NetbiosName\GG-Kurs-Teilnehmer"
-foreach ($local in 'Administrators', 'Remote Desktop Users') {
-    $members = (Get-LocalGroupMember -Group $local -ErrorAction SilentlyContinue).Name
-    if ($members -notcontains $grp) { Add-LocalGroupMember -Group $local -Member $grp }
-}
+if ($ParticipantAccess -eq 'true') {
+    foreach ($local in 'Administrators', 'Remote Desktop Users') {
+        $members = (Get-LocalGroupMember -Group $local -ErrorAction SilentlyContinue).Name
+        if ($members -notcontains $grp) { Add-LocalGroupMember -Group $local -Member $grp }
+    }
+} else { Write-Output 'Trainer-VM: keine Teilnehmerrechte.' }
 
 Step 'VS Code (systemweit) mit PowerShell-Erweiterung'
 $code = 'C:\Program Files\Microsoft VS Code\bin\code.cmd'
@@ -152,7 +156,7 @@ Set-ExecutionPolicy -Scope Everything -ExecutionPolicy Unrestricted
 '@ | Set-Content -Path "$root\KI\ki-antwort-mit-fehlern.txt" -Encoding utf8
 
 # Schreibrechte: Teilnehmer dürfen Ausgabe/Logs/Skripte beschreiben (Daten bleibt lesbar)
-icacls.exe $root /grant "${NetbiosName}\GG-Kurs-Teilnehmer:(OI)(CI)M" /T | Out-Null
+if ($ParticipantAccess -eq 'true') { icacls.exe $root /grant "${NetbiosName}\GG-Kurs-Teilnehmer:(OI)(CI)M" /T | Out-Null }
 
 Step 'Desktop-Verknüpfungen'
 $pub = [Environment]::GetFolderPath('CommonDesktopDirectory')

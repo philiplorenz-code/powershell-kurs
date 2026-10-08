@@ -62,6 +62,12 @@ variable "participants" {
   default = []
 }
 
+variable "trainer_vm_enabled" {
+  description = "Eigene Windows-VM für den Trainer (PSLAB-TRAINER, Domänenmitglied). Teilnehmer haben dort keine Rechte."
+  type        = bool
+  default     = false
+}
+
 variable "dc_vm_size" {
   description = "Domain Controller: 2 vCPU, 4 GiB. Für eine Mini-Domäne ausreichend."
   type        = string
