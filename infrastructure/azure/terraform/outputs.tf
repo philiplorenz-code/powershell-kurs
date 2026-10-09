@@ -60,3 +60,8 @@ output "student_credentials" {
   }
   sensitive = true
 }
+
+output "trainer_fqdn" {
+  description = "RDP-Adresse der Trainer-VM (leer, wenn trainer_vm_enabled = false)"
+  value       = var.trainer_vm_enabled ? azurerm_public_ip.trainer["trainer"].fqdn : ""
+}

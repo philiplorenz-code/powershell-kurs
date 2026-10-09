@@ -101,9 +101,10 @@ function Confirm-Action($prompt) {
 }
 
 function Get-CostEstimate {
-    param([int]$Students = 3, [string]$DcSize = 'Standard_B2s', [string]$StudentSize = 'Standard_B2ms')
-    $perHour = $Price[$DcSize] + $Students * $Price[$StudentSize]
-    $idleDay = ((($Students + 1) * $DiskEurPerMonth) / 30) + (($Students + 1) * $PipEurPerHour * 24)
+    param([int]$Students = 3, [string]$DcSize = 'Standard_B2s', [string]$StudentSize = 'Standard_B2ms', [switch]$Trainer)
+    $vmCount = $Students + 1 + [int]$Trainer.IsPresent
+    $perHour = $Price[$DcSize] + ($Students + [int]$Trainer.IsPresent) * $Price[$StudentSize]
+    $idleDay = (($vmCount * $DiskEurPerMonth) / 30) + ($vmCount * $PipEurPerHour * 24)
     [pscustomobject]@{
         LaufendProStunde = [math]::Round($perHour, 3)
         KursTagEUR       = [math]::Round($perHour * 9, 2)      # 9 Stunden aktiv
@@ -114,9 +115,11 @@ function Get-CostEstimate {
 }
 
 function Show-Cost {
-    $n = (Read-LocalVars).student_count
-    $e = if ($n) { Get-CostEstimate -Students $n } else { Get-CostEstimate }
-    Say "`nKostenschätzung (Germany West Central, 1 DC B2s + $(if ($n) { $n } else { 3 }) Teilnehmer B2ms, Windows-Lizenz enthalten):" Yellow
+    $lv = Read-LocalVars
+    $n = $lv.student_count
+    $tr = [bool]$lv.trainer_vm_enabled
+    $e = if ($n) { Get-CostEstimate -Students $n -Trainer:$tr } else { Get-CostEstimate -Trainer:$tr }
+    Say "`nKostenschätzung (Germany West Central, 1 DC B2s + $(if ($n) { $n } else { 3 }) Teilnehmer B2ms$(if ($tr) { ' + Trainer-VM B2ms' }), Windows-Lizenz enthalten):" Yellow
     Say ("  Laufend:        {0} EUR pro Stunde (alle VMs an)" -f $e.LaufendProStunde)
     Say ("  Ein Kurstag:    ca. {0} EUR (9 Stunden)   Drei Kurstage: ca. {1} EUR" -f $e.KursTagEUR, $e.DreiKursTageEUR)
     Say ("  Gestoppt:       ca. {0} EUR pro Tag / {1} EUR pro Monat (nur Disks und öffentliche IPs)" -f $e.GestopptProTag, $e.GestopptProMonat)
@@ -219,6 +222,7 @@ switch ($Command) {
         Say ("  Passwort:  {0}" -f $json.admin_password.value)
         Say ("  DC01 (RDP): {0} ({1})   Domäne: {2}" -f $json.dc_fqdn.value, $json.dc_public_ip.value, $json.domain.value)
         Say ("  DSRM-Passwort: {0}" -f $json.dsrm_password.value)
+        if ($json.trainer_fqdn.value) { Say ("  Trainer-VM (RDP): {0}   Benutzer: {1}   (gleiches Passwort wie oben)" -f $json.trainer_fqdn.value, $json.admin_username.value) }
         Say "`nTeilnehmer" Cyan
         $rows = $json.student_credentials.value.PSObject.Properties | ForEach-Object { $_.Value } | Sort-Object vm
         $rows | Select-Object name, company, vm, user, password, fqdn, rdp | Format-Table -AutoSize
@@ -297,6 +301,10 @@ switch ($Command) {
             $adminUser = $json.admin_username.value
             Set-Content -Path (Join-Path $tDir 'DC01.rdp') -Value (New-RdpContent $json.dc_fqdn.value $adminUser) -Encoding ascii
             $written += 'trainer/DC01.rdp'
+            if ($json.trainer_fqdn.value) {
+                Set-Content -Path (Join-Path $tDir 'PSLAB-TRAINER.rdp') -Value (New-RdpContent $json.trainer_fqdn.value $adminUser) -Encoding ascii
+                $written += 'trainer/PSLAB-TRAINER.rdp'
+            }
             foreach ($r in $rows) {
                 Set-Content -Path (Join-Path $tDir "$($r.vm).rdp") -Value (New-RdpContent $r.fqdn $adminUser) -Encoding ascii
                 $written += "trainer/$($r.vm).rdp"
@@ -434,8 +442,8 @@ $ErrorActionPreference = 'Stop'
 $base = (Get-ADDomain).DistinguishedName
 $kurs = "OU=Kurs,$base"
 function Clear-Ou($dn) { Get-ADObject -SearchBase $dn -SearchScope OneLevel -Filter * | Remove-ADObject -Recursive -Confirm:$false }
-Get-ADComputer -Filter "Name -like 'PSLAB-*'" | Remove-ADObject -Recursive -Confirm:$false
-foreach ($ou in 'Benutzer', 'Computer', 'Teilnehmer', 'Gruppen') { Clear-Ou "OU=$ou,$kurs" }
+Get-ADComputer -Filter "Name -like 'PSLAB-0*'" | Remove-ADObject -Recursive -Confirm:$false
+foreach ($ou in 'Benutzer', 'Teilnehmer', 'Gruppen') { Clear-Ou "OU=$ou,$kurs" }   # OU Computer bleibt: dort liegt auch PSLAB-TRAINER
 Get-ADOrganizationalUnit -SearchBase "OU=Uebung,$kurs" -SearchScope OneLevel -Filter * | ForEach-Object { Set-ADOrganizationalUnit $_ -ProtectedFromAccidentalDeletion $false; Remove-ADObject $_ -Recursive -Confirm:$false }
 Get-ADGroupMember 'Remote Management Users' | Where-Object Name -like 'GG-Kurs*' | ForEach-Object { Remove-ADGroupMember 'Remote Management Users' $_ -Confirm:$false }
 Write-Output 'AD bereinigt'
