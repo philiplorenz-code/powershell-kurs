@@ -81,7 +81,8 @@ Step 'Module (Pester)'
 # Als Text übergeben: ein Scriptblock würde an pwsh.exe nur als Zeichenkette weitergereicht und nie ausgeführt.
 & $pwsh -NoProfile -Command @'
 $ErrorActionPreference = 'Stop'
-Set-PSResourceRepository -Name PSGallery -Trusted -ErrorAction SilentlyContinue
+# Hinweis: kein Set-PSResourceRepository. Im frischen SYSTEM-Profil existiert der Repository-Store noch nicht;
+# -TrustRepository beim Installieren genügt.
 if (-not (Get-PSResource -Name Pester -ErrorAction SilentlyContinue | Where-Object { $_.Version -ge [version]'5.0' })) {
     Install-PSResource -Name Pester -Scope AllUsers -TrustRepository -Reinstall
 }
